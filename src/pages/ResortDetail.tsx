@@ -245,7 +245,7 @@ const ResortDetail = () => {
               Cancelamento gratuito antes de 28 de maio
             </p>
 
-            <button className="w-full bg-primary text-primary-foreground font-bold text-base py-3.5 rounded-xl shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity">
+            <button className="w-full bg-[hsl(340,80%,55%)] text-white font-bold text-base py-3.5 shadow-lg hover:opacity-90 transition-opacity" style={{ borderRadius: 30 }}>
               Reservar
             </button>
 
