@@ -1,4 +1,4 @@
-import { Heart, Star, MapPin } from "lucide-react";
+import { Heart, Share2, Star, MapPin, Bed, Users } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -11,9 +11,11 @@ interface ResortCardProps {
   price: number;
   dates: string;
   tag?: string;
+  beds?: number;
+  guests?: number;
 }
 
-const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag }: ResortCardProps) => {
+const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag, beds = 2, guests = 4 }: ResortCardProps) => {
   const [liked, setLiked] = useState(false);
 
   return (
@@ -23,57 +25,75 @@ const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag
       transition={{ duration: 0.4 }}
       className="group cursor-pointer"
     >
-      <div className="relative overflow-hidden rounded-3xl aspect-[3/4] mb-4 ring-1 ring-border/30">
+      <div className="relative overflow-hidden rounded-3xl aspect-[3/4] ring-1 ring-border/20 shadow-lg shadow-primary/5">
         <img
           src={image}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setLiked(!liked);
-          }}
-          className="absolute top-4 right-4 p-2.5 rounded-xl bg-background/40 backdrop-blur-md border border-border/20 transition-all hover:bg-background/70 hover:scale-110"
-        >
-          <Heart
-            className={`w-5 h-5 transition-all ${liked ? "fill-primary text-primary scale-110" : "text-foreground/80"}`}
-          />
-        </button>
+        {/* Tag */}
         {tag && (
-          <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-primary/20">
+          <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-[10px] font-bold tracking-widest uppercase shadow-lg">
             {tag}
           </span>
         )}
 
-        {/* Bottom info overlay on hover */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-          <p className="text-foreground font-bold text-xl">
-            R$ {price.toLocaleString("pt-BR")}
-            <span className="font-normal text-sm text-muted-foreground"> / noite</span>
-          </p>
+        {/* Action buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10 transition-all hover:bg-card/60 hover:scale-110"
+          >
+            <Share2 className="w-4 h-4 text-white" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setLiked(!liked);
+            }}
+            className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10 transition-all hover:bg-card/60 hover:scale-110"
+          >
+            <Heart
+              className={`w-4 h-4 transition-all ${liked ? "fill-primary text-primary scale-110" : "text-white"}`}
+            />
+          </button>
         </div>
-      </div>
 
-      <div className="space-y-1.5 px-1">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-base leading-tight text-foreground truncate">{title}</h3>
-          <div className="flex items-center gap-1 shrink-0 bg-secondary/60 px-2 py-1 rounded-lg">
-            <Star className="w-3.5 h-3.5 fill-primary text-primary" />
-            <span className="text-xs font-bold text-foreground">{rating}</span>
+        {/* Bottom overlay content */}
+        <div className="absolute bottom-0 left-0 right-0 p-5">
+          <h3
+            className="text-white font-extrabold text-xl leading-tight mb-1 drop-shadow-lg"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            {title}
+          </h3>
+          <div className="flex items-center gap-1.5 text-white/75 mb-4">
+            <MapPin className="w-3.5 h-3.5" />
+            <span className="text-sm font-medium">{location}</span>
+          </div>
+
+          {/* Info bar */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="flex items-center gap-1.5 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
+              R$ {price.toLocaleString("pt-BR")}
+            </span>
+            <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
+              <Star className="w-3 h-3 fill-primary text-primary" />
+              {rating}
+            </span>
+            <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
+              <Bed className="w-3 h-3" />
+              {beds} quartos
+            </span>
+            <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
+              <Users className="w-3 h-3" />
+              {guests} hósp.
+            </span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <MapPin className="w-3.5 h-3.5 text-primary/60" />
-          <span className="text-sm">{location}</span>
-        </div>
-        <p className="text-xs text-muted-foreground">{dates}</p>
-        <p className="text-foreground font-bold text-lg md:hidden">
-          R$ {price.toLocaleString("pt-BR")} <span className="font-normal text-sm text-muted-foreground">/ noite</span>
-        </p>
       </div>
     </motion.div>
   );
