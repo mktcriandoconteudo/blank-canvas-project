@@ -76,6 +76,7 @@ const AdminDashboard = () => {
       beds: parseInt(newResort.beds),
       max_guests: parseInt(newResort.max_guests),
       tag: newResort.tag || null,
+      amenities: newResort.amenities,
     });
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
@@ -83,7 +84,7 @@ const AdminDashboard = () => {
     }
     toast({ title: "Resort criado!" });
     setShowNewForm(false);
-    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "" });
+    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] });
     fetchResorts();
   };
 
