@@ -29,7 +29,7 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name, amenities")
+        .select("id, name, amenities, description")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
