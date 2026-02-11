@@ -241,6 +241,10 @@ const AdminDashboard = () => {
                 <Label className="text-xs">Descrição</Label>
                 <Input value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} />
               </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Comodidades</Label>
+                <AmenitySelector selected={newResort.amenities} onChange={amenities => setNewResort(p => ({ ...p, amenities }))} />
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleCreate}>Criar</Button>
                 <Button size="sm" variant="ghost" onClick={() => setShowNewForm(false)}>Cancelar</Button>
