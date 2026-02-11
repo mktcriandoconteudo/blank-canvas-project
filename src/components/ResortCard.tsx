@@ -1,5 +1,6 @@
 import { Heart, Share2, Star, MapPin, Bed, Users } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 interface ResortCardProps {
