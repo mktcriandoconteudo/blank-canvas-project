@@ -260,11 +260,18 @@ const ResortDetail = () => {
           </div>
           {/* Pricing Plans */}
           <PricingPlans />
+          {/* Date Selector */}
+          <DateSelector
+            checkIn={checkIn}
+            checkOut={checkOut}
+            onCheckInChange={setCheckIn}
+            onCheckOutChange={setCheckOut}
+          />
         </div>
 
         {/* Right: Booking Card */}
         <div className="w-full lg:w-[380px] shrink-0">
-          <BookingCard />
+          <BookingCard checkIn={checkIn} checkOut={checkOut} />
         </div>
       </div>
     </div>
