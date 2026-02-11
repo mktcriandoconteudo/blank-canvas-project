@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
+import DateSelector from "@/components/DateSelector";
 
 const photos = [
   resort1Image,
