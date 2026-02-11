@@ -37,7 +37,7 @@ const ResortDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Photo carousel */}
-      <div className="relative w-full h-[320px] sm:h-[400px] overflow-hidden">
+      <div className="relative w-full h-[320px] sm:h-[400px] overflow-hidden rounded-b-[2.5rem]">
         <AnimatePresence custom={direction} mode="popLayout">
           <motion.img
             key={current}
