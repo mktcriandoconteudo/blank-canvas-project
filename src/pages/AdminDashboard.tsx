@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "" });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fetchResorts = async () => {
     const { data } = await supabase.from("resorts").select("*").order("created_at", { ascending: false });
@@ -110,6 +111,7 @@ const AdminDashboard = () => {
   const handlePhotoUpload = async (resortId: string, files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploadingFor(resortId);
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append('resort_id', resortId);
@@ -117,19 +119,45 @@ const AdminDashboard = () => {
       formData.append('files', file);
     }
 
-    
-    const { data, error } = await supabase.functions.invoke("upload-photos", {
-      body: formData,
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    // Use XMLHttpRequest for progress tracking
+    await new Promise<void>((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          setUploadProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            const count = data?.photos?.length || 0;
+            toast({ title: `${count} foto(s) enviada(s) com sucesso!` });
+          } catch {
+            toast({ title: "Fotos enviadas!" });
+          }
+        } else {
+          toast({ title: "Erro no upload", description: "Falha ao enviar fotos", variant: "destructive" });
+        }
+        resolve();
+      });
+      xhr.addEventListener('error', () => {
+        toast({ title: "Erro no upload", description: "Falha na conexão", variant: "destructive" });
+        resolve();
+      });
+
+      const url = `https://pchxmtkhqgjlevvzgqoi.supabase.co/functions/v1/upload-photos`;
+      xhr.open('POST', url);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.setRequestHeader('apikey', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjaHhtdGtocWdqbGV2dnpncW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ5MDgsImV4cCI6MjA4NjQxMDkwOH0.y1fq9t747FZIApHgDpE9PNHZLQTVDuPi4ICBnpPXv9M');
+      xhr.send(formData);
     });
 
-    if (error) {
-      toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
-    } else {
-      const count = data?.photos?.length || 0;
-      toast({ title: `${count} foto(s) convertida(s) para WebP e enviada(s)!` });
-    }
-
     setUploadingFor(null);
+    setUploadProgress(0);
     fetchPhotos(resortId);
   };
 
@@ -299,6 +327,18 @@ const AdminDashboard = () => {
                     </span>
                   </label>
                 </div>
+                {/* Progress bar */}
+                {uploadingFor === resort.id && (
+                  <div className="space-y-1">
+                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center">{uploadProgress}% enviado</p>
+                  </div>
+                )}
                 {(photos[resort.id] || []).length > 0 && (
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                     {(photos[resort.id] || []).map(photo => (
