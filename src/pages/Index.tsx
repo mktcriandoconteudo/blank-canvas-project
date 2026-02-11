@@ -6,7 +6,7 @@ import ResortCard from "@/components/ResortCard";
 
 const resorts = [
   {
-    image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80",
+    image: resort1Image,
     title: "Resort Paradiso Tropical",
     location: "Porto de Galinhas, PE",
     rating: 4.9,
