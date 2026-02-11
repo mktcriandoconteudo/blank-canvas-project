@@ -1,22 +1,18 @@
 import { useState } from "react";
-import { Waves, TreePalm, Mountain, Umbrella, Building2, Sailboat, Flame, Snowflake, Sun, Castle } from "lucide-react";
+import { Droplets, Flame, Building2, TreePalm, Sparkles, UtensilsCrossed } from "lucide-react";
 import { motion } from "framer-motion";
 
 const categories = [
-  { icon: Waves, label: "Beira-mar" },
-  { icon: TreePalm, label: "Tropical" },
-  { icon: Mountain, label: "Montanha" },
-  { icon: Umbrella, label: "Piscinas" },
-  { icon: Building2, label: "Luxo" },
-  { icon: Sailboat, label: "Náutico" },
+  { icon: Droplets, label: "Águas Termais" },
   { icon: Flame, label: "Em alta" },
-  { icon: Snowflake, label: "Inverno" },
-  { icon: Sun, label: "All-inclusive" },
-  { icon: Castle, label: "Histórico" },
+  { icon: Building2, label: "Luxo" },
+  { icon: TreePalm, label: "Lazer" },
+  { icon: Sparkles, label: "All-inclusive" },
+  { icon: UtensilsCrossed, label: "Gastronomia" },
 ];
 
 const CategoryFilter = () => {
-  const [active, setActive] = useState("Beira-mar");
+  const [active, setActive] = useState("Águas Termais");
 
   return (
     <div className="sticky top-20 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
