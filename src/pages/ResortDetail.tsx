@@ -10,6 +10,18 @@ const photos = [
   "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80",
 ];
 
+const galleryPhotos = [
+  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
+  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
+  "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80",
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80",
+  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80",
+  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
+  resort1Image,
+  "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80",
+  "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80",
+];
+
 const amenities = [
   { icon: Bed, label: "3 Quartos" },
   { icon: Tv, label: "Smart TV" },
