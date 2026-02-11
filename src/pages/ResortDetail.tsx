@@ -255,6 +255,8 @@ const ResortDetail = () => {
               ))}
             </div>
           </div>
+          {/* Pricing Plans */}
+          <PricingPlans />
         </div>
 
         {/* Right: Booking Card */}
