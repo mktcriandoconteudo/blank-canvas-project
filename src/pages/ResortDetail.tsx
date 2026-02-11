@@ -185,7 +185,7 @@ const ResortDetail = () => {
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="px-6 pt-6 pb-10 max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
+      <div className="px-6 pt-6 pb-10 max-w-5xl mx-auto flex flex-col gap-8">
         {/* Left: Info */}
         <div className="flex-1 min-w-0">
           {/* Popular Amenities */}
@@ -259,8 +259,8 @@ const ResortDetail = () => {
           <PricingPlans />
         </div>
 
-        {/* Right: Booking Card */}
-        <div className="w-full lg:w-[380px] shrink-0">
+        {/* Booking Card - full width at bottom */}
+        <div className="w-full max-w-md mx-auto">
           <BookingCard />
         </div>
       </div>
