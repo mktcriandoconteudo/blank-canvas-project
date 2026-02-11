@@ -14,7 +14,6 @@ const BookingCard = () => {
   const [checkIn, setCheckIn] = useState<Date | undefined>(new Date(2026, 4, 29));
   const [checkOut, setCheckOut] = useState<Date | undefined>(new Date(2026, 4, 31));
   const [guests, setGuests] = useState(1);
-  const [guestsOpen, setGuestsOpen] = useState(false);
 
   const formatDate = (date: Date | undefined) =>
     date ? format(date, "dd/MM/yyyy") : "Selecionar";
