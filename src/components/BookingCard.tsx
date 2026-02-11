@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, Minus, Plus } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -96,26 +96,25 @@ const BookingCard = () => {
               <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 bg-card z-50" align="end">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">Hóspedes</span>
-              <div className="flex items-center gap-3">
+          <PopoverContent className="w-48 bg-card z-50 p-2" align="end">
+            <div className="flex flex-col gap-0.5">
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                 <button
-                  onClick={() => setGuests(Math.max(1, guests - 1))}
-                  disabled={guests <= 1}
-                  className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  key={num}
+                  onClick={() => {
+                    setGuests(num);
+                    setGuestsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                    guests === num
+                      ? "bg-primary text-primary-foreground font-bold"
+                      : "text-foreground hover:bg-muted/50"
+                  )}
                 >
-                  <Minus className="w-3.5 h-3.5 text-foreground" />
+                  {num} {num === 1 ? "hóspede" : "hóspedes"}
                 </button>
-                <span className="text-sm font-bold text-foreground w-4 text-center">{guests}</span>
-                <button
-                  onClick={() => setGuests(Math.min(10, guests + 1))}
-                  disabled={guests >= 10}
-                  className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5 text-foreground" />
-                </button>
-              </div>
+              ))}
             </div>
           </PopoverContent>
         </Popover>
