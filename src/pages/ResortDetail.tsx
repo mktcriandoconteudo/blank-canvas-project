@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight, Sun, Moon } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight, Sun, Moon, Waves, ArrowUpDown, Fence, Microwave, ShieldAlert, Flame, Dumbbell, Snowflake, Refrigerator } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import resort1Image from "@/assets/resort-1.webp";
 
@@ -245,8 +245,33 @@ const ResortDetail = () => {
         </div>
         </div>
 
-        {/* Booking Card - below gallery */}
-        <div className="w-full lg:w-[380px] shrink-0">
+        {/* Booking Card + Amenities */}
+        <div className="w-full lg:w-[380px] shrink-0 flex flex-col gap-6">
+          {/* O que esse lugar oferece */}
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              O que esse lugar oferece
+            </h2>
+            <div className="grid grid-cols-2 gap-y-4 gap-x-3">
+              {[
+                { icon: Wifi, label: "Wi-Fi" },
+                { icon: Waves, label: "Piscina compartilhada" },
+                { icon: ArrowUpDown, label: "Elevador" },
+                { icon: Snowflake, label: "Ar-condicionado split" },
+                { icon: Fence, label: "Pátio ou varanda (Privativa)" },
+                { icon: Refrigerator, label: "Geladeira Consul" },
+                { icon: Microwave, label: "Microondas" },
+                { icon: Dumbbell, label: "Academia compartilhada" },
+                { icon: ShieldAlert, label: "Alarme de monóxido de carbono" },
+                { icon: Flame, label: "Detector de fumaça" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-start gap-2.5">
+                  <item.icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                  <span className="text-sm text-foreground leading-tight">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="sticky top-6 bg-card border border-border rounded-2xl p-6 shadow-lg">
             <div className="mb-4">
               <span
