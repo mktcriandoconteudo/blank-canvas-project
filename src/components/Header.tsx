@@ -1,6 +1,17 @@
-import { Search, Globe, Menu, User, Sparkles } from "lucide-react";
+import { Search, Globe, Menu, User, Sparkles, Moon, Sun } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const Header = () => {
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [dark]);
+
   return (
     <header className="sticky top-0 z-50 bg-background/60 backdrop-blur-2xl border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -46,6 +57,12 @@ const Header = () => {
           <div className="flex items-center gap-2">
             <button className="hidden lg:block text-sm font-medium text-foreground hover:bg-secondary rounded-2xl px-4 py-2.5 transition-colors">
               Anuncie seu espaço
+            </button>
+            <button
+              onClick={() => setDark(!dark)}
+              className="p-2.5 rounded-xl hover:bg-secondary transition-colors"
+            >
+              {dark ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
             </button>
             <button className="hidden sm:block p-2.5 rounded-xl hover:bg-secondary transition-colors">
               <Globe className="w-4 h-4 text-muted-foreground" />
