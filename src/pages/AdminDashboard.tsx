@@ -111,30 +111,26 @@ const AdminDashboard = () => {
     if (!files || files.length === 0) return;
     setUploadingFor(resortId);
 
+    const formData = new FormData();
+    formData.append('resort_id', resortId);
     for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
-      const path = `${resortId}/${crypto.randomUUID()}.${ext}`;
+      formData.append('files', file);
+    }
 
-      const { error: uploadError } = await supabase.storage.from("resort-photos").upload(path, file);
-      if (uploadError) {
-        toast({ title: "Erro no upload", description: uploadError.message, variant: "destructive" });
-        continue;
-      }
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    const { data, error } = await supabase.functions.invoke("upload-photos", {
+      body: formData,
+    });
 
-      const { data: urlData } = supabase.storage.from("resort-photos").getPublicUrl(path);
-
-      const currentPhotos = photos[resortId] || [];
-      await supabase.from("resort_photos").insert({
-        resort_id: resortId,
-        storage_path: path,
-        url: urlData.publicUrl,
-        display_order: currentPhotos.length,
-        is_cover: currentPhotos.length === 0,
-      });
+    if (error) {
+      toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
+    } else {
+      const count = data?.photos?.length || 0;
+      toast({ title: `${count} foto(s) convertida(s) para WebP e enviada(s)!` });
     }
 
     setUploadingFor(null);
-    toast({ title: "Fotos enviadas!" });
     fetchPhotos(resortId);
   };
 
