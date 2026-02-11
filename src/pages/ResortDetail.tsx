@@ -221,7 +221,7 @@ const ResortDetail = () => {
               <span className="text-sm text-muted-foreground ml-1">por 2 noites</span>
             </div>
 
-            <div className="border border-border rounded-xl overflow-hidden mb-3">
+            <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
               <div className="flex divide-x divide-border">
                 <div className="flex-1 p-3">
                   <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
