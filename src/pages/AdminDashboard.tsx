@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "" });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fetchResorts = async () => {
     const { data } = await supabase.from("resorts").select("*").order("created_at", { ascending: false });
