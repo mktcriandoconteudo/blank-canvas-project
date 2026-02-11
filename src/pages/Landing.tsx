@@ -39,7 +39,7 @@ const Landing = () => {
           initial={{ y: 15, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="text-sm font-semibold text-primary tracking-widest uppercase mb-3"
+          className="text-sm font-semibold text-white tracking-widest uppercase mb-3"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           Hotéis & Resorts
