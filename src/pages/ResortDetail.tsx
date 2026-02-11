@@ -286,6 +286,13 @@ const ResortDetail = () => {
           <BookingCard />
         </div>
       </div>
+      {/* Photo Lightbox */}
+      <PhotoLightbox
+        photos={galleryPhotos}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 };
