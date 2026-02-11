@@ -16,7 +16,7 @@ const amenities = [
 
 const ResortDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { slug } = useParams();
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
