@@ -14,6 +14,7 @@ interface ResortCardProps {
   tag?: string;
   beds?: number;
   guests?: number;
+  slug?: string;
 }
 
 const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag, beds = 2, guests = 4 }: ResortCardProps) => {
