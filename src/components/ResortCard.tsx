@@ -17,7 +17,7 @@ interface ResortCardProps {
   slug?: string;
 }
 
-const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag, beds = 2, guests = 4 }: ResortCardProps) => {
+const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag, beds = 2, guests = 4, slug }: ResortCardProps) => {
   const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
 
