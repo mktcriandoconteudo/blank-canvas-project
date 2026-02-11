@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,6 @@ const BookingCard = () => {
   const [checkIn, setCheckIn] = useState<Date | undefined>(new Date(2026, 4, 29));
   const [checkOut, setCheckOut] = useState<Date | undefined>(new Date(2026, 4, 31));
   const [guests, setGuests] = useState(1);
-  const [guestsOpen, setGuestsOpen] = useState(false);
 
   const formatDate = (date: Date | undefined) =>
     date ? format(date, "dd/MM/yyyy") : "Selecionar";
@@ -83,41 +82,32 @@ const BookingCard = () => {
           </Popover>
         </div>
 
-        {/* Guests */}
-        <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
-          <PopoverTrigger asChild>
-            <button className="w-full border-t border-border p-3 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
-              <div>
-                <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Hóspedes</p>
-                <p className="text-sm text-foreground mt-0.5">
-                  {guests} {guests === 1 ? "hóspede" : "hóspedes"}
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
+        {/* Guests - inline counter */}
+        <div className="w-full border-t border-border p-3 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Hóspedes</p>
+            <p className="text-sm text-foreground mt-0.5">
+              {guests} {guests === 1 ? "hóspede" : "hóspedes"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setGuests(Math.max(1, guests - 1))}
+              disabled={guests <= 1}
+              className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-foreground hover:bg-muted/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <Minus className="w-3.5 h-3.5" />
             </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48 bg-card z-50 p-2" align="end">
-            <div className="flex flex-col gap-0.5">
-              {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-                <button
-                  key={num}
-                  onClick={() => {
-                    setGuests(num);
-                    setGuestsOpen(false);
-                  }}
-                  className={cn(
-                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
-                    guests === num
-                      ? "bg-primary text-primary-foreground font-bold"
-                      : "text-foreground hover:bg-muted/50"
-                  )}
-                >
-                  {num} {num === 1 ? "hóspede" : "hóspedes"}
-                </button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+            <span className="text-sm font-semibold text-foreground w-4 text-center">{guests}</span>
+            <button
+              onClick={() => setGuests(Math.min(10, guests + 1))}
+              disabled={guests >= 10}
+              className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-foreground hover:bg-muted/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
 
       <p className="text-center text-sm text-muted-foreground mb-4">
