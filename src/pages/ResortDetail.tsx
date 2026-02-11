@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
+import DateSelector from "@/components/DateSelector";
 
 const photos = [
   resort1Image,
@@ -37,6 +38,8 @@ const ResortDetail = () => {
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [checkIn, setCheckIn] = useState<Date | undefined>(new Date(2026, 4, 29));
+  const [checkOut, setCheckOut] = useState<Date | undefined>(new Date(2026, 4, 31));
 
   useEffect(() => {
     if (dark) {
@@ -257,11 +260,18 @@ const ResortDetail = () => {
           </div>
           {/* Pricing Plans */}
           <PricingPlans />
+          {/* Date Selector */}
+          <DateSelector
+            checkIn={checkIn}
+            checkOut={checkOut}
+            onCheckInChange={setCheckIn}
+            onCheckOutChange={setCheckOut}
+          />
         </div>
 
         {/* Right: Booking Card */}
         <div className="w-full lg:w-[380px] shrink-0">
-          <BookingCard />
+          <BookingCard checkIn={checkIn} checkOut={checkOut} />
         </div>
       </div>
     </div>
