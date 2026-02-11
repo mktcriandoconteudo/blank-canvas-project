@@ -33,6 +33,18 @@ const ResortDetail = () => {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
+  // Auto-play carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => {
+        const next = (prev + 1) % photos.length;
+        setDirection(1);
+        return next;
+      });
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   const goTo = (i: number) => {
     setDirection(i > current ? 1 : -1);
     setCurrent(i);
