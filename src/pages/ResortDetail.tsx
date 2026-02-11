@@ -267,6 +267,33 @@ const ResortDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* ===== INSTAGRAM-STYLE GALLERY ===== */}
+      <div className="px-6 pt-4 pb-10 max-w-5xl mx-auto">
+        <h2
+          className="text-base font-bold text-foreground mb-4"
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
+          📸 Galeria de Fotos
+        </h2>
+        <div className="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden">
+          {galleryPhotos.map((src, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="aspect-square overflow-hidden cursor-pointer group"
+            >
+              <img
+                src={src}
+                alt={`Foto ${i + 1}`}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
