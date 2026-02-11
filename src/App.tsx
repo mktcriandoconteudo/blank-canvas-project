@@ -21,6 +21,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <FaviconLoader />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
