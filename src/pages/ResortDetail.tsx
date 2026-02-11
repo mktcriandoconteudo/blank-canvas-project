@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, MapPin, ChevronRight } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import resort1Image from "@/assets/resort-1.webp";
 
@@ -14,7 +14,7 @@ const amenities = [
   { icon: Bed, label: "3 Quartos" },
   { icon: Tv, label: "Smart TV" },
   { icon: Wifi, label: "Wi-Fi" },
-  { icon: Users, label: "6 Hóspedes" },
+  { icon: Users, label: "6 Hósp." },
 ];
 
 const ResortDetail = () => {
@@ -35,119 +35,129 @@ const ResortDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Photo carousel */}
-      <div className="relative w-full h-[320px] sm:h-[400px] overflow-hidden rounded-b-[2.5rem]">
-        <AnimatePresence custom={direction} mode="popLayout">
-          <motion.img
-            key={current}
-            src={photos[current]}
-            alt={`Foto ${current + 1}`}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+    <div className="min-h-screen bg-background relative">
+      {/* ===== HERO PHOTO SECTION ===== */}
+      <div className="relative w-full" style={{ height: "55vh", minHeight: 320, maxHeight: 480 }}>
+        {/* Curved clip */}
+        <div
+          className="absolute inset-0 overflow-hidden"
+          style={{
+            borderRadius: "0 0 50% 50% / 0 0 8% 8%",
+          }}
+        >
+          <AnimatePresence custom={direction} mode="popLayout">
+            <motion.img
+              key={current}
+              src={photos[current]}
+              alt={`Foto ${current + 1}`}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
+        </div>
 
-        {/* Top nav */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+        {/* Top bar */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
           <button
             onClick={() => navigate(-1)}
-            className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10"
+            className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center"
           >
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           <div className="flex gap-2">
-            <button className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10">
+            <button className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center">
               <Share2 className="w-4 h-4 text-white" />
             </button>
             <button
               onClick={() => setLiked(!liked)}
-              className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10"
+              className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center"
             >
               <Heart className={`w-4 h-4 transition-all ${liked ? "fill-primary text-primary" : "text-white"}`} />
             </button>
           </div>
         </div>
 
-        {/* Carousel arrows */}
+        {/* Carousel nav arrows */}
         {current > 0 && (
           <button
             onClick={() => goTo(current - 1)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white p-2 rounded-full z-10"
+            className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-1.5 rounded-full z-20"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
         )}
         {current < photos.length - 1 && (
           <button
             onClick={() => goTo(current + 1)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white p-2 rounded-full z-10"
+            className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-1.5 rounded-full z-20"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         )}
 
-        {/* Bottom overlay */}
-        <div className="absolute bottom-6 left-5 right-5 z-10">
+        {/* Bottom content over photo */}
+        <div className="absolute bottom-10 left-6 right-6 z-20">
+          {/* Home icon */}
+          <div className="w-8 h-8 rounded-lg bg-primary/80 flex items-center justify-center mb-2">
+            <Home className="w-4 h-4 text-primary-foreground" />
+          </div>
+
           <h1
-            className="text-white font-extrabold text-2xl sm:text-3xl drop-shadow-lg leading-tight"
+            className="text-white font-extrabold text-[26px] leading-tight drop-shadow-lg"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            Condomínio Enseada
+            Condomínio{"\n"}Enseada
           </h1>
-          <div className="flex items-center gap-2 mt-1.5">
-            <MapPin className="w-3.5 h-3.5 text-white/75" />
-            <span className="text-sm text-white/75 font-medium">Caldas Novas, GO</span>
-          </div>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex -space-x-2">
-              {[0, 1].map((i) => (
-                <div key={i} className="w-6 h-6 rounded-full bg-primary/60 border-2 border-white/30" />
-              ))}
+
+          {/* Avatars + reviews */}
+          <div className="flex items-center gap-2.5 mt-2">
+            <div className="flex -space-x-1.5">
+              <div className="w-6 h-6 rounded-full bg-primary/70 border-2 border-white/40" />
+              <div className="w-6 h-6 rounded-full bg-accent/70 border-2 border-white/40" />
             </div>
-            <span className="flex items-center gap-1 text-white/85 text-xs font-semibold">
+            <span className="flex items-center gap-1 text-white/90 text-xs font-semibold">
               <Star className="w-3 h-3 fill-primary text-primary" />
-              4.9 · 342 avaliações
+              342 avaliações
             </span>
           </div>
         </div>
 
         {/* Dots */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
           {photos.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === current ? "bg-white w-5" : "bg-white/50"
+              className={`h-2 rounded-full transition-all ${
+                i === current ? "bg-white w-5" : "bg-white/40 w-2"
               }`}
             />
           ))}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="px-5 py-6 max-w-2xl mx-auto">
-        {/* Amenities */}
+      {/* ===== SCROLLABLE CONTENT ===== */}
+      <div className="px-6 pt-6 pb-28 max-w-lg mx-auto">
+        {/* Popular Amenities */}
         <h2
-          className="text-lg font-bold text-foreground mb-3"
+          className="text-base font-bold text-foreground mb-3"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          Comodidades
+          Comodidades Populares
         </h2>
-        <div className="flex gap-2 flex-wrap mb-6">
+        <div className="flex gap-2 flex-wrap mb-7">
           {amenities.map((a) => (
             <span
               key={a.label}
-              className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-3.5 py-2 rounded-xl border border-border"
+              className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border"
             >
-              <a.icon className="w-3.5 h-3.5" />
+              <a.icon className="w-4 h-4 text-muted-foreground" />
               {a.label}
             </span>
           ))}
@@ -155,33 +165,33 @@ const ResortDetail = () => {
 
         {/* Description */}
         <h2
-          className="text-lg font-bold text-foreground mb-2"
+          className="text-base font-bold text-foreground mb-2"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           Descrição
         </h2>
-        <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais,
           vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos,
-          área gourmet completa, Wi-Fi de alta velocidade e estacionamento privativo.
-          Localizado no coração de Caldas Novas, próximo aos principais parques aquáticos e atrações turísticas.
+          área gourmet completa e estacionamento privativo.{" "}
+          <span className="text-primary font-semibold cursor-pointer">Ver Mais...</span>
         </p>
+      </div>
 
-        {/* Bottom bar */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-xl border-t border-border px-5 py-4 flex items-center justify-between z-50">
-          <div>
-            <span className="text-xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              R$ 1.250
-            </span>
-            <span className="text-sm text-muted-foreground">/ noite</span>
-          </div>
-          <button className="bg-primary text-primary-foreground font-bold text-sm px-6 py-3 rounded-2xl shadow-lg shadow-primary/30 hover:opacity-90 transition-opacity">
-            Reservar
-          </button>
+      {/* ===== FIXED BOTTOM BAR ===== */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-4 flex items-center justify-between z-50">
+        <div>
+          <span
+            className="text-xl font-extrabold text-foreground"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            R$ 1.250
+          </span>
+          <span className="text-sm text-muted-foreground ml-0.5">/ noite</span>
         </div>
-
-        {/* Spacer for fixed bottom bar */}
-        <div className="h-20" />
+        <button className="bg-primary text-primary-foreground font-bold text-sm px-7 py-3 rounded-2xl shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity">
+          Reservar
+        </button>
       </div>
     </div>
   );
