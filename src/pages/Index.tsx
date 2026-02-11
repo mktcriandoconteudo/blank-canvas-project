@@ -7,7 +7,7 @@ import ResortCard from "@/components/ResortCard";
 const resorts = [
   {
     image: resort1Image,
-    title: "Resort Paradiso Tropical",
+    title: "Condomínio Enseada",
     location: "Porto de Galinhas, PE",
     rating: 4.9,
     reviews: 342,
