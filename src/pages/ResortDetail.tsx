@@ -38,6 +38,8 @@ const ResortDetail = () => {
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [checkIn, setCheckIn] = useState<Date | undefined>(new Date(2026, 4, 29));
+  const [checkOut, setCheckOut] = useState<Date | undefined>(new Date(2026, 4, 31));
 
   useEffect(() => {
     if (dark) {
