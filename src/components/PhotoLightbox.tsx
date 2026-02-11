@@ -109,7 +109,7 @@ const PhotoLightbox = ({ photos, initialIndex, open, onClose }: PhotoLightboxPro
               transition={{ duration: 0.25, ease: "easeInOut" }}
               drag
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-              dragElastic={{ x: 0.7, y: 0.7 }}
+              dragElastic={0.7}
               onDrag={handleDrag}
               onDragEnd={handleDragEnd}
               className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
