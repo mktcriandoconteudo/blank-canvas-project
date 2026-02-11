@@ -21,6 +21,8 @@ const ResortDetail = () => {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
 
