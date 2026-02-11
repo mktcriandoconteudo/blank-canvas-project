@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } from "lucide-react";
 import AmenitySelector from "@/components/AmenitySelector";
+import FaviconManager from "@/components/FaviconManager";
 
 interface Resort {
   id: string;
