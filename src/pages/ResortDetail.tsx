@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
+import PhotoLightbox from "@/components/PhotoLightbox";
 
 const amenities = [
   { icon: Bed, label: "3 Quartos" },
@@ -20,6 +21,8 @@ const ResortDetail = () => {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
 
@@ -235,13 +238,14 @@ const ResortDetail = () => {
             Galeria de Fotos
           </h2>
           <div className="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden mb-7">
-            {galleryPhotos.map((src, i) => (
+             {galleryPhotos.map((src, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
                 className="aspect-square overflow-hidden cursor-pointer group"
+                onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
               >
                 <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               </motion.div>
@@ -282,6 +286,13 @@ const ResortDetail = () => {
           <BookingCard />
         </div>
       </div>
+      {/* Photo Lightbox */}
+      <PhotoLightbox
+        photos={galleryPhotos}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 };
