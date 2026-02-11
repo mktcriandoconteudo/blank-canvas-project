@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, Home } from "lucide-react";
+import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } from "lucide-react";
 import AmenitySelector from "@/components/AmenitySelector";
 
 interface Resort {
@@ -195,7 +195,7 @@ const AdminDashboard = () => {
         </h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => navigate("/explore")}>
-            <Home className="w-4 h-4 mr-1" /> Ver Site
+            <ExternalLink className="w-4 h-4 mr-1" /> Ver Site
           </Button>
           <Button variant="outline" size="sm" onClick={() => setShowNewForm(true)}>
             <Plus className="w-4 h-4 mr-1" /> Novo Resort
