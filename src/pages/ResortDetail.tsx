@@ -19,6 +19,7 @@ const ResortDetail = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
+  const [resortAmenities, setResortAmenities] = useState<string[]>([]);
 
   // Fetch photos from database
   useEffect(() => {
