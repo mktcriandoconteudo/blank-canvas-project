@@ -210,12 +210,20 @@ const ResortDetail = () => {
             Comodidades Populares
           </h2>
           <div className="flex gap-2 flex-wrap mb-7">
-            {amenities.map((a) => (
-              <span key={a.label} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
-                <a.icon className="w-4 h-4 text-muted-foreground" />
-                {a.label}
-              </span>
-            ))}
+            {resortAmenities.length > 0
+              ? AMENITY_OPTIONS.filter(a => resortAmenities.includes(a.key)).map((a) => (
+                  <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+                    <a.icon className="w-4 h-4 text-muted-foreground" />
+                    {a.label}
+                  </span>
+                ))
+              : AMENITY_OPTIONS.slice(0, 4).map((a) => (
+                  <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+                    <a.icon className="w-4 h-4 text-muted-foreground" />
+                    {a.label}
+                  </span>
+                ))
+            }
           </div>
 
           {/* Description */}
