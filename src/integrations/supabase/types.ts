@@ -14,16 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      resort_photos: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_cover: boolean | null
+          resort_id: string
+          storage_path: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_cover?: boolean | null
+          resort_id: string
+          storage_path: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_cover?: boolean | null
+          resort_id?: string
+          storage_path?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resort_photos_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resorts: {
+        Row: {
+          beds: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          location: string
+          max_guests: number | null
+          name: string
+          price_per_night: number | null
+          rating: number | null
+          reviews_count: number | null
+          tag: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          beds?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string
+          max_guests?: number | null
+          name: string
+          price_per_night?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          tag?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          beds?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string
+          max_guests?: number | null
+          name?: string
+          price_per_night?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          tag?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +259,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
