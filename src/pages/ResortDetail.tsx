@@ -238,13 +238,14 @@ const ResortDetail = () => {
             Galeria de Fotos
           </h2>
           <div className="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden mb-7">
-            {galleryPhotos.map((src, i) => (
+             {galleryPhotos.map((src, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
                 className="aspect-square overflow-hidden cursor-pointer group"
+                onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
               >
                 <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               </motion.div>
