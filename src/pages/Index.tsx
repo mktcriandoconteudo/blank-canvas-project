@@ -125,14 +125,14 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <CategoryFilter />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
           {resorts.map((resort, i) => (
             <ResortCard key={i} {...resort} />
           ))}
         </div>
       </main>
-      <footer className="border-t border-border py-8 mt-8">
+      <footer className="border-t border-border/50 py-10 mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-muted-foreground">
           © 2026 Resorts · Termos · Privacidade · Mapa do site
         </div>
