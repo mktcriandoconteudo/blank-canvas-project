@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
+import PhotoLightbox from "@/components/PhotoLightbox";
 
 const amenities = [
   { icon: Bed, label: "3 Quartos" },
