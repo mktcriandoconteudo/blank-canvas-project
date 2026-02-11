@@ -291,6 +291,10 @@ const AdminDashboard = () => {
                       <Input type="number" value={editForm.max_guests ?? 2} onChange={e => setEditForm(p => ({ ...p, max_guests: parseInt(e.target.value) }))} />
                     </div>
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Comodidades</Label>
+                    <AmenitySelector selected={editForm.amenities ?? []} onChange={amenities => setEditForm(p => ({ ...p, amenities }))} />
+                  </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => handleUpdate(resort.id)}><Save className="w-3 h-3 mr-1" /> Salvar</Button>
                     <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}><X className="w-3 h-3 mr-1" /> Cancelar</Button>
