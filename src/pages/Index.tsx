@@ -8,7 +8,7 @@ const resorts = [
   {
     image: resort1Image,
     title: "Condomínio Enseada",
-    location: "Porto de Galinhas, PE",
+    location: "Caldas Novas, GO",
     rating: 4.9,
     reviews: 342,
     price: 1250,
