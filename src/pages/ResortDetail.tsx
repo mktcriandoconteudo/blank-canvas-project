@@ -74,14 +74,8 @@ const ResortDetail = () => {
 
         {/* Top bar */}
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
-          <button
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate("/explore");
-              }
-            }}
+           <button
+            onClick={() => navigate("/explore")}
             className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center"
           >
             <ChevronLeft className="w-5 h-5 text-white" />
