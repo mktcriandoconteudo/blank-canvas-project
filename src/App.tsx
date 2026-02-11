@@ -10,14 +10,18 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/NotFound";
+import { useFavicon } from "./hooks/use-favicon";
 
 const queryClient = new QueryClient();
+
+const FaviconLoader = () => { useFavicon(); return null; };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <FaviconLoader />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
