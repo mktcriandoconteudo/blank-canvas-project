@@ -171,7 +171,9 @@ const ResortDetail = () => {
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="px-6 pt-6 pb-28 max-w-lg mx-auto">
+      <div className="px-6 pt-6 pb-28 max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
+        {/* Left: Info */}
+        <div className="flex-1 min-w-0">
         {/* Popular Amenities */}
         <h2
           className="text-base font-bold text-foreground mb-3"
