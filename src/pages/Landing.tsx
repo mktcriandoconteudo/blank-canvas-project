@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import landingBg from "@/assets/landing-bg.webp";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ const Landing = () => {
     <div className="relative h-[100dvh] w-full overflow-hidden">
       {/* Background image */}
       <img
-        src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80"
+        src={landingBg}
         alt="Resort em Caldas Novas"
         className="absolute inset-0 w-full h-full object-cover"
       />
