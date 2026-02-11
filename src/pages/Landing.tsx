@@ -47,6 +47,10 @@ const Landing = () => {
         >
           Começar
         </motion.button>
+
+        <div className="flex justify-center mt-4">
+          <div className="w-32 h-1.5 rounded-full bg-white/40" />
+        </div>
       </div>
     </div>
   );
