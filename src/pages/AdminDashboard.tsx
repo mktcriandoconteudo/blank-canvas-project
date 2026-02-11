@@ -300,6 +300,10 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div className="space-y-1">
+                    <Label className="text-xs">Descrição</Label>
+                    <Textarea rows={4} value={editForm.description ?? ""} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} placeholder="Descreva o resort, instalações, diferenciais..." />
+                  </div>
+                  <div className="space-y-1">
                     <Label className="text-xs">Comodidades</Label>
                     <AmenitySelector selected={editForm.amenities ?? []} onChange={amenities => setEditForm(p => ({ ...p, amenities }))} />
                   </div>
