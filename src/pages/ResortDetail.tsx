@@ -4,6 +4,7 @@ import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRi
 import { motion, AnimatePresence } from "framer-motion";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
+import PricingPlans from "@/components/PricingPlans";
 
 const photos = [
   resort1Image,
