@@ -75,12 +75,24 @@ const ResortDetail = () => {
         {/* Top bar */}
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate("/explore");
+              }
+            }}
             className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center"
           >
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           <div className="flex gap-2">
+            <button
+              onClick={() => setDark(!dark)}
+              className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center"
+            >
+              {dark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
+            </button>
             <button className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center">
               <Share2 className="w-4 h-4 text-white" />
             </button>
