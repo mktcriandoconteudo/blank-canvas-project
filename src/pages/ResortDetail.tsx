@@ -259,8 +259,8 @@ const ResortDetail = () => {
           <PricingPlans />
         </div>
 
-        {/* Right: Booking Card */}
-        <div className="w-full lg:w-[380px] shrink-0">
+        {/* Booking Card - full width at bottom */}
+        <div className="w-full max-w-md mx-auto">
           <BookingCard />
         </div>
       </div>
