@@ -19,6 +19,7 @@ interface Resort {
   max_guests: number;
   tag: string | null;
   is_active: boolean;
+  amenities: string[];
 }
 
 interface ResortPhoto {
