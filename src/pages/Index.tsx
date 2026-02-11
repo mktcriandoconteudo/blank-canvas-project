@@ -100,7 +100,11 @@ const resorts = [
 ];
 
 const Index = () => {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+const [dark, setDark] = useState(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored === "dark";
+    return true; // default dark
+  });
 
   useEffect(() => {
     if (dark) {
@@ -108,6 +112,7 @@ const Index = () => {
     } else {
       document.documentElement.classList.remove("dark");
     }
+    localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
   return (
