@@ -27,7 +27,7 @@ const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="group cursor-pointer"
-      onClick={() => navigate("/resort/1")}
+      onClick={() => navigate(`/resort/${slug || title.toLowerCase().replace(/\s+/g, '-')}`)}
     >
       <div className="relative overflow-hidden rounded-3xl aspect-[3/4] ring-1 ring-border/20 shadow-lg shadow-primary/5">
         <img
