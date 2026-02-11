@@ -171,7 +171,9 @@ const ResortDetail = () => {
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="px-6 pt-6 pb-28 max-w-lg mx-auto">
+      <div className="px-6 pt-6 pb-28 max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
+        {/* Left: Info */}
+        <div className="flex-1 min-w-0">
         {/* Popular Amenities */}
         <h2
           className="text-base font-bold text-foreground mb-3"
@@ -204,6 +206,54 @@ const ResortDetail = () => {
           área gourmet completa e estacionamento privativo.{" "}
           <span className="text-primary font-semibold cursor-pointer">Ver Mais...</span>
         </p>
+        </div>
+
+        {/* Right: Booking Card */}
+        <div className="w-full lg:w-[380px] shrink-0">
+          <div className="sticky top-6 bg-card border border-border rounded-2xl p-6 shadow-lg">
+            <div className="mb-4">
+              <span
+                className="text-xl font-extrabold text-foreground"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                R$ 1.250
+              </span>
+              <span className="text-sm text-muted-foreground ml-1">por 2 noites</span>
+            </div>
+
+            <div className="border border-border rounded-xl overflow-hidden mb-3">
+              <div className="flex divide-x divide-border">
+                <div className="flex-1 p-3">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
+                  <p className="text-sm text-foreground mt-0.5">29/05/2026</p>
+                </div>
+                <div className="flex-1 p-3">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
+                  <p className="text-sm text-foreground mt-0.5">31/05/2026</p>
+                </div>
+              </div>
+              <div className="border-t border-border p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Hóspedes</p>
+                  <p className="text-sm text-foreground mt-0.5">1 hóspede</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground mb-4">
+              Cancelamento gratuito antes de 28 de maio
+            </p>
+
+            <button className="w-full bg-primary text-primary-foreground font-bold text-base py-3.5 rounded-xl shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity">
+              Reservar
+            </button>
+
+            <p className="text-center text-xs text-muted-foreground mt-3">
+              Você ainda não será cobrado
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* ===== FIXED BOTTOM BAR ===== */}
