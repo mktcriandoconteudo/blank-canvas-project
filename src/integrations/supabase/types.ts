@@ -72,6 +72,7 @@ export type Database = {
       }
       resorts: {
         Row: {
+          amenities: string[] | null
           beds: number | null
           created_at: string | null
           description: string | null
@@ -87,6 +88,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          amenities?: string[] | null
           beds?: number | null
           created_at?: string | null
           description?: string | null
@@ -102,6 +104,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          amenities?: string[] | null
           beds?: number | null
           created_at?: string | null
           description?: string | null

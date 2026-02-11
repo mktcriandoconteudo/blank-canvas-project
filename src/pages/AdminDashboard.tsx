@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload } from "lucide-react";
+import AmenitySelector from "@/components/AmenitySelector";
 
 interface Resort {
   id: string;
@@ -18,6 +19,7 @@ interface Resort {
   max_guests: number;
   tag: string | null;
   is_active: boolean;
+  amenities: string[];
 }
 
 interface ResortPhoto {
@@ -36,7 +38,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
-  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "" });
+  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[] });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -74,6 +76,7 @@ const AdminDashboard = () => {
       beds: parseInt(newResort.beds),
       max_guests: parseInt(newResort.max_guests),
       tag: newResort.tag || null,
+      amenities: newResort.amenities,
     });
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
@@ -81,7 +84,7 @@ const AdminDashboard = () => {
     }
     toast({ title: "Resort criado!" });
     setShowNewForm(false);
-    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "" });
+    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] });
     fetchResorts();
   };
 
@@ -238,6 +241,10 @@ const AdminDashboard = () => {
                 <Label className="text-xs">Descrição</Label>
                 <Input value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} />
               </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Comodidades</Label>
+                <AmenitySelector selected={newResort.amenities} onChange={amenities => setNewResort(p => ({ ...p, amenities }))} />
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleCreate}>Criar</Button>
                 <Button size="sm" variant="ghost" onClick={() => setShowNewForm(false)}>Cancelar</Button>
@@ -283,6 +290,10 @@ const AdminDashboard = () => {
                       <Label className="text-xs">Hóspedes</Label>
                       <Input type="number" value={editForm.max_guests ?? 2} onChange={e => setEditForm(p => ({ ...p, max_guests: parseInt(e.target.value) }))} />
                     </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Comodidades</Label>
+                    <AmenitySelector selected={editForm.amenities ?? []} onChange={amenities => setEditForm(p => ({ ...p, amenities }))} />
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => handleUpdate(resort.id)}><Save className="w-3 h-3 mr-1" /> Salvar</Button>

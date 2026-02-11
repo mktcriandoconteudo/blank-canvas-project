@@ -7,13 +7,7 @@ import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
 import PhotoLightbox from "@/components/PhotoLightbox";
-
-const amenities = [
-  { icon: Bed, label: "3 Quartos" },
-  { icon: Tv, label: "Smart TV" },
-  { icon: Wifi, label: "Wi-Fi" },
-  { icon: Users, label: "6 Hósp." },
-];
+import { AMENITY_OPTIONS } from "@/components/AmenitySelector";
 
 const ResortDetail = () => {
   const navigate = useNavigate();
@@ -25,6 +19,7 @@ const ResortDetail = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
+  const [resortAmenities, setResortAmenities] = useState<string[]>([]);
 
   // Fetch photos from database
   useEffect(() => {
@@ -32,14 +27,15 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name")
+        .select("id, name, amenities")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
-        // Match resort by slug
         const resort = resorts.find(r => 
           r.name.toLowerCase().replace(/\s+/g, '-') === slug
         ) || resorts[0];
+
+        setResortAmenities((resort as any).amenities || []);
 
         const { data: photos } = await supabase
           .from("resort_photos")
@@ -214,12 +210,20 @@ const ResortDetail = () => {
             Comodidades Populares
           </h2>
           <div className="flex gap-2 flex-wrap mb-7">
-            {amenities.map((a) => (
-              <span key={a.label} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
-                <a.icon className="w-4 h-4 text-muted-foreground" />
-                {a.label}
-              </span>
-            ))}
+            {resortAmenities.length > 0
+              ? AMENITY_OPTIONS.filter(a => resortAmenities.includes(a.key)).map((a) => (
+                  <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+                    <a.icon className="w-4 h-4 text-muted-foreground" />
+                    {a.label}
+                  </span>
+                ))
+              : AMENITY_OPTIONS.slice(0, 4).map((a) => (
+                  <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+                    <a.icon className="w-4 h-4 text-muted-foreground" />
+                    {a.label}
+                  </span>
+                ))
+            }
           </div>
 
           {/* Description */}

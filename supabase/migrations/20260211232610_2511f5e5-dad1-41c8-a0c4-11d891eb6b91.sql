@@ -1,0 +1,1 @@
+ALTER TABLE public.resorts ADD COLUMN amenities text[] DEFAULT '{}'::text[];
