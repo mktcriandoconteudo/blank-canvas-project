@@ -234,11 +234,8 @@ const ResortDetail = () => {
           <h2 className="text-base font-bold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Descrição
           </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais,
-            vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos,
-            área gourmet completa e estacionamento privativo.{" "}
-            <span className="text-primary font-semibold cursor-pointer">Ver Mais...</span>
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+            {resortDescription || "O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais, vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos, área gourmet completa e estacionamento privativo."}
           </p>
 
           {/* Gallery */}
