@@ -117,7 +117,6 @@ const AdminDashboard = () => {
       formData.append('files', file);
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
     
     const { data, error } = await supabase.functions.invoke("upload-photos", {
       body: formData,
