@@ -16,7 +16,7 @@ const amenities = [
 
 const ResortDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { slug } = useParams();
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
@@ -26,19 +26,22 @@ const ResortDetail = () => {
   // Fetch photos from database
   useEffect(() => {
     const fetchPhotos = async () => {
-      // Get first resort (for now using first active resort)
+      // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id")
-        .eq("is_active", true)
-        .limit(1);
+        .select("id, name")
+        .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
-        const resortId = resorts[0].id;
+        // Match resort by slug
+        const resort = resorts.find(r => 
+          r.name.toLowerCase().replace(/\s+/g, '-') === slug
+        ) || resorts[0];
+
         const { data: photos } = await supabase
           .from("resort_photos")
           .select("url, is_cover, display_order")
-          .eq("resort_id", resortId)
+          .eq("resort_id", resort.id)
           .order("display_order");
 
         if (photos && photos.length > 0) {
@@ -47,7 +50,7 @@ const ResortDetail = () => {
       }
     };
     fetchPhotos();
-  }, [id]);
+  }, [slug]);
 
   // Use DB photos if available, fallback to default
   const photos = dbPhotos.length > 0 ? dbPhotos.slice(0, 3) : [resort1Image];

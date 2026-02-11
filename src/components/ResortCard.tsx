@@ -14,9 +14,10 @@ interface ResortCardProps {
   tag?: string;
   beds?: number;
   guests?: number;
+  slug?: string;
 }
 
-const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag, beds = 2, guests = 4 }: ResortCardProps) => {
+const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag, beds = 2, guests = 4, slug }: ResortCardProps) => {
   const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
 
@@ -26,7 +27,7 @@ const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="group cursor-pointer"
-      onClick={() => navigate("/resort/1")}
+      onClick={() => navigate(`/resort/${slug || title.toLowerCase().replace(/\s+/g, '-')}`)}
     >
       <div className="relative overflow-hidden rounded-3xl aspect-[3/4] ring-1 ring-border/20 shadow-lg shadow-primary/5">
         <img

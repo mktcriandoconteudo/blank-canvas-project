@@ -16,6 +16,7 @@ const resorts = [
     tag: "Superhost",
     beds: 3,
     guests: 6,
+    slug: "condomínio-enseada",
   },
 ];
 
