@@ -27,14 +27,15 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name")
+        .select("id, name, amenities")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
-        // Match resort by slug
         const resort = resorts.find(r => 
           r.name.toLowerCase().replace(/\s+/g, '-') === slug
         ) || resorts[0];
+
+        setResortAmenities((resort as any).amenities || []);
 
         const { data: photos } = await supabase
           .from("resort_photos")
