@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload } from "lucide-react";
+import AmenitySelector from "@/components/AmenitySelector";
 
 interface Resort {
   id: string;
