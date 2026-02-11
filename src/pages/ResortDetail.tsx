@@ -221,7 +221,7 @@ const ResortDetail = () => {
               <span className="text-sm text-muted-foreground ml-1">por 2 noites</span>
             </div>
 
-            <div className="border border-border rounded-xl overflow-hidden mb-3">
+            <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
               <div className="flex divide-x divide-border">
                 <div className="flex-1 p-3">
                   <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
@@ -245,7 +245,7 @@ const ResortDetail = () => {
               Cancelamento gratuito antes de 28 de maio
             </p>
 
-            <button className="w-full bg-primary text-primary-foreground font-bold text-base py-3.5 rounded-xl shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity">
+            <button className="w-full bg-[hsl(340,80%,55%)] text-white font-bold text-base py-3.5 shadow-lg hover:opacity-90 transition-opacity" style={{ borderRadius: 30 }}>
               Reservar
             </button>
 
