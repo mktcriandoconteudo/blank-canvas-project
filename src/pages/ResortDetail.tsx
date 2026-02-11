@@ -20,6 +20,8 @@ const ResortDetail = () => {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
   const [resortAmenities, setResortAmenities] = useState<string[]>([]);
+  const [resortDescription, setResortDescription] = useState<string | null>(null);
+  const [resortName, setResortName] = useState<string>("Condomínio Enseada");
 
   // Fetch photos from database
   useEffect(() => {
