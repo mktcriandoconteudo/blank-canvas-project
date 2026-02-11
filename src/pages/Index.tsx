@@ -1,11 +1,12 @@
 import { Menu, User, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
+import resort1Image from "@/assets/resort-1.webp";
 import HeroBanner from "@/components/HeroBanner";
 import ResortCard from "@/components/ResortCard";
 
 const resorts = [
   {
-    image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80",
+    image: resort1Image,
     title: "Resort Paradiso Tropical",
     location: "Porto de Galinhas, PE",
     rating: 4.9,
