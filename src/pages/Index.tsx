@@ -1,5 +1,6 @@
 import { Menu, User, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
+import resort1Image from "@/assets/resort-1.webp";
 import HeroBanner from "@/components/HeroBanner";
 import ResortCard from "@/components/ResortCard";
 
