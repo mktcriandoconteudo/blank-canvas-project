@@ -17,7 +17,7 @@ const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag
 
   return (
     <div className="group cursor-pointer">
-      <div className="relative overflow-hidden rounded-2xl aspect-[16/10] mb-3">
+      <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mb-3">
         <img
           src={image}
           alt={title}
