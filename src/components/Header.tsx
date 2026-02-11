@@ -1,4 +1,5 @@
-import { Search, Globe, Menu, User, Sparkles } from "lucide-react";
+import { Search, Globe, Menu, User, Sparkles, Moon, Sun } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const Header = () => {
   return (
