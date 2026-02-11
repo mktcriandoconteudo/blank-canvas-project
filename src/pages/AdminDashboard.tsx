@@ -195,7 +195,7 @@ const AdminDashboard = () => {
         </h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => navigate("/explore")}>
-            <Home className="w-4 h-4 mr-1" /> Ver Site
+            <ExternalLink className="w-4 h-4 mr-1" /> Ver Site
           </Button>
           <Button variant="outline" size="sm" onClick={() => setShowNewForm(true)}>
             <Plus className="w-4 h-4 mr-1" /> Novo Resort
