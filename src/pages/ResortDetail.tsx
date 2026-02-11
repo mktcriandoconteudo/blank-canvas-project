@@ -38,6 +38,8 @@ const ResortDetail = () => {
         ) || resorts[0];
 
         setResortAmenities((resort as any).amenities || []);
+        setResortDescription((resort as any).description || null);
+        setResortName(resort.name);
 
         const { data: photos } = await supabase
           .from("resort_photos")
