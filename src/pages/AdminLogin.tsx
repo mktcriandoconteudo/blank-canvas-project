@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,36 +18,55 @@ const AdminLogin = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      // Resolve username to email via edge function
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("admin-login", {
+        body: { username, password },
+      });
 
-    if (error) {
-      toast({ title: "Erro ao entrar", description: error.message, variant: "destructive" });
-      setLoading(false);
-      return;
+      if (fnError || !fnData?.email) {
+        toast({ title: "Erro", description: "Usuário não encontrado", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      // Sign in with resolved email
+      const { error } = await supabase.auth.signInWithPassword({
+        email: fnData.email,
+        password,
+      });
+
+      if (error) {
+        toast({ title: "Erro ao entrar", description: "Senha incorreta", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      // Check admin role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin");
+
+      if (!roles || roles.length === 0) {
+        await supabase.auth.signOut();
+        toast({ title: "Acesso negado", description: "Sem permissão de administrador.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      navigate("/admin");
+    } catch {
+      toast({ title: "Erro", description: "Falha na conexão", variant: "destructive" });
     }
 
-    // Check if user has admin role
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({ title: "Erro", description: "Usuário não encontrado", variant: "destructive" });
-      setLoading(false);
-      return;
-    }
-
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin");
-
-    if (!roles || roles.length === 0) {
-      await supabase.auth.signOut();
-      toast({ title: "Acesso negado", description: "Você não tem permissão de administrador.", variant: "destructive" });
-      setLoading(false);
-      return;
-    }
-
-    navigate("/admin");
     setLoading(false);
   };
 
@@ -65,13 +84,13 @@ const AdminLogin = () => {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Nome de usuário</Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@email.com"
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Seu nome de usuário"
                 required
               />
             </div>

@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_usernames: {
+        Row: {
+          id: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       resort_photos: {
         Row: {
           created_at: string | null
