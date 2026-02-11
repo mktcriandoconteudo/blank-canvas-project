@@ -171,7 +171,7 @@ const ResortDetail = () => {
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="px-6 pt-6 pb-28 max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
+      <div className="px-6 pt-6 pb-10 max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
         {/* Left: Info */}
         <div className="flex-1 min-w-0">
         {/* Popular Amenities */}
@@ -254,22 +254,6 @@ const ResortDetail = () => {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* ===== FIXED BOTTOM BAR ===== */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-4 flex items-center justify-between z-50">
-        <div>
-          <span
-            className="text-xl font-extrabold text-foreground"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            R$ 1.250
-          </span>
-          <span className="text-sm text-muted-foreground ml-0.5">/ noite</span>
-        </div>
-        <button className="bg-primary text-primary-foreground font-bold text-sm px-7 py-3 rounded-2xl shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity">
-          Reservar
-        </button>
       </div>
     </div>
   );
