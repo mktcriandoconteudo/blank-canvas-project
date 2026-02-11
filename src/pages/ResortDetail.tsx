@@ -222,7 +222,7 @@ const ResortDetail = () => {
           className="text-base font-bold text-foreground mb-4 mt-7"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          📸 Galeria de Fotos
+          Galeria de Fotos
         </h2>
         <div className="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden mb-7">
           {galleryPhotos.map((src, i) => (
