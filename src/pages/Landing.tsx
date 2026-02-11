@@ -22,8 +22,8 @@ const Landing = () => {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-4xl sm:text-5xl font-extrabold text-white leading-tight tracking-tight"
-          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          className="text-4xl sm:text-5xl font-semibold text-white leading-tight tracking-tight"
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           Encontre & Reserve sua Estadia Perfeita!
         </motion.h1>
