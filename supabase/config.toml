@@ -2,3 +2,6 @@ project_id = "pchxmtkhqgjlevvzgqoi"
 
 [functions.admin-login]
 verify_jwt = false
+
+[functions.upload-photos]
+verify_jwt = false
