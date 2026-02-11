@@ -327,6 +327,18 @@ const AdminDashboard = () => {
                     </span>
                   </label>
                 </div>
+                {/* Progress bar */}
+                {uploadingFor === resort.id && (
+                  <div className="space-y-1">
+                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center">{uploadProgress}% enviado</p>
+                  </div>
+                )}
                 {(photos[resort.id] || []).length > 0 && (
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                     {(photos[resort.id] || []).map(photo => (
