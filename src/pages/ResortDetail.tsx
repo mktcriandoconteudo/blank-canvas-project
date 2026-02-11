@@ -1,28 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight, Sun, Moon, Waves, ArrowUpDown, Fence, Microwave, ShieldAlert, Flame, Dumbbell, Snowflake, Refrigerator } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
-
-const photos = [
-  resort1Image,
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
-  "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80",
-];
-
-const galleryPhotos = [
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
-  "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80",
-  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80",
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
-  resort1Image,
-  "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80",
-  "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80",
-];
 
 const amenities = [
   { icon: Bed, label: "3 Quartos" },
@@ -33,10 +16,42 @@ const amenities = [
 
 const ResortDetail = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [dbPhotos, setDbPhotos] = useState<string[]>([]);
+
+  // Fetch photos from database
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      // Get first resort (for now using first active resort)
+      const { data: resorts } = await supabase
+        .from("resorts")
+        .select("id")
+        .eq("is_active", true)
+        .limit(1);
+
+      if (resorts && resorts.length > 0) {
+        const resortId = resorts[0].id;
+        const { data: photos } = await supabase
+          .from("resort_photos")
+          .select("url, is_cover, display_order")
+          .eq("resort_id", resortId)
+          .order("display_order");
+
+        if (photos && photos.length > 0) {
+          setDbPhotos(photos.map(p => p.url));
+        }
+      }
+    };
+    fetchPhotos();
+  }, [id]);
+
+  // Use DB photos if available, fallback to default
+  const photos = dbPhotos.length > 0 ? dbPhotos.slice(0, 3) : [resort1Image];
+  const galleryPhotos = dbPhotos.length > 0 ? dbPhotos : [resort1Image];
 
   useEffect(() => {
     if (dark) {
