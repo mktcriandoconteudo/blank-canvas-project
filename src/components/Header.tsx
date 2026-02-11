@@ -2,6 +2,16 @@ import { Search, Globe, Menu, User, Sparkles, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const Header = () => {
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [dark]);
+
   return (
     <header className="sticky top-0 z-50 bg-background/60 backdrop-blur-2xl border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
