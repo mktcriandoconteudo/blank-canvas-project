@@ -22,6 +22,16 @@ const ResortDetail = () => {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
 
   const goTo = (i: number) => {
     setDirection(i > current ? 1 : -1);
