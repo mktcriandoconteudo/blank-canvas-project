@@ -7,13 +7,7 @@ import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
 import PhotoLightbox from "@/components/PhotoLightbox";
-
-const amenities = [
-  { icon: Bed, label: "3 Quartos" },
-  { icon: Tv, label: "Smart TV" },
-  { icon: Wifi, label: "Wi-Fi" },
-  { icon: Users, label: "6 Hósp." },
-];
+import { AMENITY_OPTIONS } from "@/components/AmenitySelector";
 
 const ResortDetail = () => {
   const navigate = useNavigate();
