@@ -53,7 +53,7 @@ const Landing = () => {
           style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}
         >
           Encontre a estadia{" "}
-          <span className="text-primary">perfeita</span> para você
+          <span className="text-white">perfeita</span> para você
         </motion.h1>
 
         <motion.p
