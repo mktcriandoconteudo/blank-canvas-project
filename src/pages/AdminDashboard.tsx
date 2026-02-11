@@ -38,7 +38,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
-  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "" });
+  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[] });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
