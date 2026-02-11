@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } from "lucide-react";
@@ -246,7 +247,7 @@ const AdminDashboard = () => {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Descrição</Label>
-                <Input value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} />
+                <Textarea rows={4} value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} placeholder="Descreva o resort, instalações, diferenciais..." />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Comodidades</Label>
@@ -297,6 +298,10 @@ const AdminDashboard = () => {
                       <Label className="text-xs">Hóspedes</Label>
                       <Input type="number" value={editForm.max_guests ?? 2} onChange={e => setEditForm(p => ({ ...p, max_guests: parseInt(e.target.value) }))} />
                     </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Descrição</Label>
+                    <Textarea rows={4} value={editForm.description ?? ""} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} placeholder="Descreva o resort, instalações, diferenciais..." />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Comodidades</Label>

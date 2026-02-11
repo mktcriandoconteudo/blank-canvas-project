@@ -20,6 +20,8 @@ const ResortDetail = () => {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
   const [resortAmenities, setResortAmenities] = useState<string[]>([]);
+  const [resortDescription, setResortDescription] = useState<string | null>(null);
+  const [resortName, setResortName] = useState<string>("Condomínio Enseada");
 
   // Fetch photos from database
   useEffect(() => {
@@ -27,7 +29,7 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name, amenities")
+        .select("id, name, amenities, description")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
@@ -36,6 +38,8 @@ const ResortDetail = () => {
         ) || resorts[0];
 
         setResortAmenities((resort as any).amenities || []);
+        setResortDescription((resort as any).description || null);
+        setResortName(resort.name);
 
         const { data: photos } = await supabase
           .from("resort_photos")
@@ -230,11 +234,8 @@ const ResortDetail = () => {
           <h2 className="text-base font-bold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Descrição
           </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais,
-            vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos,
-            área gourmet completa e estacionamento privativo.{" "}
-            <span className="text-primary font-semibold cursor-pointer">Ver Mais...</span>
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+            {resortDescription || "O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais, vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos, área gourmet completa e estacionamento privativo."}
           </p>
 
           {/* Gallery */}
