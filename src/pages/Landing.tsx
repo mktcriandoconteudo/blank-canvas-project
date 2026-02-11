@@ -39,7 +39,7 @@ const Landing = () => {
           initial={{ y: 15, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="text-sm font-semibold text-primary tracking-widest uppercase mb-3"
+          className="text-sm font-semibold text-white tracking-widest uppercase mb-3"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           Hotéis & Resorts
@@ -53,7 +53,7 @@ const Landing = () => {
           style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}
         >
           Encontre a estadia{" "}
-          <span className="text-primary">perfeita</span> para você
+          <span className="text-white">perfeita</span> para você
         </motion.h1>
 
         <motion.p
@@ -71,7 +71,7 @@ const Landing = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.5 }}
           onClick={() => navigate("/explore")}
-          className="mt-7 w-full py-4 bg-primary text-primary-foreground font-semibold text-sm rounded-2xl shadow-lg shadow-primary/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="mt-7 w-full py-4 bg-white text-black font-semibold text-sm rounded-[30px] shadow-lg hover:brightness-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           Explorar agora
