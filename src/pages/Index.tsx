@@ -112,6 +112,7 @@ const [dark, setDark] = useState(() => {
     } else {
       document.documentElement.classList.remove("dark");
     }
+    localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
   return (
