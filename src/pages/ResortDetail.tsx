@@ -255,22 +255,6 @@ const ResortDetail = () => {
           </div>
         </div>
       </div>
-
-      {/* ===== FIXED BOTTOM BAR ===== */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-4 flex items-center justify-between z-50">
-        <div>
-          <span
-            className="text-xl font-extrabold text-foreground"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            R$ 1.250
-          </span>
-          <span className="text-sm text-muted-foreground ml-0.5">/ noite</span>
-        </div>
-        <button className="bg-primary text-primary-foreground font-bold text-sm px-7 py-3 rounded-2xl shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity">
-          Reservar
-        </button>
-      </div>
     </div>
   );
 };
