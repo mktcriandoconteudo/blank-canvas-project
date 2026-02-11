@@ -247,7 +247,7 @@ const AdminDashboard = () => {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Descrição</Label>
-                <Input value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} />
+                <Textarea rows={4} value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} placeholder="Descreva o resort, instalações, diferenciais..." />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Comodidades</Label>
