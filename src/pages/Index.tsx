@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import HeroBanner from "@/components/HeroBanner";
 import CategoryFilter from "@/components/CategoryFilter";
 import ResortCard from "@/components/ResortCard";
 
