@@ -183,9 +183,7 @@ const ResortDetail = () => {
       </div>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div className="px-6 pt-6 pb-10 max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
-        {/* Left: Info */}
-        <div className="flex-1 min-w-0">
+      <div className="px-6 pt-6 pb-28 lg:pb-10 max-w-5xl mx-auto">
         {/* Popular Amenities */}
         <h2
           className="text-base font-bold text-foreground mb-3"
@@ -243,78 +241,95 @@ const ResortDetail = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* O que esse lugar oferece */}
+        <div className="bg-card border border-border rounded-2xl p-6 mb-7">
+          <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            O que esse lugar oferece
+          </h2>
+          <div className="grid grid-cols-2 gap-y-4 gap-x-3">
+            {[
+              { icon: Wifi, label: "Wi-Fi" },
+              { icon: Waves, label: "Piscina compartilhada" },
+              { icon: ArrowUpDown, label: "Elevador" },
+              { icon: Snowflake, label: "Ar-condicionado split" },
+              { icon: Fence, label: "Pátio ou varanda (Privativa)" },
+              { icon: Refrigerator, label: "Geladeira Consul" },
+              { icon: Microwave, label: "Microondas" },
+              { icon: Dumbbell, label: "Academia compartilhada" },
+              { icon: ShieldAlert, label: "Alarme de monóxido de carbono" },
+              { icon: Flame, label: "Detector de fumaça" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-start gap-2.5">
+                <item.icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                <span className="text-sm text-foreground leading-tight">{item.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Booking Card + Amenities */}
-        <div className="w-full lg:w-[380px] shrink-0 flex flex-col gap-6">
-          {/* O que esse lugar oferece */}
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              O que esse lugar oferece
-            </h2>
-            <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-              {[
-                { icon: Wifi, label: "Wi-Fi" },
-                { icon: Waves, label: "Piscina compartilhada" },
-                { icon: ArrowUpDown, label: "Elevador" },
-                { icon: Snowflake, label: "Ar-condicionado split" },
-                { icon: Fence, label: "Pátio ou varanda (Privativa)" },
-                { icon: Refrigerator, label: "Geladeira Consul" },
-                { icon: Microwave, label: "Microondas" },
-                { icon: Dumbbell, label: "Academia compartilhada" },
-                { icon: ShieldAlert, label: "Alarme de monóxido de carbono" },
-                { icon: Flame, label: "Detector de fumaça" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-start gap-2.5">
-                  <item.icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-                  <span className="text-sm text-foreground leading-tight">{item.label}</span>
-                </div>
-              ))}
+        {/* Mobile-only booking card */}
+        <div className="lg:hidden bg-card border border-border rounded-2xl p-6 shadow-lg">
+          <div className="mb-4">
+            <span className="text-xl font-extrabold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              R$ 1.250
+            </span>
+            <span className="text-sm text-muted-foreground ml-1">por 2 noites</span>
+          </div>
+          <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
+            <div className="flex divide-x divide-border">
+              <div className="flex-1 p-3">
+                <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
+                <p className="text-sm text-foreground mt-0.5">29/05/2026</p>
+              </div>
+              <div className="flex-1 p-3">
+                <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
+                <p className="text-sm text-foreground mt-0.5">31/05/2026</p>
+              </div>
+            </div>
+            <div className="border-t border-border p-3 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Hóspedes</p>
+                <p className="text-sm text-foreground mt-0.5">1 hóspede</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
             </div>
           </div>
-          <div className="sticky top-6 bg-card border border-border rounded-2xl p-6 shadow-lg">
-            <div className="mb-4">
-              <span
-                className="text-xl font-extrabold text-foreground"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-              >
+          <p className="text-center text-sm text-muted-foreground mb-4">Cancelamento gratuito antes de 28 de maio</p>
+          <button className="w-full bg-[hsl(340,80%,55%)] text-white font-bold text-base py-3.5 shadow-lg hover:opacity-90 transition-opacity" style={{ borderRadius: 30 }}>
+            Reservar
+          </button>
+          <p className="text-center text-xs text-muted-foreground mt-3">Você ainda não será cobrado</p>
+        </div>
+      </div>
+
+      {/* Desktop fixed bottom booking bar */}
+      <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+            <div>
+              <span className="text-xl font-extrabold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 R$ 1.250
               </span>
               <span className="text-sm text-muted-foreground ml-1">por 2 noites</span>
             </div>
-
-            <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
-              <div className="flex divide-x divide-border">
-                <div className="flex-1 p-3">
-                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
-                  <p className="text-sm text-foreground mt-0.5">29/05/2026</p>
-                </div>
-                <div className="flex-1 p-3">
-                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
-                  <p className="text-sm text-foreground mt-0.5">31/05/2026</p>
-                </div>
+            <div className="flex items-center gap-4 text-sm text-foreground">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Check-in</span>
+                <span className="font-semibold">29/05</span>
               </div>
-              <div className="border-t border-border p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Hóspedes</p>
-                  <p className="text-sm text-foreground mt-0.5">1 hóspede</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
+              <span className="text-muted-foreground">→</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Checkout</span>
+                <span className="font-semibold">31/05</span>
               </div>
+              <span className="text-muted-foreground">·</span>
+              <span>1 hóspede</span>
             </div>
-
-            <p className="text-center text-sm text-muted-foreground mb-4">
-              Cancelamento gratuito antes de 28 de maio
-            </p>
-
-            <button className="w-full bg-[hsl(340,80%,55%)] text-white font-bold text-base py-3.5 shadow-lg hover:opacity-90 transition-opacity" style={{ borderRadius: 30 }}>
-              Reservar
-            </button>
-
-            <p className="text-center text-xs text-muted-foreground mt-3">
-              Você ainda não será cobrado
-            </p>
           </div>
+          <button className="bg-[hsl(340,80%,55%)] text-white font-bold text-sm px-8 py-3 shadow-lg hover:opacity-90 transition-opacity" style={{ borderRadius: 30 }}>
+            Reservar
+          </button>
         </div>
       </div>
     </div>
