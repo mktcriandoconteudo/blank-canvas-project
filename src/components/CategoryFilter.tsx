@@ -12,7 +12,7 @@ const categories = [
 ];
 
 const CategoryFilter = () => {
-  const [active, setActive] = useState("Beira-mar");
+  const [active, setActive] = useState("Águas Termais");
 
   return (
     <div className="sticky top-20 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
