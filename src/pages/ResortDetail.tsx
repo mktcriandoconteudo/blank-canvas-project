@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight, Sun, Moon, Waves, ArrowUpDown, Fence, Microwave, ShieldAlert, Flame, Dumbbell, Snowflake, Refrigerator } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight, Sun, Moon, Waves, ArrowUpDown, Fence, Microwave, ShieldAlert, Flame, Dumbbell, Snowflake, Refrigerator, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
@@ -24,6 +24,7 @@ const ResortDetail = () => {
   const [resortDescription, setResortDescription] = useState<string | null>(null);
   const [resortName, setResortName] = useState<string>("Condomínio Enseada");
   const [condoFeatures, setCondoFeatures] = useState<string[]>([]);
+  const [importantInfo, setImportantInfo] = useState<string | null>(null);
 
   // Fetch photos from database
   useEffect(() => {
@@ -31,7 +32,7 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name, amenities, description, condo_features")
+        .select("id, name, amenities, description, condo_features, important_info")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
@@ -43,6 +44,7 @@ const ResortDetail = () => {
         setResortDescription((resort as any).description || null);
         setResortName(resort.name);
         setCondoFeatures((resort as any).condo_features || []);
+        setImportantInfo((resort as any).important_info || null);
 
         const { data: photos } = await supabase
           .from("resort_photos")
@@ -277,6 +279,20 @@ const ResortDetail = () => {
               ))}
             </div>
           </div>
+
+          {/* Informações Importantes */}
+          {importantInfo && (
+            <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 mb-7">
+              <h2 className="text-base font-bold text-destructive flex items-center gap-2 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <AlertTriangle className="w-5 h-5" />
+                Informações Importantes
+              </h2>
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                {importantInfo}
+              </p>
+            </div>
+          )}
+
           {/* Pricing Plans */}
           <PricingPlans />
         </div>

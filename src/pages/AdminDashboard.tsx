@@ -24,6 +24,7 @@ interface Resort {
   is_active: boolean;
   amenities: string[];
   condo_features: string[];
+  important_info: string | null;
 }
 
 interface ResortPhoto {
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
-  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[], condo_features: [] as string[] });
+  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[], condo_features: [] as string[], important_info: "" });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -82,6 +83,7 @@ const AdminDashboard = () => {
       tag: newResort.tag || null,
       amenities: newResort.amenities,
       condo_features: newResort.condo_features,
+      important_info: newResort.important_info || null,
     });
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
@@ -89,7 +91,7 @@ const AdminDashboard = () => {
     }
     toast({ title: "Resort criado!" });
     setShowNewForm(false);
-    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [], condo_features: [] });
+    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [], condo_features: [], important_info: "" });
     fetchResorts();
   };
 
@@ -260,6 +262,10 @@ const AdminDashboard = () => {
                 <Label className="text-xs">O que o lugar oferece</Label>
                 <CondoFeatureSelector selected={newResort.condo_features} onChange={condo_features => setNewResort(p => ({ ...p, condo_features }))} />
               </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Informações Importantes</Label>
+                <Textarea rows={4} value={newResort.important_info} onChange={e => setNewResort(p => ({ ...p, important_info: e.target.value }))} placeholder="Ex: Não aceito pet. Hóspede tem que levar roupa de cama e banho..." />
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleCreate}>Criar</Button>
                 <Button size="sm" variant="ghost" onClick={() => setShowNewForm(false)}>Cancelar</Button>
@@ -317,6 +323,10 @@ const AdminDashboard = () => {
                   <div className="space-y-1">
                     <Label className="text-xs">O que o lugar oferece</Label>
                     <CondoFeatureSelector selected={editForm.condo_features ?? []} onChange={condo_features => setEditForm(p => ({ ...p, condo_features }))} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Informações Importantes</Label>
+                    <Textarea rows={4} value={editForm.important_info ?? ""} onChange={e => setEditForm(p => ({ ...p, important_info: e.target.value }))} placeholder="Ex: Não aceito pet. Hóspede tem que levar roupa de cama e banho..." />
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => handleUpdate(resort.id)}><Save className="w-3 h-3 mr-1" /> Salvar</Button>
