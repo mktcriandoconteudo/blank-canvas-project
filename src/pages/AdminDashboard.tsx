@@ -273,7 +273,7 @@ const AdminDashboard = () => {
             <CardContent className="pt-6 space-y-4">
               {editingId === resort.id ? (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">Nome</Label>
                       <Input value={editForm.name ?? ""} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
