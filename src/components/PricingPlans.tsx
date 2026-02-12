@@ -78,15 +78,20 @@ const PricingPlans = ({ resortId, onSelectPlan }: PricingPlansProps) => {
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: i * 0.1 }}
-              className={`relative rounded-2xl overflow-hidden border cursor-pointer transition-all ${
-                plan.is_popular
-                  ? "bg-[hsl(340,80%,55%)] text-white border-transparent shadow-lg scale-[1.03]"
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: isSelected && !plan.is_popular ? 0.95 : plan.is_popular && !isSelected ? 1.03 : 1,
+              }}
+              transition={{ duration: 0.3, delay: i * 0.1, type: "spring", stiffness: 300, damping: 25 }}
+              className={`relative rounded-2xl overflow-hidden border cursor-pointer transition-shadow ${
+                plan.is_popular && !isSelected
+                  ? "bg-[hsl(340,80%,55%)] text-white border-transparent shadow-lg"
                   : isSelected
-                    ? "bg-card text-foreground border-primary shadow-md ring-2 ring-primary/30"
+                    ? "bg-card text-foreground border-primary shadow-inner ring-2 ring-primary/30"
                     : "bg-card text-foreground border-border"
               }`}
+              style={isSelected ? { boxShadow: "inset 0 4px 12px rgba(0,0,0,0.15)" } : undefined}
               onClick={() => handleSelect(plan)}
             >
               {plan.is_popular && (
