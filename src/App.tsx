@@ -8,7 +8,9 @@ import Index from "./pages/Index";
 import ResortDetail from "./pages/ResortDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminSettings from "./pages/AdminSettings";
 import AdminRoute from "./components/AdminRoute";
+import AdminLayout from "./components/AdminLayout";
 import NotFound from "./pages/NotFound";
 import { useFavicon } from "./hooks/use-favicon";
 
@@ -28,7 +30,8 @@ const App = () => (
           <Route path="/explore" element={<Index />} />
           <Route path="/resort/:slug" element={<ResortDetail />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
+          <Route path="/admin/settings" element={<AdminRoute><AdminLayout><AdminSettings /></AdminLayout></AdminRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

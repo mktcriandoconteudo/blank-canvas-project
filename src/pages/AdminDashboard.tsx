@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Image, Edit2, Save, X, Upload } from "lucide-react";
 import DynamicSelector from "@/components/DynamicSelector";
-import OptionsManager from "@/components/OptionsManager";
-import FaviconManager from "@/components/FaviconManager";
 import PricingPlansManager from "@/components/PricingPlansManager";
 import BlockedDatesManager from "@/components/BlockedDatesManager";
 
@@ -39,7 +36,6 @@ interface ResortPhoto {
 }
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [photos, setPhotos] = useState<Record<string, ResortPhoto[]>>({});
   const [loading, setLoading] = useState(true);
@@ -69,10 +65,8 @@ const AdminDashboard = () => {
     resorts.forEach(r => fetchPhotos(r.id));
   }, [resorts.length]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin/login");
-  };
+
+
 
   const handleCreate = async () => {
     const { error } = await supabase.from("resorts").insert({
@@ -197,33 +191,15 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 justify-between">
-        <h1 className="text-base sm:text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          Admin — Resorts
-        </h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => navigate("/explore")}>
-            <ExternalLink className="w-4 h-4 mr-1" /> Ver Site
-          </Button>
+    <div className="bg-background">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-base sm:text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Resorts
+          </h1>
           <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => setShowNewForm(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Novo
+            <Plus className="w-4 h-4 mr-1" /> Novo Resort
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <LogOut className="w-4 h-4" />
-          </Button>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* Favicon manager */}
-        <FaviconManager />
-
-        {/* Options managers */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <OptionsManager category="amenity" title="Comodidades" />
-          <OptionsManager category="condo_feature" title="O que o lugar oferece" />
-          <OptionsManager category="important_info" title="Informações Importantes" />
         </div>
 
         {/* New resort form */}
@@ -423,7 +399,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         ))}
-      </main>
+      </div>
     </div>
   );
 };
