@@ -7,12 +7,13 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <header className="border-b border-border px-3 py-2 flex items-center gap-2 sticky top-0 z-30 bg-background/80 backdrop-blur-md">
             <SidebarTrigger />
+            <span className="text-sm font-semibold text-muted-foreground">Painel Admin</span>
           </header>
           <main className="flex-1 overflow-auto">
             {children}

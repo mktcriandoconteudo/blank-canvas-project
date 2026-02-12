@@ -32,7 +32,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
+    <Sidebar collapsible="icon" variant="sidebar" className="border-r border-border">
       <div className="p-3 flex items-center gap-2.5 border-b border-border">
         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
           <Sparkles className="w-4 h-4 text-primary-foreground" />
