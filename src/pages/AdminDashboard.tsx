@@ -530,10 +530,10 @@ const AdminDashboard = () => {
                                 </div>
                               </DialogContent>
                             </Dialog>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(apt.id); setEditForm(apt); }}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setEditingId(apt.id); setEditForm(apt); }}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(apt.id)}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDelete(apt.id); }}>
                               <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
                           </div>
