@@ -1,4 +1,4 @@
-import { Search, Globe, Menu, User, Sparkles, Moon, Sun, LogOut, CalendarCheck, ShieldCheck } from "lucide-react";
+import { Globe, Menu, User, Sparkles, Moon, Sun, LogOut, CalendarCheck, ShieldCheck, UserCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,8 @@ const Header = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [profileAvatar, setProfileAvatar] = useState("");
+  const [profileName, setProfileName] = useState("");
 
   useEffect(() => {
     if (dark) {
@@ -45,13 +47,24 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    const fetchProfile = async (userId: string) => {
+      const { data } = await supabase.from("profiles").select("avatar_url, full_name").eq("user_id", userId).maybeSingle();
+      if (data) {
+        setProfileAvatar(data.avatar_url || "");
+        setProfileName(data.full_name || "");
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         const { data } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" });
         setIsAdmin(!!data);
+        fetchProfile(session.user.id);
       } else {
         setIsAdmin(false);
+        setProfileAvatar("");
+        setProfileName("");
       }
     });
 
@@ -60,6 +73,7 @@ const Header = () => {
       if (session?.user) {
         const { data } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" });
         setIsAdmin(!!data);
+        fetchProfile(session.user.id);
       }
     });
 
@@ -72,8 +86,8 @@ const Header = () => {
     setIsAdmin(false);
   };
 
-  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
-  const userAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
+  const userName = profileName || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
+  const userAvatar = profileAvatar || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
 
   return (
     <>
@@ -103,32 +117,8 @@ const Header = () => {
               )}
             </div>
 
-            {/* Search Bar */}
-            <div className="hidden md:flex items-center bg-secondary/60 border border-border/50 rounded-2xl overflow-hidden hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5">
-              <button className="px-5 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
-                Qualquer lugar
-              </button>
-              <div className="w-px h-6 bg-border/50" />
-              <button className="px-5 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
-                Qualquer semana
-              </button>
-              <div className="w-px h-6 bg-border/50" />
-              <button className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-3 hover:bg-muted/50 transition-colors">
-                Hóspedes
-                <span className="bg-gradient-to-br from-primary to-accent text-primary-foreground p-2 rounded-xl shadow-md shadow-primary/30">
-                  <Search className="w-3.5 h-3.5" />
-                </span>
-              </button>
-            </div>
-
-            {/* Mobile search */}
-            <button className="md:hidden flex items-center gap-3 bg-secondary/60 border border-border/50 rounded-2xl px-4 py-2.5">
-              <Search className="w-4 h-4 text-primary" />
-              <div className="text-left">
-                <p className="text-xs font-semibold text-foreground">Para onde?</p>
-                <p className="text-[11px] text-muted-foreground">Qualquer lugar · Qualquer semana</p>
-              </div>
-            </button>
+            {/* Spacer */}
+            <div className="flex-1" />
 
             {/* Right side */}
             <div className="flex items-center gap-2">
@@ -166,6 +156,9 @@ const Header = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/minha-conta")} className="cursor-pointer gap-2">
+                      <UserCircle className="w-4 h-4" /> Minha Conta
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/minhas-reservas")} className="cursor-pointer gap-2">
                       <CalendarCheck className="w-4 h-4" /> Minhas Reservas
                     </DropdownMenuItem>

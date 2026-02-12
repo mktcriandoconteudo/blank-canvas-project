@@ -21,6 +21,7 @@ const AdminLayout = lazy(() => import("./components/AdminLayout"));
 const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MyReservations = lazy(() => import("./pages/MyReservations"));
+const MyAccount = lazy(() => import("./pages/MyAccount"));
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             
             <Route path="/owner" element={<OwnerRoute><AdminLayout><OwnerDashboard /></AdminLayout></OwnerRoute>} />
             <Route path="/minhas-reservas" element={<MyReservations />} />
+            <Route path="/minha-conta" element={<MyAccount />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
