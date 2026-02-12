@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Camera, Save, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AvatarEditorDialog from "@/components/AvatarEditorDialog";
 
 const MyAccount = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const MyAccount = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorSrc, setEditorSrc] = useState("");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -51,19 +54,29 @@ const MyAccount = () => {
     setLoading(false);
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setEditorSrc(reader.result as string);
+      setEditorOpen(true);
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  };
 
+  const handleCropComplete = async (blob: Blob) => {
+    if (!user) return;
+    setEditorOpen(false);
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop();
-      const filePath = `${user.id}/avatar.${ext}`;
+      const filePath = `${user.id}/avatar.png`;
 
-      // Upload to avatars bucket
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, blob, { upsert: true, contentType: "image/png" });
 
       if (uploadError) throw uploadError;
 
@@ -74,7 +87,6 @@ const MyAccount = () => {
       const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       setAvatarUrl(newUrl);
 
-      // Save to profile
       await supabase
         .from("profiles")
         .update({ avatar_url: newUrl })
@@ -156,7 +168,7 @@ const MyAccount = () => {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={handleAvatarUpload}
+                  onChange={handleFileSelect}
                   className="hidden"
                 />
               </div>
@@ -215,6 +227,12 @@ const MyAccount = () => {
       </main>
 
       <Footer />
+      <AvatarEditorDialog
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        imageSrc={editorSrc}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 };
