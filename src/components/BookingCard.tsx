@@ -42,6 +42,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [checkIn, setCheckIn] = useState<Date | undefined>(addDays(new Date(), 7));
   const [checkOut, setCheckOut] = useState<Date | undefined>(addDays(new Date(), 9));
   const [guests, setGuests] = useState(1);
+  const [checkInOpen, setCheckInOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
@@ -268,7 +269,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
           <div className="flex divide-x divide-border">
             {/* Check-in */}
-            <Popover>
+            <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
               <PopoverTrigger asChild>
                 <button className="flex-1 p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer">
                   <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
@@ -290,8 +291,10 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       }
                       setCheckIn(date);
                       setCheckOut(addDays(date, selectedPlan.total_nights));
+                      setCheckInOpen(false);
                     } else {
                       setCheckIn(date);
+                      setCheckInOpen(false);
                       if (date && checkOut && date >= checkOut) {
                         setCheckOut(addDays(date, 1));
                       }
