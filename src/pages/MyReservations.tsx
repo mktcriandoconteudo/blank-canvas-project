@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
-import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle } from "lucide-react";
+import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle, Phone, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +45,7 @@ const MyReservations = () => {
   const [loading, setLoading] = useState(true);
   const [reservations, setReservations] = useState<(Reservation & { resort_name: string; resort_location: string })[]>([]);
   const [guests, setGuests] = useState<Record<string, ReservationGuest[]>>({});
+  const [contacts, setContacts] = useState<Record<string, { whatsapp: string | null }>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,7 +87,17 @@ const MyReservations = () => {
 
       setReservations(enriched);
 
-      // Fetch guests
+      // Fetch payment config (whatsapp) for each resort
+      const { data: payConfigs } = await supabase
+        .from("resort_payment_config")
+        .select("resort_id, whatsapp")
+        .in("resort_id", resortIds);
+
+      if (payConfigs) {
+        const cMap: Record<string, { whatsapp: string | null }> = {};
+        payConfigs.forEach(c => { cMap[c.resort_id] = { whatsapp: c.whatsapp }; });
+        setContacts(cMap);
+      }
       const resIds = resData.map(r => r.id);
       const { data: guestData } = await supabase
         .from("reservation_guests")
@@ -275,6 +286,35 @@ const MyReservations = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Contact admin */}
+                      {(() => {
+                        const phone = contacts[res.resort_id]?.whatsapp;
+                        const cleanPhone = phone?.replace(/\D/g, "") || "";
+                        return cleanPhone ? (
+                          <div className="bg-muted/40 rounded-xl p-3">
+                            <p className="text-xs font-bold text-foreground mb-2">
+                              Precisa falar com o administrador?
+                            </p>
+                            <div className="flex gap-2">
+                              <a
+                                href={`https://wa.me/55${cleanPhone}?text=Olá! Gostaria de informações sobre minha reserva (${res.resort_name}).`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity"
+                              >
+                                <MessageCircle className="w-4 h-4" /> WhatsApp
+                              </a>
+                              <a
+                                href={`tel:+55${cleanPhone}`}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+                              >
+                                <Phone className="w-4 h-4" /> Ligar
+                              </a>
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                   )}
                 </div>
