@@ -1,3 +1,4 @@
+import mercadoPagoLogo from "@/assets/mercadopago-logo.png";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -464,11 +465,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             </svg>
           </div>
           {/* Mercado Pago badge */}
-          <div className="flex items-center justify-center gap-1 mt-2">
-            <svg className="h-3.5 w-auto" viewBox="0 0 60 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="60" height="14" rx="2" fill="#00B1EA"/>
-              <text x="30" y="10" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial">Mercado Pago</text>
-            </svg>
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            <img src={mercadoPagoLogo} alt="Mercado Pago" className="h-4 w-auto" />
             <span className="text-[9px] text-muted-foreground">Seus dados estão protegidos</span>
           </div>
         </div>
