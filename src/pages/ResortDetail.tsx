@@ -352,9 +352,9 @@ const ResortDetail = () => {
           <DynamicAmenities resortId={resortId} beds={resortBeds} guests={resortGuests} />
 
           {/* Description */}
-          <div className="rounded-2xl p-5" style={{ backgroundColor: 'hsl(340, 80%, 55%)' }}>
+          <div className="rounded-2xl p-5 bg-muted border border-border">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Descrição
               </h2>
               {whatsapp && (
@@ -363,20 +363,20 @@ const ResortDetail = () => {
                     href={`https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Gostaria de mais informações sobre o ' + resortName)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                    className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center hover:bg-foreground/20 transition-colors"
                   >
-                    <MessageCircle className="w-4 h-4 text-white" />
+                    <MessageCircle className="w-4 h-4 text-foreground" />
                   </a>
                   <a
                     href={`tel:+${whatsapp.replace(/\D/g, '')}`}
-                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                    className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center hover:bg-foreground/20 transition-colors"
                   >
-                    <Phone className="w-4 h-4 text-white" />
+                    <Phone className="w-4 h-4 text-foreground" />
                   </a>
                 </div>
               )}
             </div>
-            <p className="text-sm text-white/90 leading-relaxed whitespace-pre-line">
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
               {resortDescription || "Descrição não disponível."}
             </p>
           </div>
