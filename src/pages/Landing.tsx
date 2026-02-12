@@ -87,7 +87,7 @@ const Landing = () => {
             initial={{ y: 15, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.25, duration: 0.5 }}
-            className="flex justify-center mb-6"
+            className="flex justify-center mb-1"
           >
             <img
               src={settings.landing_logo_url}
@@ -102,7 +102,7 @@ const Landing = () => {
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-sm font-medium text-white/80 text-center mb-5 tracking-wide"
+            className="text-xs font-medium text-white/70 text-center mb-5 tracking-widest uppercase"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             {settings.landing_logo_subtitle}
