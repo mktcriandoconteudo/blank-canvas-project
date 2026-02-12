@@ -78,7 +78,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
-          important_info: string | null
+          important_info: string[] | null
           is_active: boolean | null
           location: string
           max_guests: number | null
@@ -96,7 +96,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
-          important_info?: string | null
+          important_info?: string[] | null
           is_active?: boolean | null
           location?: string
           max_guests?: number | null
@@ -114,7 +114,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
-          important_info?: string | null
+          important_info?: string[] | null
           is_active?: boolean | null
           location?: string
           max_guests?: number | null

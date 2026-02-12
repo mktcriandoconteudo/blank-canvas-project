@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } from "lucide-react";
 import AmenitySelector from "@/components/AmenitySelector";
 import CondoFeatureSelector from "@/components/CondoFeatureSelector";
+import ImportantInfoSelector from "@/components/ImportantInfoSelector";
 import FaviconManager from "@/components/FaviconManager";
 
 interface Resort {
@@ -24,7 +25,7 @@ interface Resort {
   is_active: boolean;
   amenities: string[];
   condo_features: string[];
-  important_info: string | null;
+  important_info: string[];
 }
 
 interface ResortPhoto {
@@ -43,7 +44,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
-  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[], condo_features: [] as string[], important_info: "" });
+  const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[], condo_features: [] as string[], important_info: [] as string[] });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -83,7 +84,7 @@ const AdminDashboard = () => {
       tag: newResort.tag || null,
       amenities: newResort.amenities,
       condo_features: newResort.condo_features,
-      important_info: newResort.important_info || null,
+      important_info: newResort.important_info,
     });
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
@@ -91,7 +92,7 @@ const AdminDashboard = () => {
     }
     toast({ title: "Resort criado!" });
     setShowNewForm(false);
-    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [], condo_features: [], important_info: "" });
+    setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [], condo_features: [], important_info: [] });
     fetchResorts();
   };
 
@@ -264,7 +265,7 @@ const AdminDashboard = () => {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Informações Importantes</Label>
-                <Textarea rows={4} value={newResort.important_info} onChange={e => setNewResort(p => ({ ...p, important_info: e.target.value }))} placeholder="Ex: Não aceito pet. Hóspede tem que levar roupa de cama e banho..." />
+                <ImportantInfoSelector selected={newResort.important_info} onChange={important_info => setNewResort(p => ({ ...p, important_info }))} />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleCreate}>Criar</Button>
@@ -326,7 +327,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Informações Importantes</Label>
-                    <Textarea rows={4} value={editForm.important_info ?? ""} onChange={e => setEditForm(p => ({ ...p, important_info: e.target.value }))} placeholder="Ex: Não aceito pet. Hóspede tem que levar roupa de cama e banho..." />
+                    <ImportantInfoSelector selected={editForm.important_info ?? []} onChange={important_info => setEditForm(p => ({ ...p, important_info }))} />
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => handleUpdate(resort.id)}><Save className="w-3 h-3 mr-1" /> Salvar</Button>
