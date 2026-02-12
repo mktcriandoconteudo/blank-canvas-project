@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { CalendarCheck } from "lucide-react";
-import { motion } from "framer-motion";
+import { CalendarCheck, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Plan {
@@ -81,19 +81,33 @@ const PricingPlans = ({ resortId, onSelectPlan }: PricingPlansProps) => {
               animate={{
                 opacity: 1,
                 y: 0,
-                scale: isSelected && !plan.is_popular ? 0.95 : plan.is_popular && !isSelected ? 1.03 : 1,
+                scale: isSelected ? 0.92 : 1,
               }}
-              transition={{ duration: 0.3, delay: i * 0.1, type: "spring", stiffness: 300, damping: 25 }}
-              className={`relative rounded-2xl overflow-hidden border cursor-pointer transition-shadow ${
-                plan.is_popular && !isSelected
-                  ? "bg-[hsl(340,80%,55%)] text-white border-transparent shadow-lg"
+              transition={{ type: "spring", stiffness: 400, damping: 25, delay: i * 0.1 }}
+              className={`relative rounded-2xl overflow-hidden cursor-pointer border ${
+                plan.is_popular
+                  ? "bg-[hsl(340,80%,55%)] text-white border-[hsl(340,80%,55%)]"
                   : isSelected
-                    ? "bg-card text-foreground border-primary shadow-inner ring-2 ring-primary/30"
+                    ? "bg-card text-foreground border-primary"
                     : "bg-card text-foreground border-border"
               }`}
-              style={isSelected ? { boxShadow: "inset 0 4px 12px rgba(0,0,0,0.15)" } : undefined}
               onClick={() => handleSelect(plan)}
             >
+              {/* Check mark badge */}
+              <AnimatePresence>
+                {isSelected && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                    className="absolute top-2 right-2 z-10"
+                  >
+                    <CheckCircle2 className={`w-5 h-5 ${plan.is_popular ? "text-white" : "text-primary"}`} fill={plan.is_popular ? "rgba(255,255,255,0.25)" : "hsl(var(--primary) / 0.15)"} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {plan.is_popular && (
                 <div className="text-center text-[10px] font-bold uppercase tracking-wider pt-2.5 pb-0.5 flex items-center justify-center gap-1">
                   <span>⭐</span> Mais Popular
