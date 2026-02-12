@@ -134,7 +134,7 @@ const ResortDetail = () => {
   const [dbPhotos, setDbPhotos] = useState<string[]>([]);
   const [resortAmenities, setResortAmenities] = useState<string[]>([]);
   const [resortDescription, setResortDescription] = useState<string | null>(null);
-  const [resortName, setResortName] = useState<string>("Condomínio Enseada");
+  const [resortName, setResortName] = useState<string>("");
   const [resortId, setResortId] = useState<string | null>(null);
   const [condoFeatures, setCondoFeatures] = useState<string[]>([]);
   const [importantInfo, setImportantInfo] = useState<string[]>([]);
@@ -311,7 +311,7 @@ const ResortDetail = () => {
             className="text-white font-extrabold text-[26px] leading-tight drop-shadow-lg"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            Condomínio{"\n"}Enseada
+            {resortName}
           </h1>
 
           {/* Avatars + reviews */}
@@ -377,7 +377,7 @@ const ResortDetail = () => {
               )}
             </div>
             <p className="text-sm text-white/90 leading-relaxed whitespace-pre-line">
-              {resortDescription || "O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais, vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos, área gourmet completa e estacionamento privativo."}
+              {resortDescription || "Descrição não disponível."}
             </p>
           </div>
 
