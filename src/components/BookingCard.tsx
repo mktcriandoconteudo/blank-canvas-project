@@ -36,8 +36,8 @@ export interface BookingCardRef {
 }
 
 const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, ref) => {
-  const [checkIn, setCheckIn] = useState<Date | undefined>();
-  const [checkOut, setCheckOut] = useState<Date | undefined>();
+  const [checkIn, setCheckIn] = useState<Date | undefined>(addDays(new Date(), 7));
+  const [checkOut, setCheckOut] = useState<Date | undefined>(addDays(new Date(), 9));
   const [guests, setGuests] = useState(1);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
