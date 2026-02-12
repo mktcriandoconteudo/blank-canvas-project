@@ -394,13 +394,15 @@ const ResortDetail = () => {
           />
         </div>
 
-        {/* Booking Card - full width at bottom */}
-        <div className="w-full max-w-md mx-auto" ref={bookingCardRef}>
-          <BookingCard ref={bookingRef} resortId={resortId} />
+        {/* Booking Card + FAQ side by side on desktop */}
+        <div className="w-full flex flex-col lg:flex-row gap-8 lg:items-start">
+          <div className="w-full lg:flex-1 max-w-md mx-auto lg:mx-0" ref={bookingCardRef}>
+            <BookingCard ref={bookingRef} resortId={resortId} />
+          </div>
+          <div className="w-full lg:flex-1 max-w-md mx-auto lg:mx-0">
+            <DynamicFaq resortId={resortId} />
+          </div>
         </div>
-
-        {/* FAQ */}
-        <DynamicFaq resortId={resortId} />
 
         {/* Contact Buttons */}
         {whatsapp && (
