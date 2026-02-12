@@ -261,38 +261,41 @@ const CondoDetail = () => {
                 className="group cursor-pointer"
                 onClick={() => navigate(`/resort/${slug}/${apt.slug}`)}
               >
-                <div className="relative overflow-hidden rounded-3xl aspect-[3/4] ring-1 ring-border/20 shadow-lg shadow-primary/5">
-                  <img
-                    src={apt.coverUrl || resort1Image}
-                    alt={apt.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="rounded-[1.25rem] overflow-hidden bg-card ring-1 ring-border/30 shadow-lg shadow-primary/10 transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-primary/20">
+                  {/* Photo */}
+                  <div className="relative overflow-hidden aspect-[4/3]">
+                    <img
+                      src={apt.coverUrl || resort1Image}
+                      alt={apt.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    {apt.tag && (
+                      <span className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-[10px] font-bold tracking-widest uppercase shadow-lg">
+                        {apt.tag}
+                      </span>
+                    )}
+                  </div>
 
-                  {apt.tag && (
-                    <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-[10px] font-bold tracking-widest uppercase shadow-lg">
-                      {apt.tag}
-                    </span>
-                  )}
-
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                  {/* Info */}
+                  <div className="p-4">
                     <h3
-                      className="text-white font-extrabold text-xl leading-tight mb-1 drop-shadow-lg"
+                      className="text-foreground font-extrabold text-lg leading-tight mb-2"
                       style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                     >
                       {apt.name}
                     </h3>
-                    <div className="flex items-center gap-2 flex-wrap mt-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {apt.price_per_night && (
-                        <span className="flex items-center gap-1.5 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
-                          <span className="text-[10px] font-normal opacity-80">a partir de</span> R$ {apt.price_per_night.toLocaleString("pt-BR")} <span className="text-[10px] font-normal opacity-80">/noite</span>
+                        <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border border-border" style={{ background: "hsl(340, 80%, 55%)", color: "white", borderColor: "transparent" }}>
+                          R$ {apt.price_per_night.toLocaleString("pt-BR")} <span className="text-[10px] font-normal opacity-80">/noite</span>
                         </span>
                       )}
-                      <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
+                      <span className="flex items-center gap-1 text-muted-foreground text-xs font-semibold px-3 py-1.5 rounded-xl border border-border bg-secondary">
                         <Bed className="w-3 h-3" />
                         {apt.beds ?? 1} quartos
                       </span>
-                      <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
+                      <span className="flex items-center gap-1 text-muted-foreground text-xs font-semibold px-3 py-1.5 rounded-xl border border-border bg-secondary">
                         <Users className="w-3 h-3" />
                         {apt.max_guests ?? 2} hósp.
                       </span>
