@@ -11,6 +11,7 @@ import { Plus, Trash2, Image, Edit2, Save, X, Upload, Building2, Home, UserPlus 
 import PricingPlansManager from "@/components/PricingPlansManager";
 import BlockedDatesManager from "@/components/BlockedDatesManager";
 import OptionsManager from "@/components/OptionsManager";
+import PaymentConfig from "@/components/PaymentConfig";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface Resort {
@@ -543,6 +544,7 @@ const AdminDashboard = () => {
                       {renderPhotoSection(apt.id)}
                       <PricingPlansManager resortId={apt.id} />
                       <BlockedDatesManager resortId={apt.id} />
+                      <PaymentConfig resortId={apt.id} />
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <OptionsManager category="amenity" title="Comodidades" resortId={apt.id} />
                         <OptionsManager category="condo_feature" title="O que o lugar oferece" resortId={apt.id} />
