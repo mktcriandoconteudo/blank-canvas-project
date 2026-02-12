@@ -498,7 +498,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         </p>
 
         {/* Check-in / Check-out time cards */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 justify-center">
           <span className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
             <LogIn className="w-4 h-4 text-muted-foreground" />
             Check-in {paymentConfig?.checkin_time || "14:00"}
