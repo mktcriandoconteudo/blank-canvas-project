@@ -64,6 +64,41 @@ export type Database = {
           },
         ]
       }
+      faq_items: {
+        Row: {
+          answer: string
+          created_at: string | null
+          display_order: number
+          id: string
+          question: string
+          resort_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          question: string
+          resort_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          question?: string
+          resort_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faq_items_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hero_slides: {
         Row: {
           created_at: string | null
