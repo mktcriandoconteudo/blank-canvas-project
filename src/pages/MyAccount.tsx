@@ -19,6 +19,7 @@ const MyAccount = () => {
   const [uploading, setUploading] = useState(false);
 
   const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
 
@@ -43,6 +44,7 @@ const MyAccount = () => {
 
     if (data) {
       setFullName(data.full_name || "");
+      setEmail((data as any).email || "");
       setPhone(data.phone || "");
       setAvatarUrl(data.avatar_url || "");
     }
@@ -92,7 +94,7 @@ const MyAccount = () => {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: fullName, phone })
+        .update({ full_name: fullName, phone, email } as any)
         .eq("user_id", user.id);
 
       if (error) throw error;
@@ -176,17 +178,25 @@ const MyAccount = () => {
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">E-mail</Label>
                 <Input
-                  value={user?.email || ""}
-                  disabled
-                  className="rounded-xl opacity-60"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  type="email"
+                  className="rounded-xl"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Telefone / Celular</Label>
+                <Label className="text-sm font-semibold">Celular</Label>
                 <Input
                   value={phone}
-                  onChange={e => setPhone(e.target.value)}
+                  onChange={e => {
+                    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                    if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+                    else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+                    else if (v.length > 0) v = `(${v}`;
+                    setPhone(v);
+                  }}
                   placeholder="(62) 99999-9999"
                   className="rounded-xl"
                 />
