@@ -191,16 +191,16 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border px-4 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <header className="border-b border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 justify-between">
+        <h1 className="text-base sm:text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Admin — Resorts
         </h1>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate("/explore")}>
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => navigate("/explore")}>
             <ExternalLink className="w-4 h-4 mr-1" /> Ver Site
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowNewForm(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Novo Resort
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => setShowNewForm(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Novo
           </Button>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4" />
