@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
@@ -97,7 +97,7 @@ const ResortDetail = () => {
   const [importantInfo, setImportantInfo] = useState<string[]>([]);
   const [resortBeds, setResortBeds] = useState<number>(1);
   const [resortGuests, setResortGuests] = useState<number>(2);
-
+  const [whatsapp, setWhatsapp] = useState<string | null>(null);
   // Fetch photos from database
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -131,6 +131,17 @@ const ResortDetail = () => {
 
         if (photos && photos.length > 0) {
           setDbPhotos(photos.map(p => p.url));
+        }
+
+        // Fetch WhatsApp from payment config
+        const { data: payConfig } = await supabase
+          .from("resort_payment_config")
+          .select("whatsapp")
+          .eq("resort_id", resort.id)
+          .maybeSingle();
+
+        if (payConfig?.whatsapp) {
+          setWhatsapp(payConfig.whatsapp);
         }
       }
     };
@@ -345,6 +356,29 @@ const ResortDetail = () => {
         <div className="w-full max-w-md mx-auto" ref={bookingCardRef}>
           <BookingCard ref={bookingRef} resortId={resortId} />
         </div>
+
+        {/* Contact Buttons */}
+        {whatsapp && (
+          <div className="w-full max-w-md mx-auto flex gap-3">
+            <a
+              href={`https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Gostaria de mais informações sobre o ' + resortName)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.25rem] text-white font-bold text-sm transition-all hover:brightness-110 shadow-lg"
+              style={{ background: "#25D366" }}
+            >
+              <MessageCircle className="w-5 h-5" />
+              WhatsApp
+            </a>
+            <a
+              href={`tel:+${whatsapp.replace(/\D/g, '')}`}
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.25rem] bg-primary text-primary-foreground font-bold text-sm transition-all hover:brightness-110 shadow-lg"
+            >
+              <Phone className="w-5 h-5" />
+              Ligar
+            </a>
+          </div>
+        )}
       </div>
       {/* Photo Lightbox */}
       <PhotoLightbox
