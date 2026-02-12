@@ -38,14 +38,22 @@ const Index = () => {
   const [showInfoCard, setShowInfoCard] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userAvatar, setUserAvatar] = useState("");
 
   // Check auth and show info card
   useEffect(() => {
+    const fetchAvatar = async (userId: string) => {
+      const { data } = await supabase.from("profiles").select("avatar_url").eq("user_id", userId).maybeSingle();
+      if (data?.avatar_url) setUserAvatar(data.avatar_url);
+    };
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) fetchAvatar(session.user.id);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) fetchAvatar(session.user.id);
+      else setUserAvatar("");
     });
     // Show card after a short delay
     const timer = setTimeout(() => setShowInfoCard(true), 1500);
@@ -131,9 +139,13 @@ const Index = () => {
           className="flex items-center gap-2 bg-card/30 backdrop-blur-md border border-border/10 rounded-full px-3 py-2"
         >
           <Menu className="w-4 h-4 text-white" />
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
-          </div>
+          {userAvatar ? (
+            <img src={userAvatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+          )}
         </button>
       </div>
       <HeroBanner />
