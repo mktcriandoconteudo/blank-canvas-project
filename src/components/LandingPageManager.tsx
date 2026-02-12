@@ -17,12 +17,14 @@ const LANDING_KEYS = [
   "landing_button_color",
   "landing_button_text_color",
   "landing_bg_url",
+  "landing_logo_url",
 ];
 
 const LandingPageManager = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -85,7 +87,28 @@ const LandingPageManager = () => {
     setUploading(false);
   };
 
+  const handleLogoUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploadingLogo(true);
+    const file = files[0];
+    const ext = file.name.split(".").pop();
+    const path = `landing/logo-${Date.now()}.${ext}`;
+
+    const { error } = await supabase.storage.from("site-assets").upload(path, file);
+    if (error) {
+      toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
+      setUploadingLogo(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("site-assets").getPublicUrl(path);
+    update("landing_logo_url", urlData.publicUrl);
+    toast({ title: "Logomarca enviada!" });
+    setUploadingLogo(false);
+  };
+
   const bgPreview = settings.landing_bg_url || "";
+  const logoPreview = settings.landing_logo_url || "";
 
   return (
     <Card>
@@ -124,6 +147,42 @@ const LandingPageManager = () => {
           {!bgPreview && (
             <p className="text-[10px] text-muted-foreground">Usando imagem padrão. Envie uma para personalizar.</p>
           )}
+        </div>
+
+        {/* Logo upload */}
+        <div className="space-y-2">
+          <Label className="text-[11px] font-bold flex items-center gap-1.5">
+            🏷️ Logomarca (centralizada acima dos textos)
+          </Label>
+          <div className="flex items-center gap-3">
+            {logoPreview && (
+              <div className="w-20 h-14 rounded-xl overflow-hidden border border-border shrink-0 bg-black/10 flex items-center justify-center p-1">
+                <img src={logoPreview} alt="Logo" className="max-w-full max-h-full object-contain" />
+              </div>
+            )}
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={e => handleLogoUpload(e.target.files)}
+              />
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4 py-2 cursor-pointer transition-colors">
+                <Upload className="w-3.5 h-3.5" />
+                {uploadingLogo ? "Enviando..." : logoPreview ? "Trocar logo" : "Enviar logo"}
+              </span>
+            </label>
+            {logoPreview && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-xs text-destructive h-8"
+                onClick={() => update("landing_logo_url", "")}
+              >
+                Remover
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Texts */}
