@@ -469,9 +469,29 @@ const AdminDashboard = () => {
                   ) : (
                     <div className="flex items-start gap-4">
                       {/* Cover preview */}
-                      <div className="w-24 h-32 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
+                      <div className="w-24 h-32 rounded-xl overflow-hidden bg-muted shrink-0 border border-border relative group">
                         {coverPhoto ? (
-                          <img src={coverPhoto.url} alt="" className="w-full h-full object-cover" />
+                          <>
+                            <img src={coverPhoto.url} alt="" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                              <label className="cursor-pointer text-white bg-white/20 p-1.5 rounded-full hover:bg-white/30 transition-colors">
+                                <RefreshCw className="w-3.5 h-3.5" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={e => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleReplacePhoto(coverPhoto, file);
+                                    e.target.value = "";
+                                  }}
+                                />
+                              </label>
+                              <button onClick={() => handleDeletePhoto(coverPhoto)} className="text-white bg-destructive/80 p-1.5 rounded-full hover:bg-destructive transition-colors">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                             <Image className="w-6 h-6" />
