@@ -11,12 +11,12 @@ import { useSelectorOptions } from "@/hooks/use-selector-options";
 import { getIconComponent } from "@/components/IconPicker";
 
 // Sub-components that use DB-driven options
-const DynamicAmenities = ({ keys, beds, guests }: { keys: string[]; beds: number; guests: number }) => {
-  const { options } = useSelectorOptions("amenity");
-  const filtered = keys.length > 0 ? options.filter(o => keys.includes(o.key)) : options.slice(0, 4);
+const DynamicAmenities = ({ resortId, beds, guests }: { resortId: string | null; beds: number; guests: number }) => {
+  const { options } = useSelectorOptions("amenity", resortId || undefined);
+  if (options.length === 0) return null;
   return (
     <div className="flex gap-2 flex-wrap mb-7">
-      {filtered.map(o => {
+      {options.map(o => {
         const Icon = getIconComponent(o.icon_name);
         const count = o.key === "quartos" ? beds : o.key === "hospedes" ? guests : null;
         return (
@@ -30,17 +30,16 @@ const DynamicAmenities = ({ keys, beds, guests }: { keys: string[]; beds: number
   );
 };
 
-const DynamicCondoFeatures = ({ keys }: { keys: string[] }) => {
-  const { options } = useSelectorOptions("condo_feature");
-  const filtered = keys.length > 0 ? options.filter(o => keys.includes(o.key)) : options.slice(0, 10);
-  if (filtered.length === 0) return null;
+const DynamicCondoFeatures = ({ resortId }: { resortId: string | null }) => {
+  const { options } = useSelectorOptions("condo_feature", resortId || undefined);
+  if (options.length === 0) return null;
   return (
     <div className="bg-card border border-border rounded-2xl p-6 mb-7">
       <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
         O que esse lugar oferece
       </h2>
       <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-        {filtered.map(o => {
+        {options.map(o => {
           const Icon = getIconComponent(o.icon_name);
           return (
             <div key={o.id} className="flex items-start gap-2.5">
@@ -54,10 +53,9 @@ const DynamicCondoFeatures = ({ keys }: { keys: string[] }) => {
   );
 };
 
-const DynamicImportantInfo = ({ keys }: { keys: string[] }) => {
-  const { options } = useSelectorOptions("important_info");
-  const filtered = options.filter(o => keys.includes(o.key));
-  if (filtered.length === 0) return null;
+const DynamicImportantInfo = ({ resortId }: { resortId: string | null }) => {
+  const { options } = useSelectorOptions("important_info", resortId || undefined);
+  if (options.length === 0) return null;
   return (
     <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 mb-7">
       <h2 className="text-base font-bold text-destructive flex items-center gap-2 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -65,7 +63,7 @@ const DynamicImportantInfo = ({ keys }: { keys: string[] }) => {
         Informações Importantes
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-3">
-        {filtered.map(o => {
+        {options.map(o => {
           const Icon = getIconComponent(o.icon_name);
           return (
             <div key={o.id} className="flex items-start gap-2.5">
@@ -295,7 +293,7 @@ const ResortDetail = () => {
           <h2 className="text-base font-bold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Comodidades Populares
           </h2>
-          <DynamicAmenities keys={resortAmenities} beds={resortBeds} guests={resortGuests} />
+          <DynamicAmenities resortId={resortId} beds={resortBeds} guests={resortGuests} />
 
           {/* Description */}
           <h2 className="text-base font-bold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -325,10 +323,10 @@ const ResortDetail = () => {
           </div>
 
           {/* O que esse lugar oferece */}
-          <DynamicCondoFeatures keys={condoFeatures} />
+          <DynamicCondoFeatures resortId={resortId} />
 
           {/* Informações Importantes */}
-          <DynamicImportantInfo keys={importantInfo} />
+          <DynamicImportantInfo resortId={resortId} />
 
           {/* Pricing Plans */}
           <PricingPlans

@@ -336,6 +336,7 @@ export type Database = {
           id: string
           key: string
           label: string
+          resort_id: string | null
         }
         Insert: {
           category: string
@@ -345,6 +346,7 @@ export type Database = {
           id?: string
           key: string
           label: string
+          resort_id?: string | null
         }
         Update: {
           category?: string
@@ -354,8 +356,17 @@ export type Database = {
           id?: string
           key?: string
           label?: string
+          resort_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "selector_options_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {

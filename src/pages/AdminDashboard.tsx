@@ -8,9 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Image, Edit2, Save, X, Upload } from "lucide-react";
-import DynamicSelector from "@/components/DynamicSelector";
 import PricingPlansManager from "@/components/PricingPlansManager";
 import BlockedDatesManager from "@/components/BlockedDatesManager";
+import OptionsManager from "@/components/OptionsManager";
 
 interface Resort {
   id: string;
@@ -240,18 +240,6 @@ const AdminDashboard = () => {
                 <Label className="text-xs">Descrição</Label>
                 <Textarea rows={4} value={newResort.description} onChange={e => setNewResort(p => ({ ...p, description: e.target.value }))} placeholder="Descreva o resort, instalações, diferenciais..." />
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Comodidades</Label>
-                <DynamicSelector category="amenity" selected={newResort.amenities} onChange={amenities => setNewResort(p => ({ ...p, amenities }))} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">O que o lugar oferece</Label>
-                <DynamicSelector category="condo_feature" selected={newResort.condo_features} onChange={condo_features => setNewResort(p => ({ ...p, condo_features }))} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Informações Importantes</Label>
-                <DynamicSelector category="important_info" selected={newResort.important_info} onChange={important_info => setNewResort(p => ({ ...p, important_info }))} variant="destructive" />
-              </div>
               <div className="flex gap-2 mt-2">
                 <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8" onClick={handleCreate}>Criar Resort</Button>
                 <Button size="lg" variant="ghost" onClick={() => setShowNewForm(false)}>Cancelar</Button>
@@ -301,18 +289,6 @@ const AdminDashboard = () => {
                   <div className="space-y-1">
                     <Label className="text-xs">Descrição</Label>
                     <Textarea rows={4} value={editForm.description ?? ""} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} placeholder="Descreva o resort, instalações, diferenciais..." />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Comodidades</Label>
-                    <DynamicSelector category="amenity" selected={editForm.amenities ?? []} onChange={amenities => setEditForm(p => ({ ...p, amenities }))} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">O que o lugar oferece</Label>
-                    <DynamicSelector category="condo_feature" selected={editForm.condo_features ?? []} onChange={condo_features => setEditForm(p => ({ ...p, condo_features }))} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Informações Importantes</Label>
-                    <DynamicSelector category="important_info" selected={editForm.important_info ?? []} onChange={important_info => setEditForm(p => ({ ...p, important_info }))} variant="destructive" />
                   </div>
                   <div className="flex gap-2">
                     <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8" onClick={() => handleUpdate(resort.id)}><Save className="w-4 h-4 mr-1" /> Salvar</Button>
@@ -397,6 +373,13 @@ const AdminDashboard = () => {
 
               {/* Blocked Dates */}
               <BlockedDatesManager resortId={resort.id} />
+
+              {/* Options per resort */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <OptionsManager category="amenity" title="Comodidades" resortId={resort.id} />
+                <OptionsManager category="condo_feature" title="O que o lugar oferece" resortId={resort.id} />
+                <OptionsManager category="important_info" title="Informações Importantes" resortId={resort.id} />
+              </div>
             </CardContent>
           </Card>
         ))}
