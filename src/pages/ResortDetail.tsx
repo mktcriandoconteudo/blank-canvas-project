@@ -396,10 +396,10 @@ const ResortDetail = () => {
 
         {/* Booking Card + FAQ side by side on desktop */}
         <div className="w-full flex flex-col lg:flex-row gap-8 lg:items-start">
-          <div className="w-full lg:flex-1 max-w-md mx-auto lg:mx-0" ref={bookingCardRef}>
+          <div className="w-full lg:flex-1 max-w-md mx-auto lg:mx-0 lg:order-2" ref={bookingCardRef}>
             <BookingCard ref={bookingRef} resortId={resortId} />
           </div>
-          <div className="w-full lg:flex-1 max-w-md mx-auto lg:mx-0">
+          <div className="w-full lg:flex-1 max-w-md mx-auto lg:mx-0 lg:order-1">
             <DynamicFaq resortId={resortId} />
           </div>
         </div>
