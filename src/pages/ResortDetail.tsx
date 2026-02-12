@@ -335,9 +335,6 @@ const ResortDetail = () => {
             resortId={resortId ?? undefined}
             onSelectPlan={(plan) => {
               bookingRef.current?.selectPlan(plan);
-              setTimeout(() => {
-                bookingCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-              }, 100);
             }}
           />
         </div>
