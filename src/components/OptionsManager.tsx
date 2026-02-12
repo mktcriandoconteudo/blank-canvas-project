@@ -38,6 +38,7 @@ const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [singleDeleteTarget, setSingleDeleteTarget] = useState<SelectorOption | null>(null);
 
   const toggleSelect = (id: string) => {
     setSelected(prev => {
@@ -96,6 +97,21 @@ const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
     setEditingId(opt.id);
     setEditLabel(opt.label);
     setEditIcon(opt.icon_name);
+  };
+
+  const handleSingleDelete = (opt: SelectorOption) => {
+    setSingleDeleteTarget(opt);
+  };
+
+  const confirmSingleDelete = async () => {
+    if (!singleDeleteTarget) return;
+    const error = await deleteOption(singleDeleteTarget.id);
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Opção excluída!" });
+    }
+    setSingleDeleteTarget(null);
   };
 
   return (
@@ -200,6 +216,9 @@ const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
                       <Button size="icon" variant="ghost" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); startEdit(opt); }}>
                         <Edit2 className="w-3 h-3" />
                       </Button>
+                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleSingleDelete(opt); }}>
+                        <Trash2 className="w-3 h-3 text-destructive" />
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -220,6 +239,23 @@ const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!singleDeleteTarget} onOpenChange={(open) => { if (!open) setSingleDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir "{singleDeleteTarget?.label}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSingleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
