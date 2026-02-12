@@ -83,7 +83,7 @@ const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag
           {/* Info bar */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="flex items-center gap-1.5 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
-              R$ {price.toLocaleString("pt-BR")}
+              <span className="text-[10px] font-normal opacity-80">a partir de</span> R$ {price.toLocaleString("pt-BR")} <span className="text-[10px] font-normal opacity-80">/noite</span>
             </span>
             <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
               <Star className="w-3 h-3 fill-primary text-primary" />
