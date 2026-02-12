@@ -36,12 +36,27 @@ interface ResortPhoto {
   is_cover: boolean;
 }
 
+const formatCurrencyInput = (value: string) => {
+  const numbers = value.replace(/\D/g, "");
+  const cents = parseInt(numbers || "0", 10);
+  return (cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+const parseCurrencyInput = (formatted: string): number => {
+  const numbers = formatted.replace(/\D/g, "");
+  return parseInt(numbers || "0", 10) / 100;
+};
+const numberToCurrencyDisplay = (value: number | null): string => {
+  if (value === null || value === undefined) return "";
+  return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 const OwnerDashboard = () => {
   const [apartments, setApartments] = useState<Resort[]>([]);
   const [photos, setPhotos] = useState<Record<string, ResortPhoto[]>>({});
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
+  const [editPriceDisplay, setEditPriceDisplay] = useState("");
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -177,7 +192,19 @@ const OwnerDashboard = () => {
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Preço/noite</Label>
-                      <Input type="number" value={editForm.price_per_night ?? ""} onChange={e => setEditForm(p => ({ ...p, price_per_night: parseFloat(e.target.value) }))} />
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">R$</span>
+                        <Input
+                          value={editPriceDisplay}
+                          onChange={e => {
+                            const formatted = formatCurrencyInput(e.target.value);
+                            setEditPriceDisplay(formatted);
+                            setEditForm(p => ({ ...p, price_per_night: parseCurrencyInput(formatted) }));
+                          }}
+                          className="pl-10"
+                          placeholder="0,00"
+                        />
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Tag</Label>
@@ -212,7 +239,7 @@ const OwnerDashboard = () => {
                     <p className="text-xs text-muted-foreground">{apt.beds} quartos · {apt.max_guests} hóspedes</p>
                     {apt.tag && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">{apt.tag}</span>}
                   </div>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(apt.id); setEditForm(apt); }}>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(apt.id); setEditForm(apt); setEditPriceDisplay(numberToCurrencyDisplay(apt.price_per_night)); }}>
                     <Edit2 className="w-4 h-4" />
                   </Button>
                 </div>

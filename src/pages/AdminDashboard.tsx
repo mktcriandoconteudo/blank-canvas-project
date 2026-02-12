@@ -39,6 +39,22 @@ interface ResortPhoto {
   is_cover: boolean;
 }
 
+const formatCurrencyInput = (value: string) => {
+  const numbers = value.replace(/\D/g, "");
+  const cents = parseInt(numbers || "0", 10);
+  return (cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const parseCurrencyInput = (formatted: string): number => {
+  const numbers = formatted.replace(/\D/g, "");
+  return parseInt(numbers || "0", 10) / 100;
+};
+
+const numberToCurrencyDisplay = (value: number | null): string => {
+  if (value === null || value === undefined) return "";
+  return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 const AdminDashboard = () => {
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [photos, setPhotos] = useState<Record<string, ResortPhoto[]>>({});
@@ -47,6 +63,7 @@ const AdminDashboard = () => {
   const [showNewForm, setShowNewForm] = useState(false);
   const [newResort, setNewResort] = useState({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [] as string[], condo_features: [] as string[], important_info: [] as string[], parent_id: "" });
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
+  const [editPriceDisplay, setEditPriceDisplay] = useState("");
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showNewCondoForm, setShowNewCondoForm] = useState(false);
@@ -82,7 +99,7 @@ const AdminDashboard = () => {
       name: newResort.name,
       location: newResort.location,
       description: newResort.description || null,
-      price_per_night: newResort.price_per_night ? parseFloat(newResort.price_per_night) : null,
+      price_per_night: newResort.price_per_night ? parseCurrencyInput(newResort.price_per_night) : null,
       beds: parseInt(newResort.beds),
       max_guests: parseInt(newResort.max_guests),
       tag: newResort.tag || null,
@@ -296,7 +313,19 @@ const AdminDashboard = () => {
           <>
             <div className="space-y-1">
               <Label className="text-xs">Preço/noite</Label>
-              <Input type="number" value={editForm.price_per_night ?? ""} onChange={e => setEditForm(p => ({ ...p, price_per_night: parseFloat(e.target.value) }))} />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">R$</span>
+                <Input
+                  value={editPriceDisplay}
+                  onChange={e => {
+                    const formatted = formatCurrencyInput(e.target.value);
+                    setEditPriceDisplay(formatted);
+                    setEditForm(p => ({ ...p, price_per_night: parseCurrencyInput(formatted) }));
+                  }}
+                  className="pl-10"
+                  placeholder="0,00"
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Tag</Label>
@@ -418,7 +447,7 @@ const AdminDashboard = () => {
                         <p className="text-xs text-muted-foreground mt-1">{condo.description?.slice(0, 100)}...</p>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(condo.id); setEditForm(condo); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(condo.id); setEditForm(condo); setEditPriceDisplay(numberToCurrencyDisplay(condo.price_per_night)); }}>
                           <Edit2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -460,7 +489,18 @@ const AdminDashboard = () => {
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Preço/noite (R$)</Label>
-                          <Input type="number" value={newResort.price_per_night} onChange={e => setNewResort(p => ({ ...p, price_per_night: e.target.value }))} />
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">R$</span>
+                            <Input
+                              value={newResort.price_per_night}
+                              onChange={e => {
+                                const formatted = formatCurrencyInput(e.target.value);
+                                setNewResort(p => ({ ...p, price_per_night: formatted }));
+                              }}
+                              className="pl-10"
+                              placeholder="0,00"
+                            />
+                          </div>
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Tag</Label>
@@ -531,7 +571,7 @@ const AdminDashboard = () => {
                                 </div>
                               </DialogContent>
                             </Dialog>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setEditingId(apt.id); setEditForm(apt); }}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setEditingId(apt.id); setEditForm(apt); setEditPriceDisplay(numberToCurrencyDisplay(apt.price_per_night)); }}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDelete(apt.id); }}>
