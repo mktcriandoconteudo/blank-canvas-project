@@ -179,6 +179,56 @@ export type Database = {
           },
         ]
       }
+      resort_payment_config: {
+        Row: {
+          created_at: string | null
+          id: string
+          mp_access_token: string | null
+          mp_public_key: string | null
+          payment_method: string
+          pix_bank: string | null
+          pix_key: string | null
+          pix_name: string | null
+          resort_id: string
+          updated_at: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mp_access_token?: string | null
+          mp_public_key?: string | null
+          payment_method?: string
+          pix_bank?: string | null
+          pix_key?: string | null
+          pix_name?: string | null
+          resort_id: string
+          updated_at?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mp_access_token?: string | null
+          mp_public_key?: string | null
+          payment_method?: string
+          pix_bank?: string | null
+          pix_key?: string | null
+          pix_name?: string | null
+          resort_id?: string
+          updated_at?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resort_payment_config_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: true
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resort_photos: {
         Row: {
           created_at: string | null
@@ -230,6 +280,7 @@ export type Database = {
           location: string
           max_guests: number | null
           name: string
+          owner_id: string | null
           price_per_night: number | null
           rating: number | null
           reviews_count: number | null
@@ -248,6 +299,7 @@ export type Database = {
           location?: string
           max_guests?: number | null
           name: string
+          owner_id?: string | null
           price_per_night?: number | null
           rating?: number | null
           reviews_count?: number | null
@@ -266,6 +318,7 @@ export type Database = {
           location?: string
           max_guests?: number | null
           name?: string
+          owner_id?: string | null
           price_per_night?: number | null
           rating?: number | null
           reviews_count?: number | null
@@ -357,7 +410,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "owner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -485,7 +538,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "owner"],
     },
   },
 } as const
