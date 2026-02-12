@@ -46,6 +46,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
+  const [maxGuests, setMaxGuests] = useState(10);
   const [hasConflict, setHasConflict] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -95,15 +96,19 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   useEffect(() => {
     if (!resortId) return;
     const fetchData = async () => {
-      const [blockedRes, payRes] = await Promise.all([
+      const [blockedRes, payRes, resortRes] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
         supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent").eq("resort_id", resortId).maybeSingle(),
+        supabase.from("resorts").select("max_guests").eq("id", resortId).maybeSingle(),
       ]);
       if (blockedRes.data) {
         setBlockedDates(blockedRes.data.map(d => new Date(d.blocked_date + "T12:00:00")));
       }
       if (payRes.data) {
         setPaymentConfig(payRes.data);
+      }
+      if (resortRes.data?.max_guests) {
+        setMaxGuests(resortRes.data.max_guests);
       }
     };
     fetchData();
@@ -358,7 +363,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             </button>
             {guestsOpen && (
               <div className="border-t border-border max-h-40 overflow-y-auto">
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                {Array.from({ length: maxGuests }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
                     onClick={() => { setGuests(num); setGuestsOpen(false); }}
