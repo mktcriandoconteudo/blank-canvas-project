@@ -2,6 +2,7 @@ import FaviconManager from "@/components/FaviconManager";
 import MercadoPagoSettings from "@/components/MercadoPagoSettings";
 import HeroBannerManager from "@/components/HeroBannerManager";
 import LandingPageManager from "@/components/LandingPageManager";
+import GoogleOAuthGuide from "@/components/GoogleOAuthGuide";
 
 const AdminSettings = () => {
   return (
@@ -21,6 +22,9 @@ const AdminSettings = () => {
 
       {/* Mercado Pago settings */}
       <MercadoPagoSettings />
+
+      {/* Google OAuth guide */}
+      <GoogleOAuthGuide />
     </div>
   );
 };
