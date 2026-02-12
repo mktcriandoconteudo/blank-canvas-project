@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Image, Edit2, Save, X, Upload, Building2, Home } from "lucide-react";
+import { Plus, Trash2, Image, Edit2, Save, X, Upload, Building2, Home, UserPlus } from "lucide-react";
 import PricingPlansManager from "@/components/PricingPlansManager";
 import BlockedDatesManager from "@/components/BlockedDatesManager";
 import OptionsManager from "@/components/OptionsManager";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface Resort {
   id: string;
@@ -47,7 +48,11 @@ const AdminDashboard = () => {
   const [editForm, setEditForm] = useState<Partial<Resort>>({});
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const [showNewCondoForm, setShowNewCondoForm] = useState(false);
+  const [newCondo, setNewCondo] = useState({ name: "", location: "Caldas Novas, GO", description: "" });
+  const [ownerForm, setOwnerForm] = useState({ username: "", password: "", resortId: "" });
+  const [creatingOwner, setCreatingOwner] = useState(false);
+  const [ownerDialogOpen, setOwnerDialogOpen] = useState(false);
   // Separate parent condos from child apartments
   const parentCondos = resorts.filter(r => r.parent_id === null);
   const childApartments = (parentId: string) => resorts.filter(r => r.parent_id === parentId);
@@ -92,6 +97,42 @@ const AdminDashboard = () => {
     toast({ title: "Resort criado!" });
     setShowNewForm(false);
     setNewResort({ name: "", location: "Caldas Novas, GO", description: "", price_per_night: "", beds: "1", max_guests: "2", tag: "", amenities: [], condo_features: [], important_info: [], parent_id: "" });
+    fetchResorts();
+  };
+
+  const handleCreateCondo = async () => {
+    const { error } = await supabase.from("resorts").insert({
+      name: newCondo.name,
+      location: newCondo.location,
+      description: newCondo.description || null,
+    });
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Condomínio criado!" });
+    setShowNewCondoForm(false);
+    setNewCondo({ name: "", location: "Caldas Novas, GO", description: "" });
+    fetchResorts();
+  };
+
+  const handleCreateOwner = async (resortId: string) => {
+    if (!ownerForm.username || !ownerForm.password) {
+      toast({ title: "Preencha username e senha", variant: "destructive" });
+      return;
+    }
+    setCreatingOwner(true);
+    const { data, error } = await supabase.functions.invoke("create-owner", {
+      body: { username: ownerForm.username, password: ownerForm.password, resort_id: resortId },
+    });
+    setCreatingOwner(false);
+    if (error || data?.error) {
+      toast({ title: "Erro", description: data?.error || error?.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Dono criado!", description: data?.message });
+    setOwnerForm({ username: "", password: "", resortId: "" });
+    setOwnerDialogOpen(false);
     fetchResorts();
   };
 
@@ -298,6 +339,44 @@ const AdminDashboard = () => {
     <div className="bg-background">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
 
+        {/* Novo Condomínio button */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-bold flex items-center gap-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <Building2 className="w-5 h-5 text-primary" />
+            Condomínios / Resorts
+          </h1>
+          <Button size="sm" onClick={() => setShowNewCondoForm(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Novo Condomínio
+          </Button>
+        </div>
+
+        {/* New Condo Form */}
+        {showNewCondoForm && (
+          <Card>
+            <CardHeader><CardTitle className="text-sm">Novo Condomínio / Resort</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Nome</Label>
+                  <Input value={newCondo.name} onChange={e => setNewCondo(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Condomínio Lagoa" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Local</Label>
+                  <Input value={newCondo.location} onChange={e => setNewCondo(p => ({ ...p, location: e.target.value }))} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Descrição</Label>
+                <Textarea rows={3} value={newCondo.description} onChange={e => setNewCondo(p => ({ ...p, description: e.target.value }))} />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleCreateCondo}>Criar Condomínio</Button>
+                <Button size="sm" variant="ghost" onClick={() => setShowNewCondoForm(false)}>Cancelar</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* === CONDOMÍNIOS (Parents) === */}
         {parentCondos.map(condo => {
           const apartments = childApartments(condo.id);
@@ -425,6 +504,32 @@ const AdminDashboard = () => {
                             {apt.tag && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">{apt.tag}</span>}
                           </div>
                           <div className="flex gap-1 shrink-0">
+                            {/* Create Owner Dialog */}
+                            <Dialog open={ownerDialogOpen && ownerForm.resortId === apt.id} onOpenChange={(open) => { setOwnerDialogOpen(open); if (open) setOwnerForm(p => ({ ...p, resortId: apt.id })); }}>
+                              <DialogTrigger asChild>
+                                <Button size="icon" variant="ghost" className="h-8 w-8" title="Criar dono">
+                                  <UserPlus className="w-4 h-4 text-primary" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle className="text-sm">Criar Dono - {apt.name}</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-3">
+                                  <div className="space-y-1">
+                                    <Label className="text-xs">Username</Label>
+                                    <Input value={ownerForm.username} onChange={e => setOwnerForm(p => ({ ...p, username: e.target.value }))} placeholder="Ex: joao" />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs">Senha</Label>
+                                    <Input type="password" value={ownerForm.password} onChange={e => setOwnerForm(p => ({ ...p, password: e.target.value }))} placeholder="Mínimo 6 caracteres" />
+                                  </div>
+                                  <Button size="sm" onClick={() => handleCreateOwner(apt.id)} disabled={creatingOwner}>
+                                    {creatingOwner ? "Criando..." : "Criar Dono"}
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(apt.id); setEditForm(apt); }}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
