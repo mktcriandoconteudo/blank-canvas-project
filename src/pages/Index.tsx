@@ -120,7 +120,16 @@ const Index = () => {
         >
           {dark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
         </button>
-        <button className="flex items-center gap-2 bg-card/30 backdrop-blur-md border border-border/10 rounded-full px-3 py-2">
+        <button
+          onClick={() => {
+            if (user) {
+              navigate("/minhas-reservas");
+            } else {
+              setAuthOpen(true);
+            }
+          }}
+          className="flex items-center gap-2 bg-card/30 backdrop-blur-md border border-border/10 rounded-full px-3 py-2"
+        >
           <Menu className="w-4 h-4 text-white" />
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
             <User className="w-4 h-4 text-white" />
