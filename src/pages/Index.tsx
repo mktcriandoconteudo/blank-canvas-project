@@ -1,31 +1,29 @@
 import { Menu, User, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
-import resort1Image from "@/assets/resort-1.webp";
+import { supabase } from "@/integrations/supabase/client";
 import HeroBanner from "@/components/HeroBanner";
 import ResortCard from "@/components/ResortCard";
 
-const resorts = [
-  {
-    image: resort1Image,
-    title: "Condomínio Enseada",
-    location: "Caldas Novas, GO",
-    rating: 4.9,
-    reviews: 342,
-    price: 1250,
-    dates: "12–17 de mar.",
-    tag: "Superhost",
-    beds: 3,
-    guests: 6,
-    slug: "condomínio-enseada",
-  },
-];
+interface ResortWithCover {
+  id: string;
+  name: string;
+  location: string;
+  rating: number | null;
+  reviews_count: number | null;
+  price_per_night: number | null;
+  tag: string | null;
+  beds: number | null;
+  max_guests: number | null;
+  coverUrl: string;
+}
 
 const Index = () => {
-const [dark, setDark] = useState(() => {
+  const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("theme");
     if (stored) return stored === "dark";
-    return true; // default dark
+    return true;
   });
+  const [resorts, setResorts] = useState<ResortWithCover[]>([]);
 
   useEffect(() => {
     if (dark) {
@@ -35,6 +33,39 @@ const [dark, setDark] = useState(() => {
     }
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
+
+  useEffect(() => {
+    const fetchResorts = async () => {
+      const { data } = await supabase
+        .from("resorts")
+        .select("id, name, location, rating, reviews_count, price_per_night, tag, beds, max_guests")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+
+      if (!data || data.length === 0) return;
+
+      // Fetch cover photos for all resorts
+      const ids = data.map(r => r.id);
+      const { data: photos } = await supabase
+        .from("resort_photos")
+        .select("resort_id, url, is_cover")
+        .in("resort_id", ids)
+        .order("display_order");
+
+      const resortsWithCovers: ResortWithCover[] = data.map(r => {
+        const resortPhotos = (photos || []).filter(p => p.resort_id === r.id);
+        const cover = resortPhotos.find(p => p.is_cover) || resortPhotos[0];
+        return {
+          ...r,
+          coverUrl: cover?.url || "",
+        };
+      });
+
+      setResorts(resortsWithCovers);
+    };
+
+    fetchResorts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,8 +87,21 @@ const [dark, setDark] = useState(() => {
       <HeroBanner />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
-          {resorts.map((resort, i) => (
-            <ResortCard key={i} {...resort} />
+          {resorts.map((resort) => (
+            <ResortCard
+              key={resort.id}
+              image={resort.coverUrl}
+              title={resort.name}
+              location={resort.location}
+              rating={resort.rating ?? 0}
+              reviews={resort.reviews_count ?? 0}
+              price={resort.price_per_night ?? 0}
+              dates=""
+              tag={resort.tag ?? undefined}
+              beds={resort.beds ?? 1}
+              guests={resort.max_guests ?? 2}
+              slug={resort.name.toLowerCase().replace(/\s+/g, '-')}
+            />
           ))}
         </div>
       </main>
