@@ -47,7 +47,8 @@ const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
     }
   };
 
-  const handleDelete = async (opt: SelectorOption) => {
+  const handleDelete = async (e: React.MouseEvent, opt: SelectorOption) => {
+    e.stopPropagation();
     if (!confirm(`Excluir "${opt.label}"?`)) return;
     const error = await deleteOption(opt.id);
     if (error) {
@@ -118,7 +119,7 @@ const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
                   <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => startEdit(opt)}>
                     <Edit2 className="w-3 h-3" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleDelete(opt)}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={(e) => handleDelete(e, opt)}>
                     <Trash2 className="w-3 h-3 text-destructive" />
                   </Button>
                 </div>
