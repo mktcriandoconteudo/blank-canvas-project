@@ -108,6 +108,77 @@ export type Database = {
           },
         ]
       }
+      reservations: {
+        Row: {
+          check_in: string
+          check_out: string
+          created_at: string | null
+          guest_email: string | null
+          guest_name: string | null
+          guest_phone: string | null
+          guests: number
+          id: string
+          mp_payment_id: string | null
+          mp_preference_id: string | null
+          payment_status: string
+          plan_name: string
+          plan_sessions: string
+          price_per_night: number
+          resort_id: string
+          total_nights: number
+          total_price: number
+          updated_at: string | null
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          created_at?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
+          guest_phone?: string | null
+          guests?: number
+          id?: string
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          payment_status?: string
+          plan_name: string
+          plan_sessions: string
+          price_per_night: number
+          resort_id: string
+          total_nights: number
+          total_price: number
+          updated_at?: string | null
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          created_at?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
+          guest_phone?: string | null
+          guests?: number
+          id?: string
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          payment_status?: string
+          plan_name?: string
+          plan_sessions?: string
+          price_per_night?: number
+          resort_id?: string
+          total_nights?: number
+          total_price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resort_photos: {
         Row: {
           created_at: string | null
