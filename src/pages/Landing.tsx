@@ -14,6 +14,7 @@ const LANDING_KEYS = [
   "landing_button_color",
   "landing_button_text_color",
   "landing_bg_url",
+  "landing_logo_url",
 ];
 
 const Landing = () => {
@@ -27,6 +28,7 @@ const Landing = () => {
     landing_button_color: "#ffffff",
     landing_button_text_color: "#000000",
     landing_bg_url: "",
+    landing_logo_url: "",
   });
 
   useEffect(() => {
@@ -77,6 +79,22 @@ const Landing = () => {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-end h-full px-6 pb-10 sm:px-8 sm:pb-14 max-w-lg mx-auto">
+        {/* Logo */}
+        {settings.landing_logo_url && (
+          <motion.div
+            initial={{ y: 15, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.5 }}
+            className="flex justify-center mb-6"
+          >
+            <img
+              src={settings.landing_logo_url}
+              alt="Logo"
+              className="h-16 sm:h-20 w-auto object-contain drop-shadow-lg"
+            />
+          </motion.div>
+        )}
+
         {settings.landing_label && (
           <motion.p
             initial={{ y: 15, opacity: 0 }}
