@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { CalendarCheck, CalendarX, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Users, CreditCard, FileImage, Trash2, Printer } from "lucide-react";
+import { CalendarCheck, CalendarX, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Users, CreditCard, FileImage, Trash2, Printer, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +58,7 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [resortName, setResortName] = useState("");
+  const [guestDetailId, setGuestDetailId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -276,6 +277,13 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
                   {res.check_in && format(new Date(res.check_in + "T12:00:00"), "dd/MM")} → {res.check_out && format(new Date(res.check_out + "T12:00:00"), "dd/MM")} · {res.guests} hóspedes
                 </p>
               </div>
+              <button
+                className="p-1.5 rounded-full hover:bg-muted transition-colors shrink-0"
+                title="Ver hóspedes"
+                onClick={(e) => { e.stopPropagation(); setGuestDetailId(res.id); }}
+              >
+                <Eye className="w-4 h-4 text-primary" />
+              </button>
               <div className="text-right shrink-0">
                 <p className="text-xs font-extrabold text-foreground">{formatCurrency(res.total_price)}</p>
                 <p className="text-[9px] text-muted-foreground">{res.plan_name}</p>
@@ -402,6 +410,86 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
               <img src={receiptPreview} alt="Comprovante" className="w-full rounded-lg" />
             )
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Guest detail dialog */}
+      <Dialog open={!!guestDetailId} onOpenChange={() => setGuestDetailId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Users className="w-4 h-4" /> Ficha de Hóspedes
+            </DialogTitle>
+          </DialogHeader>
+          {(() => {
+            const res = reservations.find(r => r.id === guestDetailId);
+            if (!res) return null;
+            const resGuests = guests[res.id] || [];
+            const adults = resGuests.filter(g => g.guest_type === "adult");
+            const children = resGuests.filter(g => g.guest_type === "child");
+            return (
+              <div className="space-y-4">
+                {/* Responsible */}
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-bold text-foreground">😎 Responsável</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div><span className="text-muted-foreground">Nome:</span> <span className="font-medium">{res.guest_name || "—"}</span></div>
+                    <div><span className="text-muted-foreground">Celular:</span> <span className="font-medium">{res.guest_phone || "—"}</span></div>
+                    <div><span className="text-muted-foreground">Email:</span> <span className="font-medium">{res.guest_email || "—"}</span></div>
+                    <div><span className="text-muted-foreground">RG:</span> <span className="font-medium">{res.responsible_rg || "—"}</span></div>
+                    <div><span className="text-muted-foreground">CPF:</span> <span className="font-medium">{res.responsible_cpf || "—"}</span></div>
+                    <div><span className="text-muted-foreground">Estado Civil:</span> <span className="font-medium">{res.responsible_civil_status || "—"}</span></div>
+                    {res.responsible_street && (
+                      <div className="col-span-2"><span className="text-muted-foreground">Endereço:</span> <span className="font-medium">{res.responsible_street}, {res.responsible_number} · {res.responsible_neighborhood} · {res.responsible_city} · CEP {res.responsible_cep}</span></div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Period */}
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                  <p className="text-xs font-bold text-foreground">📅 Período</p>
+                  <p className="text-xs text-foreground">
+                    {res.check_in ? format(new Date(res.check_in + "T12:00:00"), "dd/MM/yyyy") : "—"} → {res.check_out ? format(new Date(res.check_out + "T12:00:00"), "dd/MM/yyyy") : "—"} · {res.total_nights} noites · {res.guests} hóspedes
+                  </p>
+                  <p className="text-xs text-muted-foreground">{res.plan_name} · {res.plan_sessions}</p>
+                </div>
+
+                {/* Guests */}
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-bold text-foreground">👥 Hóspedes ({resGuests.length})</p>
+                  {resGuests.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic">Nenhum hóspede cadastrado</p>
+                  )}
+                  {adults.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Adultos ({adults.length})</p>
+                      {adults.map((g, i) => (
+                        <div key={g.id} className="flex justify-between items-center text-xs bg-background rounded-md px-2.5 py-1.5 border">
+                          <span className="font-medium">{i + 1}. {g.full_name}</span>
+                          <span className="text-muted-foreground">{g.cpf ? `CPF: ${g.cpf}` : "—"}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {children.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Crianças ({children.length})</p>
+                      {children.map((g, i) => (
+                        <div key={g.id} className="flex justify-between items-center text-xs bg-background rounded-md px-2.5 py-1.5 border">
+                          <span className="font-medium">{i + 1}. {g.full_name}</span>
+                          <span className="text-muted-foreground">{g.age ? `${g.age} anos` : "—"}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <Button size="sm" variant="outline" className="w-full gap-1.5 text-xs" onClick={() => { setGuestDetailId(null); handlePrint(res); }}>
+                  <Printer className="w-3.5 h-3.5" /> Imprimir ficha completa
+                </Button>
+              </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
       </div>
