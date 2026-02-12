@@ -26,6 +26,8 @@ const ResortDetail = () => {
   const [resortName, setResortName] = useState<string>("Condomínio Enseada");
   const [condoFeatures, setCondoFeatures] = useState<string[]>([]);
   const [importantInfo, setImportantInfo] = useState<string[]>([]);
+  const [resortBeds, setResortBeds] = useState<number>(1);
+  const [resortGuests, setResortGuests] = useState<number>(2);
 
   // Fetch photos from database
   useEffect(() => {
@@ -33,7 +35,7 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name, amenities, description, condo_features, important_info")
+        .select("id, name, amenities, description, condo_features, important_info, beds, max_guests")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
@@ -46,6 +48,8 @@ const ResortDetail = () => {
         setResortName(resort.name);
         setCondoFeatures((resort as any).condo_features || []);
         setImportantInfo((resort as any).important_info || []);
+        setResortBeds((resort as any).beds || 1);
+        setResortGuests((resort as any).max_guests || 2);
 
         const { data: photos } = await supabase
           .from("resort_photos")
@@ -221,12 +225,15 @@ const ResortDetail = () => {
           </h2>
           <div className="flex gap-2 flex-wrap mb-7">
             {resortAmenities.length > 0
-              ? AMENITY_OPTIONS.filter(a => resortAmenities.includes(a.key)).map((a) => (
-                  <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
-                    <a.icon className="w-4 h-4 text-muted-foreground" />
-                    {a.label}
-                  </span>
-                ))
+              ? AMENITY_OPTIONS.filter(a => resortAmenities.includes(a.key)).map((a) => {
+                  const count = a.key === "quartos" ? resortBeds : a.key === "hospedes" ? resortGuests : null;
+                  return (
+                    <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+                      <a.icon className="w-4 h-4 text-muted-foreground" />
+                      {count ? `${count} ${a.label}` : a.label}
+                    </span>
+                  );
+                })
               : AMENITY_OPTIONS.slice(0, 4).map((a) => (
                   <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
                     <a.icon className="w-4 h-4 text-muted-foreground" />
