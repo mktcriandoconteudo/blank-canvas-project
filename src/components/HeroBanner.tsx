@@ -107,13 +107,13 @@ const HeroBanner = () => {
               </div>
             )}
             {(slides[current]?.title || slides[current]?.subtitle) && (
-              <div className="absolute bottom-8 sm:bottom-12 left-0 right-0 text-center text-white px-4">
+              <div className="absolute bottom-14 sm:bottom-12 left-0 right-0 text-center text-white px-4">
                 {slides[current]?.title && (
                   <motion.h2
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-lg"
+                    className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-lg"
                     style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                   >
                     {slides[current].title}
