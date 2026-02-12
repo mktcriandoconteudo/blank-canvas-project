@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
-import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle, Phone, MessageCircle } from "lucide-react";
+import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle, Phone, MessageCircle, ClipboardEdit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import GuestRegistrationDialog from "@/components/GuestRegistrationDialog";
 
 interface Reservation {
   id: string;
@@ -20,6 +21,8 @@ interface Reservation {
   total_nights: number;
   total_price: number;
   guest_name: string | null;
+  guest_phone: string | null;
+  guest_email: string | null;
   payment_status: string;
   created_at: string | null;
 }
@@ -47,6 +50,7 @@ const MyReservations = () => {
   const [guests, setGuests] = useState<Record<string, ReservationGuest[]>>({});
   const [contacts, setContacts] = useState<Record<string, { whatsapp: string | null }>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [guestFormId, setGuestFormId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -254,9 +258,18 @@ const MyReservations = () => {
 
                       {/* Guests */}
                       <div className="bg-muted/40 rounded-xl p-3">
-                        <p className="text-xs font-bold text-foreground flex items-center gap-1.5 mb-2">
-                          <Users className="w-3.5 h-3.5" /> Hóspedes ({res.guests})
-                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5" /> Hóspedes ({res.guests})
+                          </p>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setGuestFormId(res.id); }}
+                            className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                          >
+                            <ClipboardEdit className="w-3.5 h-3.5" />
+                            {resGuests.length === 0 ? "Preencher" : "Editar"}
+                          </button>
+                        </div>
                         {resGuests.length === 0 ? (
                           <p className="text-xs text-muted-foreground italic">Nenhum hóspede cadastrado</p>
                         ) : (
@@ -325,6 +338,27 @@ const MyReservations = () => {
       </main>
 
       <Footer />
+
+      {/* Guest registration dialog */}
+      {guestFormId && (() => {
+        const res = reservations.find(r => r.id === guestFormId);
+        if (!res) return null;
+        return (
+          <GuestRegistrationDialog
+            open={!!guestFormId}
+            onOpenChange={(open) => { if (!open) setGuestFormId(null); }}
+            reservationId={res.id}
+            guestCount={res.guests}
+            guestName={res.guest_name || ""}
+            guestPhone={res.guest_phone || ""}
+            guestEmail={res.guest_email || ""}
+            onSaved={() => {
+              setGuestFormId(null);
+              if (user?.email) fetchReservations(user.email);
+            }}
+          />
+        );
+      })()}
     </div>
   );
 };
