@@ -15,6 +15,7 @@ const LANDING_KEYS = [
   "landing_button_text_color",
   "landing_bg_url",
   "landing_logo_url",
+  "landing_logo_subtitle",
 ];
 
 const Landing = () => {
@@ -29,6 +30,7 @@ const Landing = () => {
     landing_button_text_color: "#000000",
     landing_bg_url: "",
     landing_logo_url: "",
+    landing_logo_subtitle: "J G Locações",
   });
 
   useEffect(() => {
@@ -93,6 +95,18 @@ const Landing = () => {
               className="h-16 sm:h-20 w-auto object-contain drop-shadow-lg"
             />
           </motion.div>
+        )}
+
+        {settings.landing_logo_subtitle && (
+          <motion.p
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-sm font-medium text-white/80 text-center mb-5 tracking-wide"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            {settings.landing_logo_subtitle}
+          </motion.p>
         )}
 
         {settings.landing_label && (
