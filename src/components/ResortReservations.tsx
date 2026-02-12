@@ -137,8 +137,10 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
   if (loading) return <div className="flex justify-center py-4"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="border-2 border-primary/30 rounded-xl overflow-hidden bg-primary/5">
+      {/* Header */}
+      <div className="px-4 py-3 bg-primary/10 border-b border-primary/20">
+        <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
           <CalendarCheck className="w-3.5 h-3.5" /> Reservas ({reservations.length})
         </p>
@@ -160,7 +162,10 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
             </Button>
           ))}
         </div>
+        </div>
       </div>
+
+      <div className="p-4 space-y-3">
 
       {filtered.length === 0 && (
         <p className="text-xs text-muted-foreground text-center py-4">Nenhuma reserva</p>
@@ -315,6 +320,7 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
           )}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
