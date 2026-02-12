@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { CalendarCheck, CalendarX, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Users, CreditCard, FileImage } from "lucide-react";
+import { CalendarCheck, CalendarX, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Users, CreditCard, FileImage, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -118,6 +118,15 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
       .eq("resort_id", res.resort_id)
       .in("blocked_date", datesToUnblock);
     toast({ title: "Datas desbloqueadas!" });
+    fetchData();
+  };
+
+  const handleDelete = async (res: Reservation) => {
+    if (!confirm("⚠️ ATENÇÃO: Essa ação é irreversível!\n\nDeseja realmente APAGAR esta reserva e todos os dados de hóspedes vinculados?")) return;
+    if (!confirm("Tem certeza ABSOLUTA? Os dados serão perdidos permanentemente.")) return;
+    await supabase.from("reservation_guests").delete().eq("reservation_id", res.id);
+    await supabase.from("reservations").delete().eq("id", res.id);
+    toast({ title: "Reserva apagada permanentemente" });
     fetchData();
   };
 
@@ -273,6 +282,9 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
                       </Button>
                       <Button size="sm" variant="outline" className="text-[10px] h-6 rounded-md gap-1 text-destructive" onClick={() => handleReject(res.id)}>
                         <XCircle className="w-3 h-3" /> Rejeitar
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-[10px] h-6 rounded-md gap-1 text-destructive border-destructive/30" onClick={() => handleDelete(res)}>
+                        <Trash2 className="w-3 h-3" /> Apagar
                       </Button>
                     </>
                   )}
