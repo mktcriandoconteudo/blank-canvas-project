@@ -241,11 +241,21 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                   mode="single"
                   selected={checkIn}
                   onSelect={(date) => {
-                    setCheckIn(date);
                     if (date && selectedPlan) {
+                      // Verify all dates in the period are available
+                      const periodDates = eachDayOfInterval({ start: date, end: addDays(date, selectedPlan.total_nights - 1) });
+                      const hasBlockedInPeriod = periodDates.some(d => blockedDates.some(b => isSameDay(d, b)));
+                      if (hasBlockedInPeriod) {
+                        toast({ title: "Período indisponível", description: `Algumas datas entre ${format(date, "dd/MM")} e ${format(addDays(date, selectedPlan.total_nights), "dd/MM")} estão bloqueadas. Escolha outra data.`, variant: "destructive" });
+                        return;
+                      }
+                      setCheckIn(date);
                       setCheckOut(addDays(date, selectedPlan.total_nights));
-                    } else if (date && checkOut && date >= checkOut) {
-                      setCheckOut(addDays(date, 1));
+                    } else {
+                      setCheckIn(date);
+                      if (date && checkOut && date >= checkOut) {
+                        setCheckOut(addDays(date, 1));
+                      }
                     }
                   }}
                   disabled={(date) => date < new Date() || isDateBlocked(date)}
