@@ -82,9 +82,24 @@ const LandingPageManager = () => {
     }
 
     const { data: urlData } = supabase.storage.from("site-assets").getPublicUrl(path);
-    update("landing_bg_url", urlData.publicUrl);
-    toast({ title: "Imagem de fundo enviada!" });
+    const url = urlData.publicUrl;
+    update("landing_bg_url", url);
+    await saveSettingKey("landing_bg_url", url);
+    toast({ title: "Imagem de fundo enviada e salva!" });
     setUploading(false);
+  };
+
+  const saveSettingKey = async (key: string, value: string) => {
+    const { data: existing } = await supabase
+      .from("site_settings")
+      .select("id")
+      .eq("key", key)
+      .maybeSingle();
+    if (existing) {
+      await supabase.from("site_settings").update({ value }).eq("key", key);
+    } else {
+      await supabase.from("site_settings").insert({ key, value });
+    }
   };
 
   const handleLogoUpload = async (files: FileList | null) => {
@@ -102,8 +117,10 @@ const LandingPageManager = () => {
     }
 
     const { data: urlData } = supabase.storage.from("site-assets").getPublicUrl(path);
-    update("landing_logo_url", urlData.publicUrl);
-    toast({ title: "Logomarca enviada!" });
+    const url = urlData.publicUrl;
+    update("landing_logo_url", url);
+    await saveSettingKey("landing_logo_url", url);
+    toast({ title: "Logomarca enviada e salva!" });
     setUploadingLogo(false);
   };
 
@@ -177,7 +194,7 @@ const LandingPageManager = () => {
                 size="sm"
                 variant="ghost"
                 className="text-xs text-destructive h-8"
-                onClick={() => update("landing_logo_url", "")}
+                onClick={async () => { update("landing_logo_url", ""); await saveSettingKey("landing_logo_url", ""); toast({ title: "Logo removida!" }); }}
               >
                 Remover
               </Button>
