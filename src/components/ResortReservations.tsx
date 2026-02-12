@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { CalendarCheck, CalendarX, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Users, CreditCard, FileImage, Trash2 } from "lucide-react";
+import { CalendarCheck, CalendarX, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Users, CreditCard, FileImage, Trash2, Printer } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -57,12 +57,14 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+  const [resortName, setResortName] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
-    const [resRes, guestRes] = await Promise.all([
+    const [resRes, guestRes, resortRes] = await Promise.all([
       supabase.from("reservations").select("*").eq("resort_id", resortId).order("created_at", { ascending: false }),
       supabase.from("reservation_guests").select("*"),
+      supabase.from("resorts").select("name").eq("id", resortId).single(),
     ]);
 
     if (resRes.data) setReservations(resRes.data as Reservation[]);
@@ -74,6 +76,7 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
       });
       setGuests(map);
     }
+    if (resortRes.data) setResortName(resortRes.data.name);
     setLoading(false);
   };
 
@@ -128,6 +131,83 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
     await supabase.from("reservations").delete().eq("id", res.id);
     toast({ title: "Reserva apagada permanentemente" });
     fetchData();
+  };
+
+  const handlePrint = (res: Reservation) => {
+    const resGuests = guests[res.id] || [];
+    const adultGuests = resGuests.filter(g => g.guest_type === "adult");
+    const childGuests = resGuests.filter(g => g.guest_type === "child");
+    
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    
+    printWindow.document.write(`
+      <html><head><title>Reserva - ${res.guest_name || "Hóspede"}</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
+        h1 { font-size: 20px; margin-bottom: 4px; }
+        h2 { font-size: 15px; color: #666; margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+        .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; }
+        td { padding: 4px 8px; font-size: 13px; border: 1px solid #eee; }
+        td:first-child { font-weight: bold; width: 160px; background: #f9f9f9; }
+        .status { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-approved { background: #dcfce7; color: #16a34a; }
+        .status-pending { background: #fef9c3; color: #ca8a04; }
+        .status-rejected { background: #fecaca; color: #dc2626; }
+        .guest-section { margin: 6px 0; }
+        .guest-type { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #999; margin: 8px 0 4px; }
+        @media print { body { padding: 15px; } }
+      </style></head><body>
+      <h1>📋 Ficha de Reserva</h1>
+      <p class="subtitle">${resortName} · Reserva #${res.id.slice(0, 8)}</p>
+      
+      <span class="status status-${res.payment_status}">${res.payment_status === "approved" ? "✅ Confirmada" : res.payment_status === "pending" ? "⏳ Pendente" : "❌ Rejeitada"}</span>
+      
+      <h2>📅 Período</h2>
+      <table>
+        <tr><td>Check-in</td><td>${res.check_in ? format(new Date(res.check_in + "T12:00:00"), "dd/MM/yyyy") : "—"}</td></tr>
+        <tr><td>Check-out</td><td>${res.check_out ? format(new Date(res.check_out + "T12:00:00"), "dd/MM/yyyy") : "—"}</td></tr>
+        <tr><td>Noites</td><td>${res.total_nights}</td></tr>
+        <tr><td>Hóspedes</td><td>${res.guests}</td></tr>
+        <tr><td>Plano</td><td>${res.plan_name} · ${res.plan_sessions}</td></tr>
+      </table>
+      
+      <h2>💰 Pagamento</h2>
+      <table>
+        <tr><td>Diária</td><td>R$ ${res.price_per_night.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td></tr>
+        <tr><td>Total</td><td><strong>R$ ${res.total_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong></td></tr>
+        <tr><td>Método</td><td>${res.mp_payment_id ? "Mercado Pago" : res.receipt_url ? "Pix Manual" : "Pendente"}</td></tr>
+      </table>
+      
+      <h2>😎 Responsável</h2>
+      <table>
+        <tr><td>Nome</td><td>${res.guest_name || "—"}</td></tr>
+        <tr><td>Email</td><td>${res.guest_email || "—"}</td></tr>
+        <tr><td>Celular</td><td>${res.guest_phone || "—"}</td></tr>
+        <tr><td>RG</td><td>${res.responsible_rg || "—"}</td></tr>
+        <tr><td>CPF</td><td>${res.responsible_cpf || "—"}</td></tr>
+        <tr><td>Estado Civil</td><td>${res.responsible_civil_status || "—"}</td></tr>
+        ${res.responsible_street ? `<tr><td>Endereço</td><td>${res.responsible_street}, ${res.responsible_number} · ${res.responsible_neighborhood} · ${res.responsible_city} · CEP ${res.responsible_cep}</td></tr>` : ""}
+      </table>
+      
+      <h2>👥 Hóspedes (${resGuests.length})</h2>
+      ${resGuests.length === 0 ? "<p style='color:#999;font-size:13px;'>Nenhum hóspede cadastrado</p>" : ""}
+      ${adultGuests.length > 0 ? `
+        <p class="guest-type">Adultos (${adultGuests.length})</p>
+        <table>${adultGuests.map((g, i) => `<tr><td>${i + 1}. ${g.full_name}</td><td>CPF: ${g.cpf || "—"}</td></tr>`).join("")}</table>
+      ` : ""}
+      ${childGuests.length > 0 ? `
+        <p class="guest-type">Crianças (${childGuests.length})</p>
+        <table>${childGuests.map((g, i) => `<tr><td>${i + 1}. ${g.full_name}</td><td>Idade: ${g.age || "—"} anos</td></tr>`).join("")}</table>
+      ` : ""}
+      
+      <hr style="margin-top:30px;border:none;border-top:1px solid #ddd;">
+      <p style="font-size:11px;color:#aaa;margin-top:10px;">Documento gerado em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}</p>
+      </body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   const filtered = filter === "all" ? reservations : reservations.filter(r => r.payment_status === filter);
@@ -248,38 +328,42 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
                 </div>
 
                 {/* Guests */}
-                {resGuests.length > 0 && (
-                  <div className="bg-muted/40 rounded-lg p-2.5 space-y-1.5">
-                    <p className="text-[10px] font-bold text-foreground flex items-center gap-1">
-                      <Users className="w-3 h-3" /> Hóspedes ({resGuests.length})
-                    </p>
-                    {adultGuests.length > 0 && (
-                      <div className="space-y-0.5">
-                        <p className="text-[9px] font-semibold text-muted-foreground uppercase">Adultos</p>
-                        {adultGuests.map(g => (
-                          <div key={g.id} className="text-[10px] flex gap-2">
-                            <span className="font-medium text-foreground">{g.full_name}</span>
-                            {g.cpf && <span className="text-muted-foreground">CPF: {g.cpf}</span>}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {childGuests.length > 0 && (
-                      <div className="space-y-0.5">
-                        <p className="text-[9px] font-semibold text-muted-foreground uppercase">Crianças</p>
-                        {childGuests.map(g => (
-                          <div key={g.id} className="text-[10px] flex gap-2">
-                            <span className="font-medium text-foreground">{g.full_name}</span>
-                            {g.age && <span className="text-muted-foreground">{g.age} anos</span>}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+                <div className="bg-muted/40 rounded-lg p-2.5 space-y-1.5">
+                  <p className="text-[10px] font-bold text-foreground flex items-center gap-1">
+                    <Users className="w-3 h-3" /> Hóspedes ({resGuests.length})
+                  </p>
+                  {resGuests.length === 0 && (
+                    <p className="text-[10px] text-muted-foreground italic">Nenhum hóspede cadastrado ainda</p>
+                  )}
+                  {adultGuests.length > 0 && (
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] font-semibold text-muted-foreground uppercase">Adultos ({adultGuests.length})</p>
+                      {adultGuests.map(g => (
+                        <div key={g.id} className="text-[10px] flex gap-2">
+                          <span className="font-medium text-foreground">{g.full_name}</span>
+                          {g.cpf && <span className="text-muted-foreground">CPF: {g.cpf}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {childGuests.length > 0 && (
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] font-semibold text-muted-foreground uppercase">Crianças ({childGuests.length})</p>
+                      {childGuests.map(g => (
+                        <div key={g.id} className="text-[10px] flex gap-2">
+                          <span className="font-medium text-foreground">{g.full_name}</span>
+                          {g.age && <span className="text-muted-foreground">{g.age} anos</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Actions */}
                 <div className="flex gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" className="text-[10px] h-6 rounded-md gap-1" onClick={() => handlePrint(res)}>
+                    <Printer className="w-3 h-3" /> Imprimir ficha
+                  </Button>
                   {res.payment_status === "pending" && !res.mp_payment_id && (
                     <>
                       <Button size="sm" className="text-[10px] h-6 rounded-md gap-1 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleConfirm(res)}>
