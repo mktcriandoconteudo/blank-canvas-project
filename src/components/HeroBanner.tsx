@@ -72,22 +72,6 @@ const HeroBanner = () => {
 
   return (
     <div>
-      {/* Main title above banner (without logo, logo moved inside carousel) */}
-      {(mainTitle || mainSubtitle) && (
-        <div className="bg-background pt-20 pb-4 px-4 text-center">
-          {mainTitle && (
-            <h1
-              className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              {mainTitle}
-            </h1>
-          )}
-          {mainSubtitle && (
-            <p className="mt-1 text-sm sm:text-base text-muted-foreground">{mainSubtitle}</p>
-          )}
-        </div>
-      )}
 
       {/* Rotating banner */}
       <div className="relative w-full h-[280px] sm:h-[360px] md:h-[440px] overflow-hidden">
