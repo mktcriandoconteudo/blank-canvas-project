@@ -36,10 +36,12 @@ const Index = () => {
 
   useEffect(() => {
     const fetchResorts = async () => {
+      // Only show condominiums (parent_id IS NULL) on explore page
       const { data } = await supabase
         .from("resorts")
         .select("id, name, location, rating, reviews_count, price_per_night, tag, beds, max_guests")
         .eq("is_active", true)
+        .is("parent_id", null)
         .order("created_at", { ascending: false });
 
       if (!data || data.length === 0) return;
@@ -100,7 +102,8 @@ const Index = () => {
               tag={resort.tag ?? undefined}
               beds={resort.beds ?? 1}
               guests={resort.max_guests ?? 2}
-              slug={resort.name.toLowerCase().replace(/\s+/g, '-')}
+             slug={resort.name.toLowerCase().replace(/\s+/g, '-')}
+             linkPrefix="/condo"
             />
           ))}
         </div>

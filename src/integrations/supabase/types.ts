@@ -281,6 +281,7 @@ export type Database = {
           max_guests: number | null
           name: string
           owner_id: string | null
+          parent_id: string | null
           price_per_night: number | null
           rating: number | null
           reviews_count: number | null
@@ -300,6 +301,7 @@ export type Database = {
           max_guests?: number | null
           name: string
           owner_id?: string | null
+          parent_id?: string | null
           price_per_night?: number | null
           rating?: number | null
           reviews_count?: number | null
@@ -319,13 +321,22 @@ export type Database = {
           max_guests?: number | null
           name?: string
           owner_id?: string | null
+          parent_id?: string | null
           price_per_night?: number | null
           rating?: number | null
           reviews_count?: number | null
           tag?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "resorts_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       selector_options: {
         Row: {
