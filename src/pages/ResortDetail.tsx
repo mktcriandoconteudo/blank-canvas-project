@@ -13,8 +13,18 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { HelpCircle } from "lucide-react";
 
 // Dynamic FAQ component
+const defaultFaqItems = [
+  { id: "checkin", question: "Qual o horário de check-in e check-out?", answer: "O check-in é a partir das 14h e o check-out deve ser realizado até as 10h. Horários especiais podem ser solicitados com antecedência, sujeitos à disponibilidade." },
+  { id: "pagamento", question: "Quais são as formas de pagamento?", answer: "Aceitamos PIX, cartão de crédito e transferência bancária. Pagamentos via PIX podem ter desconto especial. Consulte as condições na hora da reserva." },
+  { id: "cancelamento", question: "Qual a política de cancelamento?", answer: "Cancelamentos com até 7 dias de antecedência têm reembolso integral. Entre 3 e 7 dias, é cobrada uma taxa de 50%. Cancelamentos com menos de 3 dias não são reembolsáveis." },
+  { id: "animais", question: "É permitido levar animais de estimação?", answer: "A política de pets varia conforme o condomínio. Consulte diretamente conosco pelo WhatsApp para verificar se o apartamento aceita animais de estimação." },
+  { id: "roupa-cama", question: "O apartamento fornece roupa de cama e toalhas?", answer: "Sim, o apartamento é equipado com roupa de cama, travesseiros e toalhas de banho para todos os hóspedes. Itens extras podem ser solicitados." },
+  { id: "estacionamento", question: "Tem estacionamento disponível?", answer: "Sim, o condomínio conta com estacionamento privativo. A vaga é garantida para os hóspedes durante toda a estadia." },
+  { id: "piscina", question: "As piscinas são de águas termais?", answer: "Sim, as piscinas do condomínio possuem águas termais naturais com temperatura entre 34°C e 42°C, disponíveis para uso durante todo o ano." },
+];
+
 const DynamicFaq = ({ resortId }: { resortId: string | null }) => {
-  const [items, setItems] = useState<{ id: string; question: string; answer: string }[]>([]);
+  const [items, setItems] = useState<{ id: string; question: string; answer: string }[]>(defaultFaqItems);
   useEffect(() => {
     if (!resortId) return;
     supabase
@@ -22,9 +32,8 @@ const DynamicFaq = ({ resortId }: { resortId: string | null }) => {
       .select("id, question, answer")
       .eq("resort_id", resortId)
       .order("display_order")
-      .then(({ data }) => { if (data) setItems(data); });
+      .then(({ data }) => { if (data && data.length > 0) setItems(data); });
   }, [resortId]);
-  if (items.length === 0) return null;
   return (
     <div className="w-full max-w-md mx-auto bg-card border border-border rounded-2xl p-6">
       <h2 className="text-base font-bold text-foreground flex items-center gap-2 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
