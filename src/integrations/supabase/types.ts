@@ -344,6 +344,8 @@ export type Database = {
       }
       resort_payment_config: {
         Row: {
+          checkin_time: string | null
+          checkout_time: string | null
           created_at: string | null
           id: string
           mp_access_token: string | null
@@ -358,6 +360,8 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          checkin_time?: string | null
+          checkout_time?: string | null
           created_at?: string | null
           id?: string
           mp_access_token?: string | null
@@ -372,6 +376,8 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          checkin_time?: string | null
+          checkout_time?: string | null
           created_at?: string | null
           id?: string
           mp_access_token?: string | null

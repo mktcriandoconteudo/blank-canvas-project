@@ -86,6 +86,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     pix_bank?: string;
     whatsapp?: string;
     pix_discount_percent?: number;
+    checkin_time?: string;
+    checkout_time?: string;
   } | null>(null);
 
   // Multi-step flow
@@ -130,7 +132,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     const fetchData = async () => {
       const [blockedRes, payRes, resortRes] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
-        supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent").eq("resort_id", resortId).maybeSingle(),
+        supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent, checkin_time, checkout_time").eq("resort_id", resortId).maybeSingle(),
         supabase.from("resorts").select("max_guests").eq("id", resortId).maybeSingle(),
       ]);
       if (blockedRes.data) {
@@ -491,9 +493,27 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           </div>
         )}
 
-        <p className="text-center text-sm text-muted-foreground mb-4">
+        <p className="text-center text-sm text-muted-foreground mb-3">
           {checkIn ? `Cancelamento gratuito antes de ${format(addDays(checkIn, -3), "dd 'de' MMMM", { locale: ptBR })}` : "Selecione as datas"}
         </p>
+
+        {/* Check-in / Check-out time cards */}
+        <div className="flex gap-2 mb-4">
+          <div className="flex-1 flex items-center gap-2 bg-muted/50 border border-border rounded-2xl px-3.5 py-2.5">
+            <span className="text-base">🔑</span>
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Check-in</p>
+              <p className="text-sm font-bold text-foreground">{paymentConfig?.checkin_time || "14:00"}</p>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center gap-2 bg-muted/50 border border-border rounded-2xl px-3.5 py-2.5">
+            <span className="text-base">🚪</span>
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Check-out</p>
+              <p className="text-sm font-bold text-foreground">{paymentConfig?.checkout_time || "10:00"}</p>
+            </div>
+          </div>
+        </div>
         <button
           onClick={handleReserve}
           className={cn(

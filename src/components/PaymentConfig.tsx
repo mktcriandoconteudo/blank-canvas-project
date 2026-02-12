@@ -23,6 +23,8 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
     pix_bank: "",
     whatsapp: "",
     pix_discount_percent: 0,
+    checkin_time: "14:00",
+    checkout_time: "10:00",
   });
 
   useEffect(() => {
@@ -45,6 +47,8 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
         pix_bank: data.pix_bank || "",
         whatsapp: data.whatsapp || "",
         pix_discount_percent: data.pix_discount_percent || 0,
+        checkin_time: (data as any).checkin_time || "14:00",
+        checkout_time: (data as any).checkout_time || "10:00",
       });
     }
   };
@@ -210,6 +214,31 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
             onChange={e => setConfig(p => ({ ...p, pix_discount_percent: Number(e.target.value) }))}
           />
           <p className="text-[11px] text-muted-foreground">Percentual de desconto exibido para pagamento à vista via Pix</p>
+        </div>
+
+        {/* Check-in / Check-out times */}
+        <div className="space-y-3 bg-muted/20 rounded-xl p-4 border border-border">
+          <span className="text-xs font-semibold text-foreground">⏰ Horários</span>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Check-in</Label>
+              <Input
+                type="time"
+                className="text-sm"
+                value={config.checkin_time}
+                onChange={e => setConfig(p => ({ ...p, checkin_time: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Check-out</Label>
+              <Input
+                type="time"
+                className="text-sm"
+                value={config.checkout_time}
+                onChange={e => setConfig(p => ({ ...p, checkout_time: e.target.value }))}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Save button */}
