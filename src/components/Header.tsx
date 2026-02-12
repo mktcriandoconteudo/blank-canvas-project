@@ -1,4 +1,4 @@
-import { Globe, Menu, User, Sparkles, Moon, Sun, LogOut, CalendarCheck, ShieldCheck, UserCircle } from "lucide-react";
+import { Menu, User, Sparkles, Moon, Sun, LogOut, CalendarCheck, ShieldCheck, UserCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,9 +130,6 @@ const Header = () => {
                 className="p-2.5 rounded-xl hover:bg-secondary transition-colors"
               >
                 {dark ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
-              </button>
-              <button className="hidden sm:block p-2.5 rounded-xl hover:bg-secondary transition-colors">
-                <Globe className="w-4 h-4 text-muted-foreground" />
               </button>
 
               {/* User menu */}
