@@ -1,0 +1,5 @@
+INSERT INTO faq_items (resort_id, question, answer, display_order) VALUES
+('cac83c4d-61e7-42c9-9346-c19bf54e5a58', 'Qual o horário de check-in e check-out?', 'O check-in é a partir das 14h e o check-out deve ser realizado até as 10h. Horários especiais podem ser solicitados com antecedência, sujeitos à disponibilidade.', 1),
+('cac83c4d-61e7-42c9-9346-c19bf54e5a58', 'Quais são as formas de pagamento?', 'Aceitamos PIX, cartão de crédito e transferência bancária. Pagamentos via PIX podem ter desconto especial. Consulte as condições na hora da reserva.', 2),
+('cac83c4d-61e7-42c9-9346-c19bf54e5a58', 'Posso levar animais de estimação?', 'Infelizmente não aceitamos animais de estimação nas unidades. Essa é uma regra do condomínio para garantir o conforto de todos os hóspedes.', 3),
+('cac83c4d-61e7-42c9-9346-c19bf54e5a58', 'O que está incluído na diária?', 'A diária inclui acesso completo às piscinas termais do condomínio, estacionamento, Wi-Fi e toda a estrutura do apartamento (cozinha equipada, roupas de cama e banho).', 4);
