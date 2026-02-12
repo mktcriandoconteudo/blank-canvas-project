@@ -1,6 +1,33 @@
 import { Instagram, Facebook, Youtube, Mail, MapPin, Phone, Building2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+const SOCIAL_KEYS = ["social_instagram", "social_facebook", "social_youtube"];
 
 const Footer = () => {
+  const [socials, setSocials] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", SOCIAL_KEYS);
+      const map: Record<string, string> = {};
+      data?.forEach((r) => (map[r.key] = r.value));
+      setSocials(map);
+    };
+    fetch();
+  }, []);
+
+  const socialLinks = [
+    { key: "social_instagram", icon: Instagram },
+    { key: "social_facebook", icon: Facebook },
+    { key: "social_youtube", icon: Youtube },
+  ];
+
+  const visibleSocials = socialLinks.filter((s) => socials[s.key]);
+
   return (
     <footer className="bg-[hsl(220,20%,10%)] text-white/80">
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -14,17 +41,21 @@ const Footer = () => {
             <p className="text-sm leading-relaxed">
               Sua experiência perfeita em Caldas Novas começa aqui. Apartamentos completos com águas termais e muito conforto.
             </p>
-            <div className="flex gap-3 pt-1">
-              <a href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                <Youtube className="w-4 h-4" />
-              </a>
-            </div>
+            {visibleSocials.length > 0 && (
+              <div className="flex gap-3 pt-1">
+                {visibleSocials.map(({ key, icon: Icon }) => (
+                  <a
+                    key={key}
+                    href={socials[key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sobre Nós */}

@@ -3,6 +3,7 @@ import MercadoPagoSettings from "@/components/MercadoPagoSettings";
 import HeroBannerManager from "@/components/HeroBannerManager";
 import LandingPageManager from "@/components/LandingPageManager";
 import GoogleOAuthGuide from "@/components/GoogleOAuthGuide";
+import FooterSettingsManager from "@/components/FooterSettingsManager";
 
 const AdminSettings = () => {
   return (
@@ -22,6 +23,9 @@ const AdminSettings = () => {
 
       {/* Mercado Pago settings */}
       <MercadoPagoSettings />
+
+      {/* Footer / Redes Sociais */}
+      <FooterSettingsManager />
 
       {/* Google OAuth guide */}
       <GoogleOAuthGuide />
