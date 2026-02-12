@@ -4,15 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, Eye, EyeOff, Save, ChevronDown, ChevronUp, QrCode } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CreditCard, Eye, EyeOff, Save, QrCode, MessageCircle, Smartphone } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface PaymentConfigProps {
   resortId: string;
 }
 
 const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
-  const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [visible, setVisible] = useState<Record<string, boolean>>({});
   const [config, setConfig] = useState({
@@ -68,9 +67,15 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
     setVisible(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const methods = [
+    { value: "manual", label: "WhatsApp", icon: MessageCircle, color: "hsl(142, 70%, 45%)" },
+    { value: "pix", label: "Pix", icon: QrCode, color: "hsl(174, 70%, 40%)" },
+    { value: "mercadopago", label: "Mercado Pago", icon: CreditCard, color: "hsl(210, 80%, 55%)" },
+  ];
+
   const SecretInput = ({ id, label, placeholder, value, onChange }: { id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void }) => (
     <div className="space-y-1">
-      <Label htmlFor={id} className="text-[11px]">{label}</Label>
+      <Label htmlFor={id} className="text-xs font-medium">{label}</Label>
       <div className="relative">
         <Input
           id={id}
@@ -78,106 +83,122 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="pr-9 text-xs h-8"
+          className="pr-9 text-sm"
         />
         <button
           type="button"
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => toggleVisible(id)}
         >
-          {visible[id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          {visible[id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="border border-border rounded-xl overflow-hidden">
-      <button
-        onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-secondary/50 transition-colors"
-      >
-        <span className="text-xs font-medium flex items-center gap-1.5">
-          <CreditCard className="w-3.5 h-3.5 text-muted-foreground" />
-          Pagamento
-          <span className="text-muted-foreground">
-            ({config.payment_method === "mercadopago" ? "Mercado Pago" : config.payment_method === "pix" ? "Pix" : "Manual"})
-          </span>
-        </span>
-        {expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
-      </button>
+    <div className="border border-border rounded-xl overflow-hidden bg-card">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-border bg-muted/30">
+        <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+          <CreditCard className="w-4 h-4 text-primary" />
+          Configuração de Pagamento
+        </h3>
+      </div>
 
-      {expanded && (
-        <div className="px-3 pb-3 space-y-3 border-t border-border pt-3">
-          <div className="space-y-1">
-            <Label className="text-[11px]">Método de pagamento</Label>
-            <Select value={config.payment_method} onValueChange={v => setConfig(p => ({ ...p, payment_method: v }))}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="manual">Manual (WhatsApp)</SelectItem>
-                <SelectItem value="pix">Pix</SelectItem>
-                <SelectItem value="mercadopago">Mercado Pago</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {config.payment_method === "mercadopago" && (
-            <div className="space-y-2">
-              <SecretInput
-                id={`mp_access_${resortId}`}
-                label="Access Token"
-                placeholder="APP_USR-..."
-                value={config.mp_access_token}
-                onChange={v => setConfig(p => ({ ...p, mp_access_token: v }))}
-              />
-              <SecretInput
-                id={`mp_public_${resortId}`}
-                label="Public Key"
-                placeholder="APP_USR-..."
-                value={config.mp_public_key}
-                onChange={v => setConfig(p => ({ ...p, mp_public_key: v }))}
-              />
-              <p className="text-[10px] text-muted-foreground">
-                Obtenha em{" "}
-                <a href="https://www.mercadopago.com.br/developers/panel/app" target="_blank" rel="noopener noreferrer" className="underline">
-                  MP Developers
-                </a>
-              </p>
-            </div>
-          )}
-
-          {config.payment_method === "pix" && (
-            <div className="space-y-2">
-              <div className="space-y-1">
-                <Label className="text-[11px]">Chave Pix</Label>
-                <Input className="h-8 text-xs" placeholder="CPF, e-mail, telefone ou aleatória" value={config.pix_key} onChange={e => setConfig(p => ({ ...p, pix_key: e.target.value }))} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[11px]">Nome do titular</Label>
-                <Input className="h-8 text-xs" placeholder="Nome completo" value={config.pix_name} onChange={e => setConfig(p => ({ ...p, pix_name: e.target.value }))} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[11px]">Banco</Label>
-                <Input className="h-8 text-xs" placeholder="Ex: Nubank" value={config.pix_bank} onChange={e => setConfig(p => ({ ...p, pix_bank: e.target.value }))} />
-              </div>
-            </div>
-          )}
-
-          {(config.payment_method === "manual" || config.payment_method === "pix") && (
-            <div className="space-y-1">
-              <Label className="text-[11px]">WhatsApp</Label>
-              <Input className="h-8 text-xs" placeholder="5562999999999" value={config.whatsapp} onChange={e => setConfig(p => ({ ...p, whatsapp: e.target.value }))} />
-            </div>
-          )}
-
-          <Button size="sm" className="h-7 text-xs" onClick={handleSave} disabled={saving}>
-            <Save className="w-3 h-3 mr-1" />
-            {saving ? "Salvando..." : "Salvar"}
-          </Button>
+      {/* Payment method tabs */}
+      <div className="p-4 space-y-4">
+        <div className="grid grid-cols-3 gap-2">
+          {methods.map(m => {
+            const Icon = m.icon;
+            const active = config.payment_method === m.value;
+            return (
+              <button
+                key={m.value}
+                onClick={() => setConfig(p => ({ ...p, payment_method: m.value }))}
+                className={cn(
+                  "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-xs font-medium",
+                  active
+                    ? "border-primary bg-primary/10 text-primary shadow-sm"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50"
+                )}
+              >
+                <Icon className="w-5 h-5" style={active ? { color: m.color } : undefined} />
+                {m.label}
+              </button>
+            );
+          })}
         </div>
-      )}
+
+        {/* Mercado Pago fields */}
+        {config.payment_method === "mercadopago" && (
+          <div className="space-y-3 bg-muted/20 rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <Smartphone className="w-4 h-4 text-blue-500" />
+              <span className="text-xs font-semibold text-foreground">Credenciais do Mercado Pago</span>
+            </div>
+            <SecretInput
+              id={`mp_access_${resortId}`}
+              label="Access Token"
+              placeholder="APP_USR-..."
+              value={config.mp_access_token}
+              onChange={v => setConfig(p => ({ ...p, mp_access_token: v }))}
+            />
+            <SecretInput
+              id={`mp_public_${resortId}`}
+              label="Public Key"
+              placeholder="APP_USR-..."
+              value={config.mp_public_key}
+              onChange={v => setConfig(p => ({ ...p, mp_public_key: v }))}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Obtenha suas credenciais em{" "}
+              <a href="https://www.mercadopago.com.br/developers/panel/app" target="_blank" rel="noopener noreferrer" className="underline text-primary hover:text-primary/80">
+                MP Developers
+              </a>
+            </p>
+          </div>
+        )}
+
+        {/* Pix fields */}
+        {config.payment_method === "pix" && (
+          <div className="space-y-3 bg-muted/20 rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <QrCode className="w-4 h-4 text-teal-500" />
+              <span className="text-xs font-semibold text-foreground">Dados do Pix</span>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Chave Pix</Label>
+              <Input className="text-sm" placeholder="CPF, e-mail, telefone ou aleatória" value={config.pix_key} onChange={e => setConfig(p => ({ ...p, pix_key: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Nome do titular</Label>
+              <Input className="text-sm" placeholder="Nome completo" value={config.pix_name} onChange={e => setConfig(p => ({ ...p, pix_name: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Banco</Label>
+              <Input className="text-sm" placeholder="Ex: Nubank" value={config.pix_bank} onChange={e => setConfig(p => ({ ...p, pix_bank: e.target.value }))} />
+            </div>
+          </div>
+        )}
+
+        {/* WhatsApp - shown for manual and pix */}
+        {(config.payment_method === "manual" || config.payment_method === "pix") && (
+          <div className="space-y-1">
+            <Label className="text-xs font-medium flex items-center gap-1.5">
+              <MessageCircle className="w-3.5 h-3.5 text-green-500" />
+              WhatsApp para contato
+            </Label>
+            <Input className="text-sm" placeholder="5562999999999" value={config.whatsapp} onChange={e => setConfig(p => ({ ...p, whatsapp: e.target.value }))} />
+          </div>
+        )}
+
+        {/* Save button */}
+        <Button onClick={handleSave} disabled={saving} className="w-full">
+          <Save className="w-4 h-4 mr-2" />
+          {saving ? "Salvando..." : "Salvar configuração de pagamento"}
+        </Button>
+      </div>
     </div>
   );
 };
