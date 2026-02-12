@@ -127,6 +127,36 @@ export type Database = {
         }
         Relationships: []
       }
+      selector_options: {
+        Row: {
+          category: string
+          created_at: string | null
+          display_order: number | null
+          icon_name: string
+          id: string
+          key: string
+          label: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          display_order?: number | null
+          icon_name?: string
+          id?: string
+          key: string
+          label: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          display_order?: number | null
+          icon_name?: string
+          id?: string
+          key?: string
+          label?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
