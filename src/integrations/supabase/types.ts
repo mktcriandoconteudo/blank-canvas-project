@@ -74,6 +74,7 @@ export type Database = {
         Row: {
           amenities: string[] | null
           beds: number | null
+          condo_features: string[] | null
           created_at: string | null
           description: string | null
           id: string
@@ -90,6 +91,7 @@ export type Database = {
         Insert: {
           amenities?: string[] | null
           beds?: number | null
+          condo_features?: string[] | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -106,6 +108,7 @@ export type Database = {
         Update: {
           amenities?: string[] | null
           beds?: number | null
+          condo_features?: string[] | null
           created_at?: string | null
           description?: string | null
           id?: string

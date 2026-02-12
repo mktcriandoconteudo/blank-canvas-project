@@ -8,6 +8,7 @@ import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { AMENITY_OPTIONS } from "@/components/AmenitySelector";
+import { CONDO_FEATURE_OPTIONS } from "@/components/CondoFeatureSelector";
 
 const ResortDetail = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const ResortDetail = () => {
   const [resortAmenities, setResortAmenities] = useState<string[]>([]);
   const [resortDescription, setResortDescription] = useState<string | null>(null);
   const [resortName, setResortName] = useState<string>("Condomínio Enseada");
+  const [condoFeatures, setCondoFeatures] = useState<string[]>([]);
 
   // Fetch photos from database
   useEffect(() => {
@@ -29,7 +31,7 @@ const ResortDetail = () => {
       // Find resort by slug (name converted to slug)
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name, amenities, description")
+        .select("id, name, amenities, description, condo_features")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
@@ -40,6 +42,7 @@ const ResortDetail = () => {
         setResortAmenities((resort as any).amenities || []);
         setResortDescription((resort as any).description || null);
         setResortName(resort.name);
+        setCondoFeatures((resort as any).condo_features || []);
 
         const { data: photos } = await supabase
           .from("resort_photos")
@@ -263,19 +266,11 @@ const ResortDetail = () => {
               O que esse lugar oferece
             </h2>
             <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-              {[
-                { icon: Wifi, label: "Wi-Fi" },
-                { icon: Waves, label: "Piscina compartilhada" },
-                { icon: ArrowUpDown, label: "Elevador" },
-                { icon: Snowflake, label: "Ar-condicionado split" },
-                { icon: Fence, label: "Pátio ou varanda (Privativa)" },
-                { icon: Refrigerator, label: "Geladeira Consul" },
-                { icon: Microwave, label: "Microondas" },
-                { icon: Dumbbell, label: "Academia compartilhada" },
-                { icon: ShieldAlert, label: "Alarme de monóxido de carbono" },
-                { icon: Flame, label: "Detector de fumaça" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-start gap-2.5">
+              {(condoFeatures.length > 0
+                ? CONDO_FEATURE_OPTIONS.filter(f => condoFeatures.includes(f.key))
+                : CONDO_FEATURE_OPTIONS.slice(0, 10)
+              ).map((item) => (
+                <div key={item.key} className="flex items-start gap-2.5">
                   <item.icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
                   <span className="text-sm text-foreground leading-tight">{item.label}</span>
                 </div>

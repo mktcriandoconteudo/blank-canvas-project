@@ -1,0 +1,1 @@
+ALTER TABLE public.resorts ADD COLUMN condo_features text[] DEFAULT '{}'::text[];
