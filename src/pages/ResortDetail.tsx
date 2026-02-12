@@ -1,15 +1,83 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Bed, Wifi, Tv, Users, Home, ChevronRight, Sun, Moon, Waves, ArrowUpDown, Fence, Microwave, ShieldAlert, Flame, Dumbbell, Snowflake, Refrigerator, AlertTriangle } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
 import PhotoLightbox from "@/components/PhotoLightbox";
-import { AMENITY_OPTIONS } from "@/components/AmenitySelector";
-import { CONDO_FEATURE_OPTIONS } from "@/components/CondoFeatureSelector";
-import { IMPORTANT_INFO_OPTIONS } from "@/components/ImportantInfoSelector";
+import { useSelectorOptions } from "@/hooks/use-selector-options";
+import { getIconComponent } from "@/components/IconPicker";
+
+// Sub-components that use DB-driven options
+const DynamicAmenities = ({ keys, beds, guests }: { keys: string[]; beds: number; guests: number }) => {
+  const { options } = useSelectorOptions("amenity");
+  const filtered = keys.length > 0 ? options.filter(o => keys.includes(o.key)) : options.slice(0, 4);
+  return (
+    <div className="flex gap-2 flex-wrap mb-7">
+      {filtered.map(o => {
+        const Icon = getIconComponent(o.icon_name);
+        const count = o.key === "quartos" ? beds : o.key === "hospedes" ? guests : null;
+        return (
+          <span key={o.id} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+            {Icon && <Icon className="w-4 h-4 text-muted-foreground" />}
+            {count ? `${count} ${o.label}` : o.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+const DynamicCondoFeatures = ({ keys }: { keys: string[] }) => {
+  const { options } = useSelectorOptions("condo_feature");
+  const filtered = keys.length > 0 ? options.filter(o => keys.includes(o.key)) : options.slice(0, 10);
+  if (filtered.length === 0) return null;
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 mb-7">
+      <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        O que esse lugar oferece
+      </h2>
+      <div className="grid grid-cols-2 gap-y-4 gap-x-3">
+        {filtered.map(o => {
+          const Icon = getIconComponent(o.icon_name);
+          return (
+            <div key={o.id} className="flex items-start gap-2.5">
+              {Icon && <Icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />}
+              <span className="text-sm text-foreground leading-tight">{o.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const DynamicImportantInfo = ({ keys }: { keys: string[] }) => {
+  const { options } = useSelectorOptions("important_info");
+  const filtered = options.filter(o => keys.includes(o.key));
+  if (filtered.length === 0) return null;
+  return (
+    <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 mb-7">
+      <h2 className="text-base font-bold text-destructive flex items-center gap-2 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <AlertTriangle className="w-5 h-5" />
+        Informações Importantes
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-3">
+        {filtered.map(o => {
+          const Icon = getIconComponent(o.icon_name);
+          return (
+            <div key={o.id} className="flex items-start gap-2.5">
+              {Icon && <Icon className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
+              <span className="text-sm text-foreground leading-tight">{o.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const ResortDetail = () => {
   const navigate = useNavigate();
@@ -223,25 +291,7 @@ const ResortDetail = () => {
           <h2 className="text-base font-bold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Comodidades Populares
           </h2>
-          <div className="flex gap-2 flex-wrap mb-7">
-            {resortAmenities.length > 0
-              ? AMENITY_OPTIONS.filter(a => resortAmenities.includes(a.key)).map((a) => {
-                  const count = a.key === "quartos" ? resortBeds : a.key === "hospedes" ? resortGuests : null;
-                  return (
-                    <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
-                      <a.icon className="w-4 h-4 text-muted-foreground" />
-                      {count ? `${count} ${a.label}` : a.label}
-                    </span>
-                  );
-                })
-              : AMENITY_OPTIONS.slice(0, 4).map((a) => (
-                  <span key={a.key} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
-                    <a.icon className="w-4 h-4 text-muted-foreground" />
-                    {a.label}
-                  </span>
-                ))
-            }
-          </div>
+          <DynamicAmenities keys={resortAmenities} beds={resortBeds} guests={resortGuests} />
 
           {/* Description */}
           <h2 className="text-base font-bold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -271,40 +321,10 @@ const ResortDetail = () => {
           </div>
 
           {/* O que esse lugar oferece */}
-          <div className="bg-card border border-border rounded-2xl p-6 mb-7">
-            <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              O que esse lugar oferece
-            </h2>
-            <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-              {(condoFeatures.length > 0
-                ? CONDO_FEATURE_OPTIONS.filter(f => condoFeatures.includes(f.key))
-                : CONDO_FEATURE_OPTIONS.slice(0, 10)
-              ).map((item) => (
-                <div key={item.key} className="flex items-start gap-2.5">
-                  <item.icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-                  <span className="text-sm text-foreground leading-tight">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <DynamicCondoFeatures keys={condoFeatures} />
 
           {/* Informações Importantes */}
-          {importantInfo.length > 0 && (
-            <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 mb-7">
-              <h2 className="text-base font-bold text-destructive flex items-center gap-2 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <AlertTriangle className="w-5 h-5" />
-                Informações Importantes
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-3">
-                {IMPORTANT_INFO_OPTIONS.filter(f => importantInfo.includes(f.key)).map((item) => (
-                  <div key={item.key} className="flex items-start gap-2.5">
-                    <item.icon className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                    <span className="text-sm text-foreground leading-tight">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <DynamicImportantInfo keys={importantInfo} />
 
           {/* Pricing Plans */}
           <PricingPlans />

@@ -8,9 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } from "lucide-react";
-import AmenitySelector from "@/components/AmenitySelector";
-import CondoFeatureSelector from "@/components/CondoFeatureSelector";
-import ImportantInfoSelector from "@/components/ImportantInfoSelector";
+import DynamicSelector from "@/components/DynamicSelector";
+import OptionsManager from "@/components/OptionsManager";
 import FaviconManager from "@/components/FaviconManager";
 
 interface Resort {
@@ -218,6 +217,13 @@ const AdminDashboard = () => {
         {/* Favicon manager */}
         <FaviconManager />
 
+        {/* Options managers */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <OptionsManager category="amenity" title="Comodidades" />
+          <OptionsManager category="condo_feature" title="O que o lugar oferece" />
+          <OptionsManager category="important_info" title="Informações Importantes" />
+        </div>
+
         {/* New resort form */}
         {showNewForm && (
           <Card>
@@ -257,15 +263,15 @@ const AdminDashboard = () => {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Comodidades</Label>
-                <AmenitySelector selected={newResort.amenities} onChange={amenities => setNewResort(p => ({ ...p, amenities }))} />
+                <DynamicSelector category="amenity" selected={newResort.amenities} onChange={amenities => setNewResort(p => ({ ...p, amenities }))} />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">O que o lugar oferece</Label>
-                <CondoFeatureSelector selected={newResort.condo_features} onChange={condo_features => setNewResort(p => ({ ...p, condo_features }))} />
+                <DynamicSelector category="condo_feature" selected={newResort.condo_features} onChange={condo_features => setNewResort(p => ({ ...p, condo_features }))} />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Informações Importantes</Label>
-                <ImportantInfoSelector selected={newResort.important_info} onChange={important_info => setNewResort(p => ({ ...p, important_info }))} />
+                <DynamicSelector category="important_info" selected={newResort.important_info} onChange={important_info => setNewResort(p => ({ ...p, important_info }))} variant="destructive" />
               </div>
               <div className="flex gap-2 mt-2">
                 <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8" onClick={handleCreate}>Criar Resort</Button>
@@ -319,15 +325,15 @@ const AdminDashboard = () => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Comodidades</Label>
-                    <AmenitySelector selected={editForm.amenities ?? []} onChange={amenities => setEditForm(p => ({ ...p, amenities }))} />
+                    <DynamicSelector category="amenity" selected={editForm.amenities ?? []} onChange={amenities => setEditForm(p => ({ ...p, amenities }))} />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">O que o lugar oferece</Label>
-                    <CondoFeatureSelector selected={editForm.condo_features ?? []} onChange={condo_features => setEditForm(p => ({ ...p, condo_features }))} />
+                    <DynamicSelector category="condo_feature" selected={editForm.condo_features ?? []} onChange={condo_features => setEditForm(p => ({ ...p, condo_features }))} />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Informações Importantes</Label>
-                    <ImportantInfoSelector selected={editForm.important_info ?? []} onChange={important_info => setEditForm(p => ({ ...p, important_info }))} />
+                    <DynamicSelector category="important_info" selected={editForm.important_info ?? []} onChange={important_info => setEditForm(p => ({ ...p, important_info }))} variant="destructive" />
                   </div>
                   <div className="flex gap-2">
                     <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8" onClick={() => handleUpdate(resort.id)}><Save className="w-4 h-4 mr-1" /> Salvar</Button>
