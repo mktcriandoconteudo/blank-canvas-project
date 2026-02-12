@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Image, Edit2, Save, X, Upload, Building2, Home, UserPlus } from "lucide-react";
+import { Plus, Trash2, Image, Edit2, Save, X, Upload, Building2, Home, UserPlus, RefreshCw } from "lucide-react";
 import PricingPlansManager from "@/components/PricingPlansManager";
 import BlockedDatesManager from "@/components/BlockedDatesManager";
 import OptionsManager from "@/components/OptionsManager";
@@ -237,6 +237,30 @@ const AdminDashboard = () => {
     fetchPhotos(photo.resort_id);
   };
 
+  const handleReplacePhoto = async (photo: ResortPhoto, file: File) => {
+    // Delete old file from storage
+    await supabase.storage.from("resort-photos").remove([photo.storage_path]);
+
+    // Upload new file
+    const ext = file.name.split(".").pop() || "jpg";
+    const newPath = `${photo.resort_id}/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("resort-photos").upload(newPath, file);
+    if (uploadError) {
+      toast({ title: "Erro no upload", description: uploadError.message, variant: "destructive" });
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("resort-photos").getPublicUrl(newPath);
+
+    // Update DB record
+    await supabase.from("resort_photos").update({
+      url: urlData.publicUrl,
+      storage_path: newPath,
+    }).eq("id", photo.id);
+
+    toast({ title: "Foto substituída!" });
+    fetchPhotos(photo.resort_id);
+  };
+
   const handleSetCover = async (photo: ResortPhoto) => {
     await supabase.from("resort_photos").update({ is_cover: false }).eq("resort_id", photo.resort_id);
     await supabase.from("resort_photos").update({ is_cover: true }).eq("id", photo.id);
@@ -288,6 +312,19 @@ const AdminDashboard = () => {
                 {!photo.is_cover && (
                   <button onClick={() => handleSetCover(photo)} className="text-[10px] text-white bg-white/20 px-2 py-1 rounded">Capa</button>
                 )}
+                <label className="cursor-pointer text-[10px] text-white bg-white/20 px-2 py-1 rounded flex items-center gap-0.5">
+                  <RefreshCw className="w-3 h-3" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) handleReplacePhoto(photo, file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
                 <button onClick={() => handleDeletePhoto(photo)} className="text-[10px] text-white bg-destructive/80 px-2 py-1 rounded">
                   <Trash2 className="w-3 h-3" />
                 </button>
