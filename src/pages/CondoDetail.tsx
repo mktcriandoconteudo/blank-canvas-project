@@ -285,7 +285,7 @@ const CondoDetail = () => {
                     <div className="flex items-center gap-2 flex-wrap mt-2">
                       {apt.price_per_night && (
                         <span className="flex items-center gap-1.5 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
-                          R$ {apt.price_per_night.toLocaleString("pt-BR")}
+                          <span className="text-[10px] font-normal opacity-80">a partir de</span> R$ {apt.price_per_night.toLocaleString("pt-BR")} <span className="text-[10px] font-normal opacity-80">/noite</span>
                         </span>
                       )}
                       <span className="flex items-center gap-1 bg-card/20 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10">
