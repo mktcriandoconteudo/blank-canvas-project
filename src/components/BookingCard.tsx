@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { ChevronDown } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+
 import { format, addDays, eachDayOfInterval, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,6 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [hasConflict, setHasConflict] = useState(false);
-  const [manualDates, setManualDates] = useState(false);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [booking, setBooking] = useState(false);
   const [guestName, setGuestName] = useState("");
@@ -93,22 +92,20 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
   // Auto-set checkout based on plan nights
   useEffect(() => {
-    if (selectedPlan && checkIn && !manualDates) {
+    if (selectedPlan && checkIn) {
       setCheckOut(addDays(checkIn, selectedPlan.total_nights));
     }
-  }, [checkIn, selectedPlan, manualDates]);
+  }, [checkIn, selectedPlan]);
 
   useImperativeHandle(ref, () => ({
     selectPlan: (plan: SelectedPlan) => {
       setSelectedPlan(plan);
-      if (!manualDates) {
-        if (!checkIn) {
-          const tomorrow = addDays(new Date(), 1);
-          setCheckIn(tomorrow);
-          setCheckOut(addDays(tomorrow, plan.total_nights));
-        } else {
-          setCheckOut(addDays(checkIn, plan.total_nights));
-        }
+      if (!checkIn) {
+        const tomorrow = addDays(new Date(), 1);
+        setCheckIn(tomorrow);
+        setCheckOut(addDays(tomorrow, plan.total_nights));
+      } else {
+        setCheckOut(addDays(checkIn, plan.total_nights));
       }
     },
   }));
@@ -228,11 +225,6 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           )}
         </div>
 
-        {/* Manual dates toggle */}
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-xs text-muted-foreground">Escolher datas manualmente</span>
-          <Switch checked={manualDates} onCheckedChange={setManualDates} />
-        </div>
 
         <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
           <div className="flex divide-x divide-border">
@@ -269,7 +261,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             {/* Checkout */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className={cn("flex-1 p-3 text-left transition-colors", manualDates ? "hover:bg-muted/50 cursor-pointer" : "opacity-60 cursor-default")} disabled={!manualDates}>
+                <button className="flex-1 p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer">
                   <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
                   <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut)}</p>
                 </button>
