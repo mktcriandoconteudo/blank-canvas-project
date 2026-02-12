@@ -79,7 +79,7 @@ const DynamicImportantInfo = ({ resortId }: { resortId: string | null }) => {
 
 const ResortDetail = () => {
   const navigate = useNavigate();
-  const { slug } = useParams();
+  const { slug, aptSlug } = useParams();
   const bookingRef = useRef<BookingCardRef>(null);
   const bookingCardRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
@@ -101,7 +101,9 @@ const ResortDetail = () => {
   // Fetch photos from database
   useEffect(() => {
     const fetchPhotos = async () => {
-      // Find resort by slug (name converted to slug)
+      // Determine which slug to use for finding the resort/apartment
+      const targetSlug = aptSlug || slug;
+      
       const { data: resorts } = await supabase
         .from("resorts")
         .select("id, name, amenities, description, condo_features, important_info, beds, max_guests")
@@ -109,7 +111,7 @@ const ResortDetail = () => {
 
       if (resorts && resorts.length > 0) {
         const resort = resorts.find(r => 
-          r.name.toLowerCase().replace(/\s+/g, '-') === slug
+          r.name.toLowerCase().replace(/\s+/g, '-') === targetSlug
         ) || resorts[0];
 
         setResortAmenities((resort as any).amenities || []);
@@ -133,7 +135,7 @@ const ResortDetail = () => {
       }
     };
     fetchPhotos();
-  }, [slug]);
+  }, [slug, aptSlug]);
 
   // Use DB photos if available, fallback to default
   const photos = dbPhotos.length > 0 ? dbPhotos.slice(0, 3) : [resort1Image];
@@ -202,7 +204,7 @@ const ResortDetail = () => {
         {/* Top bar */}
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
            <button
-            onClick={() => navigate("/explore")}
+            onClick={() => navigate(aptSlug ? `/condo/${slug}` : "/explore")}
             className="w-10 h-10 rounded-full bg-card/30 backdrop-blur-md border border-border/10 flex items-center justify-center"
           >
             <ChevronLeft className="w-5 h-5 text-white" />

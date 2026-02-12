@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import ResortDetail from "./pages/ResortDetail";
+import CondoDetail from "./pages/CondoDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminSettings from "./pages/AdminSettings";
@@ -28,6 +29,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/explore" element={<Index />} />
+          <Route path="/condo/:slug" element={<CondoDetail />} />
+          <Route path="/resort/:slug/:aptSlug" element={<ResortDetail />} />
           <Route path="/resort/:slug" element={<ResortDetail />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
