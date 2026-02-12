@@ -226,11 +226,11 @@ const CondoDetail = () => {
       <div className="px-6 pt-6 pb-10 max-w-5xl mx-auto">
         {/* Description */}
         {condoDescription && (
-          <div className="mb-8 rounded-[1.25rem] p-6" style={{ background: "hsl(340, 80%, 55%)" }}>
-            <h2 className="text-base font-bold text-white mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="mb-8 rounded-[1.25rem] p-6 bg-muted border border-border">
+            <h2 className="text-base font-bold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Sobre o Condomínio
             </h2>
-            <p className="text-sm text-white/90 leading-relaxed whitespace-pre-line">
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
               {condoDescription}
             </p>
           </div>
