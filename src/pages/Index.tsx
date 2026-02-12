@@ -151,16 +151,18 @@ const Index = () => {
       </main>
       <Footer />
 
-      {/* Sliding info card */}
+      {/* Sliding info card near user icon */}
       <AnimatePresence>
         {showInfoCard && (
           <motion.div
-            initial={{ x: 320, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 320, opacity: 0 }}
+            initial={{ y: -20, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -20, opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-4 sm:right-6 z-50 w-[300px] bg-card border border-border rounded-2xl shadow-2xl shadow-black/20 overflow-hidden"
+            className="fixed top-16 right-3 sm:right-5 z-[60] w-[280px] bg-card border border-border rounded-2xl shadow-2xl shadow-black/20 overflow-hidden"
           >
+            {/* Arrow pointing up to the icon */}
+            <div className="absolute -top-2 right-5 w-4 h-4 bg-card border-l border-t border-border rotate-45" />
             <div className="p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
