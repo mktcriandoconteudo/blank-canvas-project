@@ -97,7 +97,7 @@ const HeroBanner = () => {
 
             {/* Centered logo + subtitle */}
             {logoUrl && (
-              <div className="absolute top-6 sm:top-auto sm:inset-0 left-0 right-0 flex items-start sm:items-center justify-center z-10 pointer-events-none">
+              <div className="absolute inset-0 flex items-start pt-6 sm:items-center sm:pt-0 justify-center z-10 pointer-events-none">
                 <div className="flex flex-col items-center">
                   <img src={logoUrl} alt="Logo" className="h-10 sm:h-20 w-auto object-contain drop-shadow-xl" />
                   {logoSubtitle && (
