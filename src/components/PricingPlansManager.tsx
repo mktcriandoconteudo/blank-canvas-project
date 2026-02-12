@@ -5,8 +5,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, Edit2, Save, X, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+
+const sessionsOptions = [
+  "1 diária", "2 diárias", "3 diárias", "4 diárias", "5 diárias",
+  "6 diárias", "7 diárias", "10 diárias", "14 diárias", "15 diárias",
+  "20 diárias", "30 diárias",
+];
+
+const nightsOptions = [1, 2, 3, 4, 5, 6, 7, 10, 14, 15, 20, 30];
+
+const formatCurrencyInput = (value: string) => {
+  const numbers = value.replace(/\D/g, "");
+  const cents = parseInt(numbers || "0", 10);
+  return (cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const parseCurrencyInput = (formatted: string): number => {
+  const numbers = formatted.replace(/\D/g, "");
+  return parseInt(numbers || "0", 10) / 100;
+};
 
 interface PricingPlan {
   id: string;
@@ -47,7 +67,7 @@ const PricingPlansManager = ({ resortId }: PricingPlansManagerProps) => {
       resort_id: resortId,
       name: form.name,
       sessions: form.sessions,
-      price_per_night: parseFloat(form.price_per_night),
+      price_per_night: parseCurrencyInput(form.price_per_night),
       total_nights: parseInt(form.total_nights) || 1,
       is_popular: form.is_popular,
       display_order: maxOrder + 1,
@@ -66,7 +86,7 @@ const PricingPlansManager = ({ resortId }: PricingPlansManagerProps) => {
     const { error } = await supabase.from("pricing_plans").update({
       name: form.name,
       sessions: form.sessions,
-      price_per_night: parseFloat(form.price_per_night),
+      price_per_night: parseCurrencyInput(form.price_per_night),
       total_nights: parseInt(form.total_nights) || 1,
       is_popular: form.is_popular,
     }).eq("id", id);
@@ -91,7 +111,7 @@ const PricingPlansManager = ({ resortId }: PricingPlansManagerProps) => {
     setForm({
       name: plan.name,
       sessions: plan.sessions,
-      price_per_night: String(plan.price_per_night),
+      price_per_night: plan.price_per_night.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       total_nights: String(plan.total_nights),
       is_popular: plan.is_popular,
     });
@@ -99,6 +119,11 @@ const PricingPlansManager = ({ resortId }: PricingPlansManagerProps) => {
 
   const formatCurrency = (value: number) => {
     return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+  };
+
+  const handlePriceChange = (rawValue: string) => {
+    const formatted = formatCurrencyInput(rawValue);
+    setForm(p => ({ ...p, price_per_night: formatted }));
   };
 
   return (
@@ -121,15 +146,33 @@ const PricingPlansManager = ({ resortId }: PricingPlansManagerProps) => {
             </div>
             <div className="space-y-1">
               <Label className="text-[10px]">Sessões</Label>
-              <Input value={form.sessions} onChange={e => setForm(p => ({ ...p, sessions: e.target.value }))} className="h-8 text-xs" placeholder="Ex: 5 diárias" />
+              <Select value={form.sessions} onValueChange={v => setForm(p => ({ ...p, sessions: v }))}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  {sessionsOptions.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
               <Label className="text-[10px]">Preço/diária (R$)</Label>
-              <Input type="number" value={form.price_per_night} onChange={e => setForm(p => ({ ...p, price_per_night: e.target.value }))} className="h-8 text-xs" />
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                <Input
+                  value={form.price_per_night}
+                  onChange={e => handlePriceChange(e.target.value)}
+                  className="h-8 text-xs pl-8"
+                  placeholder="0,00"
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <Label className="text-[10px]">Total noites</Label>
-              <Input type="number" value={form.total_nights} onChange={e => setForm(p => ({ ...p, total_nights: e.target.value }))} className="h-8 text-xs" />
+              <Select value={form.total_nights} onValueChange={v => setForm(p => ({ ...p, total_nights: v }))}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  {nightsOptions.map(n => <SelectItem key={n} value={String(n)}>{n} {n === 1 ? "noite" : "noites"}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="flex items-center gap-2">
