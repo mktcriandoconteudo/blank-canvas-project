@@ -1,9 +1,12 @@
-import { Menu, User, Moon, Sun } from "lucide-react";
+import { Menu, User, Moon, Sun, CalendarCheck, X, LogIn } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
 import HeroBanner from "@/components/HeroBanner";
 import ResortCard from "@/components/ResortCard";
 import Footer from "@/components/Footer";
+import AuthModal from "@/components/AuthModal";
 
 interface LogoSettings {
   landing_logo_url: string;
@@ -24,6 +27,7 @@ interface ResortWithCover {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("theme");
     if (stored) return stored === "dark";
@@ -31,6 +35,22 @@ const Index = () => {
   });
   const [resorts, setResorts] = useState<ResortWithCover[]>([]);
   const [logo, setLogo] = useState<LogoSettings>({ landing_logo_url: "", landing_logo_subtitle: "J G Locações" });
+  const [showInfoCard, setShowInfoCard] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // Check auth and show info card
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    // Show card after a short delay
+    const timer = setTimeout(() => setShowInfoCard(true), 1500);
+    return () => { subscription.unsubscribe(); clearTimeout(timer); };
+  }, []);
 
   useEffect(() => {
     const fetchLogo = async () => {
@@ -130,6 +150,67 @@ const Index = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Sliding info card */}
+      <AnimatePresence>
+        {showInfoCard && (
+          <motion.div
+            initial={{ x: 320, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 320, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-6 right-4 sm:right-6 z-50 w-[300px] bg-card border border-border rounded-2xl shadow-2xl shadow-black/20 overflow-hidden"
+          >
+            <div className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <CalendarCheck className="w-5 h-5 text-primary" />
+                </div>
+                <button
+                  onClick={() => setShowInfoCard(false)}
+                  className="p-1 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  Acompanhe suas reservas
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  {user
+                    ? "Acesse suas reservas e acompanhe o status de cada uma delas em tempo real."
+                    : "Faça login ou crie sua conta para acompanhar o status das suas reservas em tempo real."
+                  }
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowInfoCard(false);
+                  if (user) {
+                    navigate("/minhas-reservas");
+                  } else {
+                    setAuthOpen(true);
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+              >
+                {user ? (
+                  <>
+                    <CalendarCheck className="w-3.5 h-3.5" /> Ver minhas reservas
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-3.5 h-3.5" /> Entrar ou criar conta
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} onSuccess={() => navigate("/minhas-reservas")} />
     </div>
   );
 };
