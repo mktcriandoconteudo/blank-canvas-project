@@ -12,6 +12,7 @@ import DynamicSelector from "@/components/DynamicSelector";
 import OptionsManager from "@/components/OptionsManager";
 import FaviconManager from "@/components/FaviconManager";
 import PricingPlansManager from "@/components/PricingPlansManager";
+import BlockedDatesManager from "@/components/BlockedDatesManager";
 
 interface Resort {
   id: string;
@@ -416,6 +417,9 @@ const AdminDashboard = () => {
 
               {/* Pricing Plans */}
               <PricingPlansManager resortId={resort.id} />
+
+              {/* Blocked Dates */}
+              <BlockedDatesManager resortId={resort.id} />
             </CardContent>
           </Card>
         ))}
