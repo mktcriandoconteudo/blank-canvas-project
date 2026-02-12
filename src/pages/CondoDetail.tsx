@@ -4,6 +4,7 @@ import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, MapPin
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
+import Footer from "@/components/Footer";
 
 interface Apartment {
   id: string;
@@ -306,11 +307,7 @@ const CondoDetail = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 py-10 mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-muted-foreground">
-          © 2026 Resorts · Termos · Privacidade · Mapa do site
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import { useSelectorOptions } from "@/hooks/use-selector-options";
 import { getIconComponent } from "@/components/IconPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
+import Footer from "@/components/Footer";
 
 // Dynamic FAQ component
 const defaultFaqItems = [
@@ -462,6 +463,7 @@ const ResortDetail = () => {
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
       />
+      <Footer />
     </div>
   );
 };
