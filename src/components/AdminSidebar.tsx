@@ -1,4 +1,4 @@
-import { Building2, Settings, ExternalLink, LogOut, Sparkles } from "lucide-react";
+import { Building2, Settings, ExternalLink, LogOut, Sparkles, CalendarCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const mainItems = [
   { title: "Resorts", url: "/admin", icon: Building2 },
+  { title: "Reservas", url: "/admin/reservations", icon: CalendarCheck },
   { title: "Configurações", url: "/admin/settings", icon: Settings },
 ];
 
