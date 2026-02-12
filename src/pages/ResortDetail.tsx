@@ -92,6 +92,7 @@ const ResortDetail = () => {
   const [resortAmenities, setResortAmenities] = useState<string[]>([]);
   const [resortDescription, setResortDescription] = useState<string | null>(null);
   const [resortName, setResortName] = useState<string>("Condomínio Enseada");
+  const [resortId, setResortId] = useState<string | null>(null);
   const [condoFeatures, setCondoFeatures] = useState<string[]>([]);
   const [importantInfo, setImportantInfo] = useState<string[]>([]);
   const [resortBeds, setResortBeds] = useState<number>(1);
@@ -114,6 +115,7 @@ const ResortDetail = () => {
         setResortAmenities((resort as any).amenities || []);
         setResortDescription((resort as any).description || null);
         setResortName(resort.name);
+        setResortId(resort.id);
         setCondoFeatures((resort as any).condo_features || []);
         setImportantInfo((resort as any).important_info || []);
         setResortBeds((resort as any).beds || 1);
@@ -327,7 +329,7 @@ const ResortDetail = () => {
           <DynamicImportantInfo keys={importantInfo} />
 
           {/* Pricing Plans */}
-          <PricingPlans />
+          <PricingPlans resortId={resortId ?? undefined} />
         </div>
 
         {/* Booking Card - full width at bottom */}

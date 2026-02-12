@@ -32,6 +32,50 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_plans: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_popular: boolean | null
+          name: string
+          price_per_night: number
+          resort_id: string
+          sessions: string
+          total_nights: number
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_popular?: boolean | null
+          name: string
+          price_per_night: number
+          resort_id: string
+          sessions: string
+          total_nights?: number
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_popular?: boolean | null
+          name?: string
+          price_per_night?: number
+          resort_id?: string
+          sessions?: string
+          total_nights?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_plans_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resort_photos: {
         Row: {
           created_at: string | null
