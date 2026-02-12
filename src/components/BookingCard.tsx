@@ -259,27 +259,35 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             </Popover>
 
             {/* Checkout */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex-1 p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer">
-                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
-                  <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut)}</p>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-card z-50" align="end">
-                <Calendar
-                  mode="single"
-                  selected={checkOut}
-                  onSelect={setCheckOut}
-                  disabled={(date) => date <= (checkIn || new Date()) || isDateBlocked(date)}
-                  modifiers={{ blocked: blockedDates }}
-                  modifiersClassNames={{ blocked: "bg-destructive/20 text-destructive line-through" }}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                  locale={ptBR}
-                />
-              </PopoverContent>
-            </Popover>
+            {selectedPlan ? (
+              <div className="flex-1 p-3 text-left opacity-70 cursor-default">
+                <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
+                <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut)}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">🔒 {selectedPlan.total_nights} diárias ({selectedPlan.name})</p>
+              </div>
+            ) : (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex-1 p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer">
+                    <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
+                    <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut)}</p>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-card z-50" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={checkOut}
+                    onSelect={setCheckOut}
+                    disabled={(date) => date <= (checkIn || new Date()) || isDateBlocked(date)}
+                    modifiers={{ blocked: blockedDates }}
+                    modifiersClassNames={{ blocked: "bg-destructive/20 text-destructive line-through" }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
 
           {/* Guests */}
