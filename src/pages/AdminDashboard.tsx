@@ -313,17 +313,18 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{resort.name}</h3>
-                    <p className="text-sm text-muted-foreground">{resort.location} · R${resort.price_per_night}/noite · {resort.beds} quartos · {resort.max_guests} hóspedes</p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-sm sm:text-base truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{resort.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{resort.location} · R${resort.price_per_night}/noite</p>
+                    <p className="text-xs text-muted-foreground">{resort.beds} quartos · {resort.max_guests} hóspedes</p>
                     {resort.tag && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">{resort.tag}</span>}
                   </div>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => { setEditingId(resort.id); setEditForm(resort); }}>
+                  <div className="flex gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(resort.id); setEditForm(resort); }}>
                       <Edit2 className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => handleDelete(resort.id)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(resort.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
