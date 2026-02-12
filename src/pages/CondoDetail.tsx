@@ -263,7 +263,7 @@ const CondoDetail = () => {
               >
                 <div className="rounded-[1.25rem] overflow-hidden bg-card ring-1 ring-border/30 shadow-lg shadow-primary/10 transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-primary/20">
                   {/* Photo */}
-                  <div className="relative overflow-hidden aspect-[4/3]">
+                  <div className="relative overflow-hidden aspect-[3/4]">
                     <img
                       src={apt.coverUrl || resort1Image}
                       alt={apt.name}
