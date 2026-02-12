@@ -12,7 +12,7 @@ export const AMENITY_OPTIONS: AmenityOption[] = [
   { key: "smart-tv", label: "Smart TV", icon: Tv },
   { key: "wifi", label: "Wi-Fi", icon: Wifi },
   { key: "hospedes", label: "Hóspedes", icon: Users },
-  { key: "piscina", label: "Piscina", icon: Waves },
+  { key: "piscina", label: "Piscina aquecida", icon: Waves },
   { key: "ar-condicionado", label: "Ar-condicionado", icon: Snowflake },
   { key: "varanda", label: "Varanda", icon: Fence },
   { key: "geladeira", label: "Geladeira", icon: Refrigerator },
