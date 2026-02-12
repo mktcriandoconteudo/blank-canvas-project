@@ -34,6 +34,8 @@ const ResortCard = ({ image, title, location, rating, reviews, price, dates, tag
         <img
           src={image}
           alt={title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         {/* Dark gradient overlay */}
