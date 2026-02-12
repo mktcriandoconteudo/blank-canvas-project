@@ -22,12 +22,13 @@ const HeroBanner = () => {
   const [direction, setDirection] = useState(1);
   const [mainTitle, setMainTitle] = useState("");
   const [mainSubtitle, setMainSubtitle] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       const [slidesRes, settingsRes] = await Promise.all([
         supabase.from("hero_slides").select("id, image_url, title, subtitle").eq("is_active", true).order("display_order"),
-        supabase.from("site_settings").select("key, value").in("key", ["hero_main_title", "hero_main_subtitle"]),
+        supabase.from("site_settings").select("key, value").in("key", ["hero_main_title", "hero_main_subtitle", "landing_logo_url"]),
       ]);
       if (slidesRes.data && slidesRes.data.length > 0) {
         setSlides(slidesRes.data as Slide[]);
@@ -35,8 +36,10 @@ const HeroBanner = () => {
       if (settingsRes.data) {
         const t = settingsRes.data.find(d => d.key === "hero_main_title");
         const s = settingsRes.data.find(d => d.key === "hero_main_subtitle");
+        const l = settingsRes.data.find(d => d.key === "landing_logo_url");
         if (t) setMainTitle(t.value);
         if (s) setMainSubtitle(s.value);
+        if (l) setLogoUrl(l.value);
       }
     };
     fetchData();
@@ -66,9 +69,18 @@ const HeroBanner = () => {
 
   return (
     <div>
-      {/* Main title above banner */}
-      {(mainTitle || mainSubtitle) && (
+      {/* Logo + Main title above banner */}
+      {(logoUrl || mainTitle || mainSubtitle) && (
         <div className="bg-background pt-20 pb-4 px-4 text-center">
+          {logoUrl && (
+            <div className="flex justify-center mb-4">
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="h-14 sm:h-18 w-auto object-contain"
+              />
+            </div>
+          )}
           {mainTitle && (
             <h1
               className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight"
