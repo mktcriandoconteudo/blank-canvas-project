@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,23 +6,30 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
 import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import ResortDetail from "./pages/ResortDetail";
-import CondoDetail from "./pages/CondoDetail";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminSettings from "./pages/AdminSettings";
-
-import AdminRoute from "./components/AdminRoute";
-import OwnerRoute from "./components/OwnerRoute";
-import AdminLayout from "./components/AdminLayout";
-import OwnerDashboard from "./pages/OwnerDashboard";
-import NotFound from "./pages/NotFound";
 import { useFavicon } from "./hooks/use-favicon";
+
+// Lazy load heavy pages
+const Index = lazy(() => import("./pages/Index"));
+const ResortDetail = lazy(() => import("./pages/ResortDetail"));
+const CondoDetail = lazy(() => import("./pages/CondoDetail"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminRoute = lazy(() => import("./components/AdminRoute"));
+const OwnerRoute = lazy(() => import("./components/OwnerRoute"));
+const AdminLayout = lazy(() => import("./components/AdminLayout"));
+const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
 const FaviconLoader = () => { useFavicon(); return null; };
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,20 +39,22 @@ const App = () => (
       <FaviconLoader />
       <BrowserRouter>
         <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/explore" element={<Index />} />
-          <Route path="/condo/:slug" element={<CondoDetail />} />
-          <Route path="/resort/:slug/:aptSlug" element={<ResortDetail />} />
-          <Route path="/resort/:slug" element={<ResortDetail />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
-          <Route path="/admin/settings" element={<AdminRoute><AdminLayout><AdminSettings /></AdminLayout></AdminRoute>} />
-          
-          <Route path="/owner" element={<OwnerRoute><AdminLayout><OwnerDashboard /></AdminLayout></OwnerRoute>} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/explore" element={<Index />} />
+            <Route path="/condo/:slug" element={<CondoDetail />} />
+            <Route path="/resort/:slug/:aptSlug" element={<ResortDetail />} />
+            <Route path="/resort/:slug" element={<ResortDetail />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
+            <Route path="/admin/settings" element={<AdminRoute><AdminLayout><AdminSettings /></AdminLayout></AdminRoute>} />
+            
+            <Route path="/owner" element={<OwnerRoute><AdminLayout><OwnerDashboard /></AdminLayout></OwnerRoute>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
