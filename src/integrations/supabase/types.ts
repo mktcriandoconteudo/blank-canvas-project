@@ -32,6 +32,38 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_dates: {
+        Row: {
+          blocked_date: string
+          created_at: string | null
+          id: string
+          reason: string | null
+          resort_id: string
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          resort_id: string
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          resort_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocked_dates_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_plans: {
         Row: {
           created_at: string | null

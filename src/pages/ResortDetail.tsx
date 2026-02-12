@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
-import BookingCard from "@/components/BookingCard";
+import BookingCard, { BookingCardRef } from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { useSelectorOptions } from "@/hooks/use-selector-options";
@@ -82,6 +82,8 @@ const DynamicImportantInfo = ({ keys }: { keys: string[] }) => {
 const ResortDetail = () => {
   const navigate = useNavigate();
   const { slug } = useParams();
+  const bookingRef = useRef<BookingCardRef>(null);
+  const bookingCardRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [liked, setLiked] = useState(false);
@@ -329,12 +331,20 @@ const ResortDetail = () => {
           <DynamicImportantInfo keys={importantInfo} />
 
           {/* Pricing Plans */}
-          <PricingPlans resortId={resortId ?? undefined} />
+          <PricingPlans
+            resortId={resortId ?? undefined}
+            onSelectPlan={(plan) => {
+              bookingRef.current?.selectPlan(plan);
+              setTimeout(() => {
+                bookingCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 100);
+            }}
+          />
         </div>
 
         {/* Booking Card - full width at bottom */}
-        <div className="w-full max-w-md mx-auto">
-          <BookingCard />
+        <div className="w-full max-w-md mx-auto" ref={bookingCardRef}>
+          <BookingCard ref={bookingRef} resortId={resortId} />
         </div>
       </div>
       {/* Photo Lightbox */}
