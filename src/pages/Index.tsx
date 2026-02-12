@@ -93,24 +93,12 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Minimal header overlaid on banner */}
       <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setDark(!dark)}
-            className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10"
-          >
-            {dark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
-          </button>
-          {logo.landing_logo_url && (
-            <div className="flex flex-col items-center">
-              <img src={logo.landing_logo_url} alt="Logo" className="h-8 w-auto object-contain drop-shadow-lg" />
-              {logo.landing_logo_subtitle && (
-                <span className="text-[8px] font-medium text-white/80 tracking-widest uppercase mt-0.5 drop-shadow" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  {logo.landing_logo_subtitle}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => setDark(!dark)}
+          className="p-2.5 rounded-full bg-card/30 backdrop-blur-md border border-border/10"
+        >
+          {dark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
+        </button>
         <button className="flex items-center gap-2 bg-card/30 backdrop-blur-md border border-border/10 rounded-full px-3 py-2">
           <Menu className="w-4 h-4 text-white" />
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
