@@ -7,26 +7,61 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const SETTINGS = [
+/* ── helpers ── */
+const applyPhoneMask = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+};
+
+const applyCnpjMask = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 14);
+  if (d.length <= 2) return d;
+  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
+  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+  if (d.length <= 12) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+};
+
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidUrl = (url: string) => {
+  try { new URL(url); return true; } catch { return false; }
+};
+
+/* ── settings config ── */
+type FieldType = "input" | "textarea" | "phone" | "cnpj" | "email" | "url";
+
+interface SettingField {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  placeholder: string;
+  type: FieldType;
+}
+
+const SETTINGS: SettingField[] = [
   { key: "footer_company_name", label: "Nome da Empresa", icon: Type, placeholder: "Caldas Resorts", type: "input" },
   { key: "footer_company_subtitle", label: "Subtítulo", icon: Type, placeholder: "J G Locações", type: "input" },
   { key: "footer_description", label: "Descrição da Empresa", icon: FileText, placeholder: "Sua experiência perfeita...", type: "textarea" },
   { key: "footer_about", label: "Texto Sobre Nós", icon: FileText, placeholder: "Somos especializados em...", type: "textarea" },
-  { key: "footer_phone", label: "Telefone", icon: Phone, placeholder: "(62) 99999-9999", type: "input" },
-  { key: "footer_email", label: "E-mail", icon: Mail, placeholder: "contato@caldasresorts.com", type: "input" },
+  { key: "footer_phone", label: "Telefone", icon: Phone, placeholder: "(62) 99999-9999", type: "phone" },
+  { key: "footer_email", label: "E-mail", icon: Mail, placeholder: "contato@caldasresorts.com", type: "email" },
   { key: "footer_address", label: "Endereço", icon: MapPin, placeholder: "Caldas Novas - GO, Brasil", type: "input" },
-  { key: "footer_cnpj", label: "CNPJ", icon: Building2, placeholder: "00.000.000/0001-00", type: "input" },
+  { key: "footer_cnpj", label: "CNPJ", icon: Building2, placeholder: "00.000.000/0001-00", type: "cnpj" },
   { key: "footer_copyright", label: "Texto de Copyright", icon: Type, placeholder: "Caldas Resorts — J G Locações", type: "input" },
   { key: "footer_tagline", label: "Tagline (rodapé)", icon: Type, placeholder: "Feito com ❤️ em Caldas Novas", type: "input" },
-  { key: "social_instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/seuusuario", type: "input" },
-  { key: "social_facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/suapagina", type: "input" },
-  { key: "social_youtube", label: "YouTube", icon: Youtube, placeholder: "https://youtube.com/@seucanal", type: "input" },
+  { key: "social_instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/seuusuario", type: "url" },
+  { key: "social_facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/suapagina", type: "url" },
+  { key: "social_youtube", label: "YouTube", icon: Youtube, placeholder: "https://youtube.com/@seucanal", type: "url" },
 ];
 
 const ALL_KEYS = SETTINGS.map((s) => s.key);
 
 const FooterSettingsManager = () => {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -44,7 +79,52 @@ const FooterSettingsManager = () => {
     fetchSettings();
   }, []);
 
+  const handleChange = (key: string, raw: string, type: FieldType) => {
+    let value = raw;
+    if (type === "phone") value = applyPhoneMask(raw);
+    if (type === "cnpj") value = applyCnpjMask(raw);
+
+    setValues((prev) => ({ ...prev, [key]: value }));
+
+    // Clear error on change
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    for (const { key, type, label } of SETTINGS) {
+      const val = (values[key] || "").trim();
+      if (!val) continue; // empty is ok
+
+      if (type === "email" && !isValidEmail(val)) {
+        newErrors[key] = "E-mail inválido";
+      }
+      if (type === "url" && !isValidUrl(val)) {
+        newErrors[key] = `Link inválido — insira a URL completa`;
+      }
+      if (type === "phone" && val.replace(/\D/g, "").length < 10) {
+        newErrors[key] = "Telefone incompleto";
+      }
+      if (type === "cnpj" && val.replace(/\D/g, "").length < 14) {
+        newErrors[key] = "CNPJ incompleto";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
+    if (!validate()) {
+      toast.error("Corrija os campos destacados antes de salvar");
+      return;
+    }
+
     setSaving(true);
     try {
       for (const { key } of SETTINGS) {
@@ -87,18 +167,22 @@ const FooterSettingsManager = () => {
             {type === "textarea" ? (
               <Textarea
                 value={values[key] || ""}
-                onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
+                onChange={(e) => handleChange(key, e.target.value, type)}
                 placeholder={placeholder}
-                className="text-sm min-h-[60px]"
+                className={`text-sm min-h-[60px] ${errors[key] ? "border-destructive" : ""}`}
                 rows={2}
               />
             ) : (
               <Input
                 value={values[key] || ""}
-                onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
+                onChange={(e) => handleChange(key, e.target.value, type)}
                 placeholder={placeholder}
-                className="text-sm"
+                className={`text-sm ${errors[key] ? "border-destructive" : ""}`}
+                inputMode={type === "phone" || type === "cnpj" ? "numeric" : undefined}
               />
+            )}
+            {errors[key] && (
+              <p className="text-[10px] text-destructive">{errors[key]}</p>
             )}
           </div>
         ))}
