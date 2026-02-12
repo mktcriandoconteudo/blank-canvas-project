@@ -195,7 +195,25 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
               <MessageCircle className="w-3.5 h-3.5 text-green-500" />
               WhatsApp para contato
             </Label>
-            <Input className="text-sm" placeholder="5562999999999" value={config.whatsapp} onChange={e => setConfig(p => ({ ...p, whatsapp: e.target.value }))} />
+            <div className="flex items-center gap-0">
+              <span className="inline-flex items-center h-9 px-2.5 rounded-l-md border border-r-0 border-input bg-muted text-sm text-muted-foreground select-none">+55</span>
+              <Input
+                className="text-sm rounded-l-none"
+                placeholder="(31) 97352-1501"
+                inputMode="numeric"
+                value={(() => {
+                  const d = config.whatsapp.replace(/^55/, "").replace(/\D/g, "").slice(0, 11);
+                  if (d.length <= 2) return d.length ? `(${d}` : "";
+                  if (d.length <= 7) return `(${d.slice(0,2)}) ${d.slice(2)}`;
+                  return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+                })()}
+                onChange={e => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                  setConfig(p => ({ ...p, whatsapp: `55${digits}` }));
+                }}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">O código +55 (Brasil) já está incluído</p>
           </div>
         )}
 
