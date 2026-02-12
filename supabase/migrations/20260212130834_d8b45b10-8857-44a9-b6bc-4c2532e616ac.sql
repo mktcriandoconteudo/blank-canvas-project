@@ -1,0 +1,1 @@
+ALTER TABLE public.resorts ADD COLUMN important_info text DEFAULT NULL;
