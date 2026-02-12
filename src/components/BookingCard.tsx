@@ -55,6 +55,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     pix_name?: string;
     pix_bank?: string;
     whatsapp?: string;
+    pix_discount_percent?: number;
   } | null>(null);
   const [showPixInfo, setShowPixInfo] = useState(false);
   const [pixReservationId, setPixReservationId] = useState<string | null>(null);
@@ -65,7 +66,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     const fetchData = async () => {
       const [blockedRes, payRes] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
-        supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp").eq("resort_id", resortId).maybeSingle(),
+        supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent").eq("resort_id", resortId).maybeSingle(),
       ]);
       if (blockedRes.data) {
         setBlockedDates(blockedRes.data.map(d => new Date(d.blocked_date + "T12:00:00")));
@@ -344,13 +345,25 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
         {/* Total */}
         {totalPrice && !hasConflict && checkIn && checkOut && (
-          <div className="flex justify-between items-center mb-3 px-1">
-            <span className="text-sm text-muted-foreground">
-              {selectedPlan!.total_nights} noites × R$ {selectedPlan!.price_per_night.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-base font-bold text-foreground">
-              R$ {totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </span>
+          <div className="mb-3 px-1 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">
+                {selectedPlan!.total_nights} noites × R$ {selectedPlan!.price_per_night.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              </span>
+              <span className="text-base font-bold text-foreground">
+                R$ {totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            {/* Installments */}
+            <p className="text-xs text-muted-foreground text-center">
+              💳 Parcele no cartão em até <span className="font-semibold text-foreground">10x de R$ {(totalPrice / 10).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+            </p>
+            {/* Pix discount */}
+            {paymentConfig?.pix_discount_percent && paymentConfig.pix_discount_percent > 0 ? (
+              <p className="text-xs text-center font-semibold" style={{ color: "hsl(142, 70%, 40%)" }}>
+                🏷️ ou {paymentConfig.pix_discount_percent}% de desconto no Pix à vista — R$ {(totalPrice * (1 - paymentConfig.pix_discount_percent / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              </p>
+            ) : null}
           </div>
         )}
 

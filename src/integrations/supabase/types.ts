@@ -220,6 +220,7 @@ export type Database = {
           mp_public_key: string | null
           payment_method: string
           pix_bank: string | null
+          pix_discount_percent: number | null
           pix_key: string | null
           pix_name: string | null
           resort_id: string
@@ -233,6 +234,7 @@ export type Database = {
           mp_public_key?: string | null
           payment_method?: string
           pix_bank?: string | null
+          pix_discount_percent?: number | null
           pix_key?: string | null
           pix_name?: string | null
           resort_id: string
@@ -246,6 +248,7 @@ export type Database = {
           mp_public_key?: string | null
           payment_method?: string
           pix_bank?: string | null
+          pix_discount_percent?: number | null
           pix_key?: string | null
           pix_name?: string | null
           resort_id?: string

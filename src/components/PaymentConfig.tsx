@@ -22,6 +22,7 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
     pix_name: "",
     pix_bank: "",
     whatsapp: "",
+    pix_discount_percent: 0,
   });
 
   useEffect(() => {
@@ -43,6 +44,7 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
         pix_name: data.pix_name || "",
         pix_bank: data.pix_bank || "",
         whatsapp: data.whatsapp || "",
+        pix_discount_percent: data.pix_discount_percent || 0,
       });
     }
   };
@@ -192,6 +194,23 @@ const PaymentConfig = ({ resortId }: PaymentConfigProps) => {
             <Input className="text-sm" placeholder="5562999999999" value={config.whatsapp} onChange={e => setConfig(p => ({ ...p, whatsapp: e.target.value }))} />
           </div>
         )}
+
+        {/* Pix discount */}
+        <div className="space-y-1">
+          <Label className="text-xs font-medium flex items-center gap-1.5">
+            🏷️ Desconto Pix à vista (%)
+          </Label>
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            className="text-sm"
+            placeholder="Ex: 10"
+            value={config.pix_discount_percent || ""}
+            onChange={e => setConfig(p => ({ ...p, pix_discount_percent: Number(e.target.value) }))}
+          />
+          <p className="text-[11px] text-muted-foreground">Percentual de desconto exibido para pagamento à vista via Pix</p>
+        </div>
 
         {/* Save button */}
         <Button onClick={handleSave} disabled={saving} className="w-full">
