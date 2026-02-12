@@ -171,6 +171,41 @@ export type Database = {
         }
         Relationships: []
       }
+      reservation_guests: {
+        Row: {
+          created_at: string | null
+          document: string | null
+          full_name: string
+          id: string
+          is_minor: boolean
+          reservation_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          document?: string | null
+          full_name: string
+          id?: string
+          is_minor?: boolean
+          reservation_id: string
+        }
+        Update: {
+          created_at?: string | null
+          document?: string | null
+          full_name?: string
+          id?: string
+          is_minor?: boolean
+          reservation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_guests_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           check_in: string
@@ -187,6 +222,7 @@ export type Database = {
           plan_name: string
           plan_sessions: string
           price_per_night: number
+          receipt_url: string | null
           resort_id: string
           total_nights: number
           total_price: number
@@ -207,6 +243,7 @@ export type Database = {
           plan_name: string
           plan_sessions: string
           price_per_night: number
+          receipt_url?: string | null
           resort_id: string
           total_nights: number
           total_price: number
@@ -227,6 +264,7 @@ export type Database = {
           plan_name?: string
           plan_sessions?: string
           price_per_night?: number
+          receipt_url?: string | null
           resort_id?: string
           total_nights?: number
           total_price?: number
