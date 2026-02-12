@@ -1,34 +1,50 @@
+import { useState, useEffect } from "react";
 import { CalendarCheck } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
-const plans = [
-  {
-    name: "Essencial",
-    sessions: "2 diárias",
-    price: "R$ 620,00",
-    perUnit: "/diária",
-    total: "Total: R$ 1.240,00",
-    popular: false,
-  },
-  {
-    name: "Premium",
-    sessions: "5 diárias",
-    price: "R$ 550,00",
-    perUnit: "/diária",
-    total: "Total: R$ 2.750,00",
-    popular: true,
-  },
-  {
-    name: "VIP",
-    sessions: "10 diárias",
-    price: "R$ 480,00",
-    perUnit: "/diária",
-    total: "Total: R$ 4.800,00",
-    popular: false,
-  },
+interface Plan {
+  id: string;
+  name: string;
+  sessions: string;
+  price_per_night: number;
+  total_nights: number;
+  is_popular: boolean;
+}
+
+const fallbackPlans: Plan[] = [
+  { id: "1", name: "Essencial", sessions: "2 diárias", price_per_night: 620, total_nights: 2, is_popular: false },
+  { id: "2", name: "Premium", sessions: "5 diárias", price_per_night: 550, total_nights: 5, is_popular: true },
+  { id: "3", name: "VIP", sessions: "10 diárias", price_per_night: 480, total_nights: 10, is_popular: false },
 ];
 
-const PricingPlans = () => {
+interface PricingPlansProps {
+  resortId?: string;
+}
+
+const PricingPlans = ({ resortId }: PricingPlansProps) => {
+  const [plans, setPlans] = useState<Plan[]>([]);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      if (!resortId) { setPlans(fallbackPlans); return; }
+      const { data } = await supabase
+        .from("pricing_plans")
+        .select("*")
+        .eq("resort_id", resortId)
+        .order("display_order");
+      if (data && data.length > 0) {
+        setPlans(data as Plan[]);
+      } else {
+        setPlans(fallbackPlans);
+      }
+    };
+    fetchPlans();
+  }, [resortId]);
+
+  const formatCurrency = (value: number) =>
+    `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+
   return (
     <div className="mb-7">
       <h2
@@ -43,64 +59,67 @@ const PricingPlans = () => {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {plans.map((plan, i) => (
-          <motion.div
-            key={plan.name}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: i * 0.1 }}
-            className={`relative rounded-2xl overflow-hidden border ${
-              plan.popular
-                ? "bg-[hsl(340,80%,55%)] text-white border-transparent shadow-lg scale-[1.03]"
-                : "bg-card text-foreground border-border"
-            }`}
-          >
-            {plan.popular && (
-              <div className="text-center text-[10px] font-bold uppercase tracking-wider pt-2.5 pb-0.5 flex items-center justify-center gap-1">
-                <span>⭐</span> Mais Popular
-              </div>
-            )}
+        {plans.map((plan, i) => {
+          const total = plan.price_per_night * plan.total_nights;
+          return (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: i * 0.1 }}
+              className={`relative rounded-2xl overflow-hidden border ${
+                plan.is_popular
+                  ? "bg-[hsl(340,80%,55%)] text-white border-transparent shadow-lg scale-[1.03]"
+                  : "bg-card text-foreground border-border"
+              }`}
+            >
+              {plan.is_popular && (
+                <div className="text-center text-[10px] font-bold uppercase tracking-wider pt-2.5 pb-0.5 flex items-center justify-center gap-1">
+                  <span>⭐</span> Mais Popular
+                </div>
+              )}
 
-            <div className={`p-5 ${plan.popular ? "pt-2" : "pt-5"}`}>
-              <h3
-                className="text-lg font-extrabold"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-              >
-                {plan.name}
-              </h3>
-              <p className={`text-xs mb-3 ${plan.popular ? "text-white/80" : "text-muted-foreground"}`}>
-                {plan.sessions}
-              </p>
-
-              <div className="flex items-baseline gap-0.5 mb-1">
-                <span
-                  className="text-2xl font-extrabold"
+              <div className={`p-5 ${plan.is_popular ? "pt-2" : "pt-5"}`}>
+                <h3
+                  className="text-lg font-extrabold"
                   style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                 >
-                  {plan.price}
-                </span>
-                <span className={`text-xs ${plan.popular ? "text-white/70" : "text-muted-foreground"}`}>
-                  {plan.perUnit}
-                </span>
-              </div>
-              <p className={`text-xs mb-4 ${plan.popular ? "text-white/70" : "text-muted-foreground"}`}>
-                {plan.total}
-              </p>
+                  {plan.name}
+                </h3>
+                <p className={`text-xs mb-3 ${plan.is_popular ? "text-white/80" : "text-muted-foreground"}`}>
+                  {plan.sessions}
+                </p>
 
-              <button
-                className={`w-full flex items-center justify-center gap-2 font-bold text-sm py-2.5 transition-opacity hover:opacity-90 ${
-                  plan.popular
-                    ? "bg-white text-[hsl(340,80%,55%)]"
-                    : "bg-[hsl(340,80%,55%)] text-white"
-                }`}
-                style={{ borderRadius: 24 }}
-              >
-                <CalendarCheck className="w-4 h-4" />
-                Agendar Agora
-              </button>
-            </div>
-          </motion.div>
-        ))}
+                <div className="flex items-baseline gap-0.5 mb-1">
+                  <span
+                    className="text-2xl font-extrabold"
+                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  >
+                    {formatCurrency(plan.price_per_night)}
+                  </span>
+                  <span className={`text-xs ${plan.is_popular ? "text-white/70" : "text-muted-foreground"}`}>
+                    /diária
+                  </span>
+                </div>
+                <p className={`text-xs mb-4 ${plan.is_popular ? "text-white/70" : "text-muted-foreground"}`}>
+                  Total: {formatCurrency(total)}
+                </p>
+
+                <button
+                  className={`w-full flex items-center justify-center gap-2 font-bold text-sm py-2.5 transition-opacity hover:opacity-90 ${
+                    plan.is_popular
+                      ? "bg-white text-[hsl(340,80%,55%)]"
+                      : "bg-[hsl(340,80%,55%)] text-white"
+                  }`}
+                  style={{ borderRadius: 24 }}
+                >
+                  <CalendarCheck className="w-4 h-4" />
+                  Agendar Agora
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

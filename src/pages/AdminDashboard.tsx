@@ -11,6 +11,7 @@ import { Plus, Trash2, LogOut, Image, Edit2, Save, X, Upload, ExternalLink } fro
 import DynamicSelector from "@/components/DynamicSelector";
 import OptionsManager from "@/components/OptionsManager";
 import FaviconManager from "@/components/FaviconManager";
+import PricingPlansManager from "@/components/PricingPlansManager";
 
 interface Resort {
   id: string;
@@ -412,6 +413,9 @@ const AdminDashboard = () => {
                   </div>
                 )}
               </div>
+
+              {/* Pricing Plans */}
+              <PricingPlansManager resortId={resort.id} />
             </CardContent>
           </Card>
         ))}
