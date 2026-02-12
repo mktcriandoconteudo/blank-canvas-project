@@ -261,7 +261,7 @@ const CondoDetail = () => {
                 className="group cursor-pointer"
                 onClick={() => navigate(`/resort/${slug}/${apt.slug}`)}
               >
-                <div className="relative overflow-hidden rounded-[1.25rem] aspect-[3/4] ring-1 ring-border/40 shadow-lg shadow-primary/10">
+                <div className="relative overflow-hidden rounded-[1.25rem] aspect-[3/4] border-2 border-border shadow-lg shadow-primary/10">
                   <img
                     src={apt.coverUrl || resort1Image}
                     alt={apt.name}
