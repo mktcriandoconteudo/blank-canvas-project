@@ -1,5 +1,6 @@
 import OptionsManager from "@/components/OptionsManager";
 import FaviconManager from "@/components/FaviconManager";
+import MercadoPagoSettings from "@/components/MercadoPagoSettings";
 
 const AdminSettings = () => {
   return (
@@ -10,6 +11,9 @@ const AdminSettings = () => {
 
       {/* Favicon manager */}
       <FaviconManager />
+
+      {/* Mercado Pago settings */}
+      <MercadoPagoSettings />
 
       {/* Options managers */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
