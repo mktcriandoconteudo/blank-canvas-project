@@ -1,8 +1,11 @@
 import { Search, Globe, Menu, User, Sparkles, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [logoUrl, setLogoUrl] = useState("");
+  const [logoSubtitle, setLogoSubtitle] = useState("");
 
   useEffect(() => {
     if (dark) {
@@ -12,18 +15,47 @@ const Header = () => {
     }
   }, [dark]);
 
+  useEffect(() => {
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", ["landing_logo_url", "landing_logo_subtitle"]);
+      if (data) {
+        data.forEach(d => {
+          if (d.key === "landing_logo_url") setLogoUrl(d.value);
+          if (d.key === "landing_logo_subtitle") setLogoSubtitle(d.value);
+        });
+      }
+    };
+    fetchLogo();
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 bg-background/60 backdrop-blur-2xl border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-foreground hidden sm:block" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Resorts
-            </span>
+            {logoUrl ? (
+              <div className="flex flex-col items-center">
+                <img src={logoUrl} alt="Logo" className="h-9 w-auto object-contain" />
+                {logoSubtitle && (
+                  <span className="text-[9px] font-medium text-muted-foreground tracking-widest uppercase mt-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    {logoSubtitle}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
+                  <Sparkles className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-xl font-extrabold tracking-tight text-foreground hidden sm:block" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  Resorts
+                </span>
+              </>
+            )}
           </div>
 
           {/* Search Bar */}
