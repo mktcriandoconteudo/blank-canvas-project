@@ -186,27 +186,6 @@ const Index = () => {
                   }
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setShowInfoCard(false);
-                  if (user) {
-                    navigate("/minhas-reservas");
-                  } else {
-                    setAuthOpen(true);
-                  }
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
-              >
-                {user ? (
-                  <>
-                    <CalendarCheck className="w-3.5 h-3.5" /> Ver minhas reservas
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-3.5 h-3.5" /> Entrar ou criar conta
-                  </>
-                )}
-              </button>
             </div>
           </motion.div>
         )}
