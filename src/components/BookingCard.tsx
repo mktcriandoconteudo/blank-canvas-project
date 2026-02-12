@@ -6,6 +6,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
+import AuthModal from "@/components/AuthModal";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [hasConflict, setHasConflict] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [booking, setBooking] = useState(false);
   const [guestName, setGuestName] = useState("");
@@ -59,6 +62,32 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   } | null>(null);
   const [showPixInfo, setShowPixInfo] = useState(false);
   const [pixReservationId, setPixReservationId] = useState<string | null>(null);
+
+  // Auth listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        // Pre-fill guest data from profile
+        supabase.from("profiles").select("full_name, phone").eq("user_id", session.user.id).maybeSingle().then(({ data }) => {
+          if (data?.full_name) setGuestName(data.full_name);
+          if (data?.phone) setGuestPhone(data.phone);
+          setGuestEmail(session.user.email || "");
+        });
+      }
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase.from("profiles").select("full_name, phone").eq("user_id", session.user.id).maybeSingle().then(({ data }) => {
+          if (data?.full_name) setGuestName(data.full_name);
+          if (data?.phone) setGuestPhone(data.phone);
+          setGuestEmail(session.user.email || "");
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Fetch blocked dates & payment config
   useEffect(() => {
@@ -122,6 +151,14 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     : null;
 
   const handleReserve = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    setShowGuestForm(true);
+  };
+
+  const handleAuthSuccess = () => {
     setShowGuestForm(true);
   };
 
@@ -469,6 +506,9 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Auth modal */}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onSuccess={handleAuthSuccess} />
     </>
   );
 });
