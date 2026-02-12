@@ -11,10 +11,11 @@ import IconPicker, { getIconComponent } from "@/components/IconPicker";
 interface OptionsManagerProps {
   category: string;
   title: string;
+  resortId?: string;
 }
 
-const OptionsManager = ({ category, title }: OptionsManagerProps) => {
-  const { options, addOption, updateOption, deleteOption } = useSelectorOptions(category);
+const OptionsManager = ({ category, title, resortId }: OptionsManagerProps) => {
+  const { options, addOption, updateOption, deleteOption } = useSelectorOptions(category, resortId);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newLabel, setNewLabel] = useState("");

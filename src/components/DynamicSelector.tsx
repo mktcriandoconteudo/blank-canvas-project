@@ -7,10 +7,11 @@ interface DynamicSelectorProps {
   selected: string[];
   onChange: (keys: string[]) => void;
   variant?: "default" | "destructive";
+  resortId?: string;
 }
 
-const DynamicSelector = ({ category, selected, onChange, variant = "default" }: DynamicSelectorProps) => {
-  const { options } = useSelectorOptions(category);
+const DynamicSelector = ({ category, selected, onChange, variant = "default", resortId }: DynamicSelectorProps) => {
+  const { options } = useSelectorOptions(category, resortId);
 
   const toggle = (key: string) => {
     onChange(

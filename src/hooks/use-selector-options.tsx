@@ -8,25 +8,32 @@ export interface SelectorOption {
   label: string;
   icon_name: string;
   display_order: number;
+  resort_id?: string | null;
 }
 
-export function useSelectorOptions(category: string) {
+export function useSelectorOptions(category: string, resortId?: string) {
   const [options, setOptions] = useState<SelectorOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOptions = async () => {
-    const { data } = await supabase
+    let query = supabase
       .from("selector_options")
       .select("*")
       .eq("category", category)
       .order("display_order");
+
+    if (resortId) {
+      query = query.eq("resort_id", resortId);
+    }
+
+    const { data } = await query;
     if (data) setOptions(data as SelectorOption[]);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchOptions();
-  }, [category]);
+  }, [category, resortId]);
 
   const addOption = async (opt: { key: string; label: string; icon_name: string }) => {
     const maxOrder = options.length > 0 ? Math.max(...options.map(o => o.display_order)) : 0;
@@ -36,6 +43,7 @@ export function useSelectorOptions(category: string) {
       label: opt.label,
       icon_name: opt.icon_name,
       display_order: maxOrder + 1,
+      ...(resortId ? { resort_id: resortId } : {}),
     });
     if (!error) await fetchOptions();
     return error;
