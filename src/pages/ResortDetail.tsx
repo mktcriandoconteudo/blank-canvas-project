@@ -352,9 +352,29 @@ const ResortDetail = () => {
 
           {/* Description */}
           <div className="rounded-2xl p-5" style={{ backgroundColor: 'hsl(340, 80%, 55%)' }}>
-            <h2 className="text-base font-bold text-white mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Descrição
-            </h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-base font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                Descrição
+              </h2>
+              {whatsapp && (
+                <div className="flex gap-2">
+                  <a
+                    href={`https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Gostaria de mais informações sobre o ' + resortName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4 text-white" />
+                  </a>
+                  <a
+                    href={`tel:+${whatsapp.replace(/\D/g, '')}`}
+                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                  >
+                    <Phone className="w-4 h-4 text-white" />
+                  </a>
+                </div>
+              )}
+            </div>
             <p className="text-sm text-white/90 leading-relaxed whitespace-pre-line">
               {resortDescription || "O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais, vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos, área gourmet completa e estacionamento privativo."}
             </p>
@@ -404,28 +424,6 @@ const ResortDetail = () => {
           </div>
         </div>
 
-        {/* Contact Buttons */}
-        {whatsapp && (
-          <div className="w-full max-w-md mx-auto flex gap-3">
-            <a
-              href={`https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Gostaria de mais informações sobre o ' + resortName)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.25rem] text-white font-bold text-sm transition-all hover:brightness-110 shadow-lg"
-              style={{ background: "#25D366" }}
-            >
-              <MessageCircle className="w-5 h-5" />
-              WhatsApp
-            </a>
-            <a
-              href={`tel:+${whatsapp.replace(/\D/g, '')}`}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.25rem] bg-primary text-primary-foreground font-bold text-sm transition-all hover:brightness-110 shadow-lg"
-            >
-              <Phone className="w-5 h-5" />
-              Ligar
-            </a>
-          </div>
-        )}
       </div>
       {/* Photo Lightbox */}
       <PhotoLightbox
