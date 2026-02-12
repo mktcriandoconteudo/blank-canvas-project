@@ -267,9 +267,9 @@ const AdminDashboard = () => {
                 <Label className="text-xs">Informações Importantes</Label>
                 <ImportantInfoSelector selected={newResort.important_info} onChange={important_info => setNewResort(p => ({ ...p, important_info }))} />
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleCreate}>Criar</Button>
-                <Button size="sm" variant="ghost" onClick={() => setShowNewForm(false)}>Cancelar</Button>
+              <div className="flex gap-2 mt-2">
+                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8" onClick={handleCreate}>Criar Resort</Button>
+                <Button size="lg" variant="ghost" onClick={() => setShowNewForm(false)}>Cancelar</Button>
               </div>
             </CardContent>
           </Card>
@@ -330,8 +330,8 @@ const AdminDashboard = () => {
                     <ImportantInfoSelector selected={editForm.important_info ?? []} onChange={important_info => setEditForm(p => ({ ...p, important_info }))} />
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleUpdate(resort.id)}><Save className="w-3 h-3 mr-1" /> Salvar</Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}><X className="w-3 h-3 mr-1" /> Cancelar</Button>
+                    <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8" onClick={() => handleUpdate(resort.id)}><Save className="w-4 h-4 mr-1" /> Salvar</Button>
+                    <Button size="lg" variant="ghost" onClick={() => setEditingId(null)}><X className="w-4 h-4 mr-1" /> Cancelar</Button>
                   </div>
                 </div>
               ) : (
