@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import HeroBanner from "@/components/HeroBanner";
 import ResortCard from "@/components/ResortCard";
+import Footer from "@/components/Footer";
 
 interface LogoSettings {
   landing_logo_url: string;
@@ -128,11 +129,7 @@ const Index = () => {
           ))}
         </div>
       </main>
-      <footer className="border-t border-border/50 py-10 mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-muted-foreground">
-          © 2026 Resorts · Termos · Privacidade · Mapa do site
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
