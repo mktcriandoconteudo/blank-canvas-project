@@ -42,7 +42,7 @@ const AdminLogin = () => {
         return;
       }
 
-      // Check admin role
+      // Check role (admin or owner)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setLoading(false);
@@ -52,17 +52,19 @@ const AdminLogin = () => {
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin");
+        .eq("user_id", user.id);
 
-      if (!roles || roles.length === 0) {
+      const isAdmin = roles?.some(r => r.role === "admin");
+      const isOwner = roles?.some(r => r.role === "owner");
+
+      if (!isAdmin && !isOwner) {
         await supabase.auth.signOut();
-        toast({ title: "Acesso negado", description: "Sem permissão de administrador.", variant: "destructive" });
+        toast({ title: "Acesso negado", description: "Sem permissão.", variant: "destructive" });
         setLoading(false);
         return;
       }
 
-      navigate("/admin");
+      navigate(isAdmin ? "/admin" : "/owner");
     } catch {
       toast({ title: "Erro", description: "Falha na conexão", variant: "destructive" });
     }
