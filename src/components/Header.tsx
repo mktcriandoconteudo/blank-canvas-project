@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 const Header = () => {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [logoUrl, setLogoUrl] = useState("");
-  const [logoSubtitle, setLogoSubtitle] = useState("");
+  const [logoSubtitle, setLogoSubtitle] = useState("J G Locações");
 
   useEffect(() => {
     if (dark) {
