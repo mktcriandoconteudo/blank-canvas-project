@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard, { BookingCardRef } from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { useSelectorOptions } from "@/hooks/use-selector-options";
 import { getIconComponent } from "@/components/IconPicker";
@@ -342,6 +343,43 @@ const ResortDetail = () => {
 
           {/* Informações Importantes */}
           <DynamicImportantInfo resortId={resortId} />
+
+          {/* FAQ */}
+          <div className="bg-card border border-border rounded-2xl p-6 mb-7">
+            <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Perguntas Frequentes
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="checkin">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">Qual o horário de check-in e check-out?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">O check-in é a partir das 14h e o check-out deve ser realizado até as 10h. Horários especiais podem ser solicitados com antecedência, sujeitos à disponibilidade.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="pagamento">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">Quais são as formas de pagamento?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">Aceitamos PIX, cartão de crédito e transferência bancária. Pagamentos via PIX podem ter desconto especial. Consulte as condições na hora da reserva.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="cancelamento">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">Qual a política de cancelamento?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">Cancelamentos com até 7 dias de antecedência têm reembolso integral. Entre 3 e 7 dias, é cobrada uma taxa de 50%. Cancelamentos com menos de 3 dias não são reembolsáveis.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="animais">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">É permitido levar animais de estimação?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">A política de pets varia conforme o condomínio. Consulte diretamente conosco pelo WhatsApp para verificar se o apartamento aceita animais de estimação.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="roupa-cama">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">O apartamento fornece roupa de cama e toalhas?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">Sim, o apartamento é equipado com roupa de cama, travesseiros e toalhas de banho para todos os hóspedes. Itens extras podem ser solicitados.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="estacionamento">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">Tem estacionamento disponível?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">Sim, o condomínio conta com estacionamento privativo. A vaga é garantida para os hóspedes durante toda a estadia.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="piscina">
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">As piscinas são de águas termais?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">Sim, as piscinas do condomínio possuem águas termais naturais com temperatura entre 34°C e 42°C, disponíveis para uso durante todo o ano.</AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
 
           {/* Pricing Plans */}
           <PricingPlans
