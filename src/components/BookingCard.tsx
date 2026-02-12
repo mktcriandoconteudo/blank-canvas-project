@@ -356,7 +356,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             </div>
             {/* Installments */}
             <p className="text-xs text-muted-foreground text-center">
-              💳 Parcele no cartão em até <span className="font-semibold text-foreground">10x de R$ {(totalPrice / 10).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+              💳 Parcele em até <span className="font-semibold text-foreground">10x no cartão</span> <span className="text-[10px]">(juros do Mercado Pago)</span>
             </p>
             {/* Pix discount */}
             {paymentConfig?.pix_discount_percent && paymentConfig.pix_discount_percent > 0 ? (
