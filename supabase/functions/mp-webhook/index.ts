@@ -79,9 +79,9 @@ Deno.serve(async (req) => {
 
     // Map MP status to our status
     let paymentStatus = "pending";
-    if (paymentData.status === "approved") paymentStatus = "confirmed";
-    else if (paymentData.status === "rejected") paymentStatus = "failed";
-    else if (paymentData.status === "cancelled") paymentStatus = "cancelled";
+    if (paymentData.status === "approved") paymentStatus = "approved";
+    else if (paymentData.status === "rejected") paymentStatus = "rejected";
+    else if (paymentData.status === "cancelled") paymentStatus = "rejected";
 
     // Update reservation
     const { data: reservation } = await supabase
@@ -94,8 +94,8 @@ Deno.serve(async (req) => {
       .select("*")
       .single();
 
-    // Auto-block dates if payment confirmed
-    if (paymentStatus === "confirmed" && reservation) {
+    // Auto-block dates if payment approved
+    if (paymentStatus === "approved" && reservation) {
       const checkIn = new Date(reservation.check_in);
       const checkOut = new Date(reservation.check_out);
       const dates: { resort_id: string; blocked_date: string; reason: string }[] = [];

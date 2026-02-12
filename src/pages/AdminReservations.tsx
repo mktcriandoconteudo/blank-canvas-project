@@ -315,7 +315,7 @@ const AdminReservations = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2 flex-wrap">
-                  {res.payment_status === "pending" && (
+                  {res.payment_status === "pending" && !res.mp_payment_id && (
                     <>
                       <Button size="sm" className="text-xs h-8 rounded-lg gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleConfirm(res)}>
                         <CheckCircle2 className="w-3.5 h-3.5" /> Confirmar e bloquear datas
