@@ -298,12 +298,14 @@ const ResortDetail = () => {
           <DynamicAmenities resortId={resortId} beds={resortBeds} guests={resortGuests} />
 
           {/* Description */}
-          <h2 className="text-base font-bold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Descrição
-          </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-            {resortDescription || "O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais, vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos, área gourmet completa e estacionamento privativo."}
-          </p>
+          <div className="rounded-2xl p-5" style={{ backgroundColor: 'hsl(340, 80%, 55%)' }}>
+            <h2 className="text-base font-bold text-white mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Descrição
+            </h2>
+            <p className="text-sm text-white/90 leading-relaxed whitespace-pre-line">
+              {resortDescription || "O Condomínio Enseada oferece estadias de luxo com acesso a piscinas de águas termais naturais, vista panorâmica e ambientes elegantes. Ideal para famílias, o resort conta com 3 quartos espaçosos, área gourmet completa e estacionamento privativo."}
+            </p>
+          </div>
 
           {/* Gallery */}
           <h2 className="text-base font-bold text-foreground mb-4 mt-7" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
