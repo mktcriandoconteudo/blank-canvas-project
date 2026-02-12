@@ -1,6 +1,6 @@
 import mercadoPagoLogo from "@/assets/mercadopago-logo.png";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { ChevronDown, Copy, Check, Upload, Users, QrCode } from "lucide-react";
+import { ChevronDown, Copy, Check, Upload, Users, QrCode, LogIn, LogOut } from "lucide-react";
 
 import { format, addDays, eachDayOfInterval, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -499,20 +499,14 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
         {/* Check-in / Check-out time cards */}
         <div className="flex gap-2 mb-4">
-          <div className="flex-1 flex items-center gap-2 bg-muted/50 border border-border rounded-2xl px-3.5 py-2.5">
-            <span className="text-base">🔑</span>
-            <div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Check-in</p>
-              <p className="text-sm font-bold text-foreground">{paymentConfig?.checkin_time || "14:00"}</p>
-            </div>
-          </div>
-          <div className="flex-1 flex items-center gap-2 bg-muted/50 border border-border rounded-2xl px-3.5 py-2.5">
-            <span className="text-base">🚪</span>
-            <div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Check-out</p>
-              <p className="text-sm font-bold text-foreground">{paymentConfig?.checkout_time || "10:00"}</p>
-            </div>
-          </div>
+          <span className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+            <LogIn className="w-4 h-4 text-muted-foreground" />
+            Check-in {paymentConfig?.checkin_time || "14:00"}
+          </span>
+          <span className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-semibold px-4 py-2.5 rounded-2xl border border-border">
+            <LogOut className="w-4 h-4 text-muted-foreground" />
+            Check-out {paymentConfig?.checkout_time || "10:00"}
+          </span>
         </div>
         <button
           onClick={handleReserve}
