@@ -40,11 +40,28 @@ export interface BookingCardRef {
 
 type BookingStep = "idle" | "payment-method" | "pix" | "guest-details";
 
-interface GuestInfo {
+interface AdultGuest {
   full_name: string;
-  is_minor: boolean;
-  document: string;
+  cpf: string;
 }
+
+interface ChildGuest {
+  full_name: string;
+  age: string;
+}
+
+interface ResponsibleInfo {
+  rg: string;
+  cpf: string;
+  civil_status: string;
+  street: string;
+  number: string;
+  cep: string;
+  neighborhood: string;
+  city: string;
+}
+
+const civilStatusOptions = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"];
 
 const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, ref) => {
   const [checkIn, setCheckIn] = useState<Date | undefined>(addDays(new Date(), 7));
@@ -77,7 +94,10 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [pixCopied, setPixCopied] = useState(false);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [receiptUploaded, setReceiptUploaded] = useState(false);
-  const [guestDetails, setGuestDetails] = useState<GuestInfo[]>([]);
+  const [adults, setAdults] = useState<AdultGuest[]>([{ full_name: "", cpf: "" }]);
+  const [children, setChildren] = useState<ChildGuest[]>([]);
+  const [numChildren, setNumChildren] = useState(0);
+  const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "" });
 
   // Auth listener
   useEffect(() => {
@@ -134,16 +154,16 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     if (selectedPlan && checkIn) setCheckOut(addDays(checkIn, selectedPlan.total_nights));
   }, [checkIn, selectedPlan]);
 
-  // Initialize guest details when guests count changes
+  // Update children array when numChildren changes
   useEffect(() => {
-    setGuestDetails(prev => {
-      const newDetails: GuestInfo[] = [];
-      for (let i = 0; i < guests; i++) {
-        newDetails.push(prev[i] || { full_name: "", is_minor: false, document: "" });
+    setChildren(prev => {
+      const newChildren: ChildGuest[] = [];
+      for (let i = 0; i < numChildren; i++) {
+        newChildren.push(prev[i] || { full_name: "", age: "" });
       }
-      return newDetails;
+      return newChildren;
     });
-  }, [guests]);
+  }, [numChildren]);
 
   useImperativeHandle(ref, () => ({
     selectPlan: (plan: SelectedPlan) => {
@@ -261,22 +281,48 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
   const handleSaveGuests = async () => {
     if (!reservationId) return;
-    const validGuests = guestDetails.filter(g => g.full_name.trim());
-    if (validGuests.length === 0) {
-      toast({ title: "Preencha pelo menos o nome do primeiro hóspede", variant: "destructive" });
+    if (!responsible.cpf || !responsible.rg) {
+      toast({ title: "Preencha os dados do responsável (RG e CPF)", variant: "destructive" });
       return;
     }
     setBooking(true);
     try {
-      const { error } = await supabase.from("reservation_guests").insert(
-        validGuests.map(g => ({
-          reservation_id: reservationId,
-          full_name: g.full_name,
-          is_minor: g.is_minor,
-          document: g.document || null,
-        }))
-      );
-      if (error) throw error;
+      // Save responsible info
+      await supabase.from("reservations").update({
+        responsible_rg: responsible.rg,
+        responsible_cpf: responsible.cpf,
+        responsible_civil_status: responsible.civil_status,
+        responsible_street: responsible.street,
+        responsible_number: responsible.number,
+        responsible_cep: responsible.cep,
+        responsible_neighborhood: responsible.neighborhood,
+        responsible_city: responsible.city,
+      }).eq("id", reservationId);
+
+      // Save adults
+      const adultRows = adults.filter(a => a.full_name.trim()).map(a => ({
+        reservation_id: reservationId,
+        guest_type: "adult" as const,
+        full_name: a.full_name,
+        cpf: a.cpf || null,
+        age: null,
+      }));
+
+      // Save children
+      const childRows = children.filter(c => c.full_name.trim()).map(c => ({
+        reservation_id: reservationId,
+        guest_type: "child" as const,
+        full_name: c.full_name,
+        cpf: null,
+        age: parseInt(c.age) || null,
+      }));
+
+      const allGuests = [...adultRows, ...childRows];
+      if (allGuests.length > 0) {
+        const { error } = await supabase.from("reservation_guests").insert(allGuests);
+        if (error) throw error;
+      }
+
       toast({ title: "Reserva finalizada! 🎉", description: "Seus dados foram salvos com sucesso." });
       setStep("idle");
       setReservationId(null);
@@ -286,14 +332,6 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     } finally {
       setBooking(false);
     }
-  };
-
-  const updateGuestDetail = (index: number, field: keyof GuestInfo, value: string | boolean) => {
-    setGuestDetails(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
   };
 
   const qrCodeUrl = paymentConfig?.pix_key
@@ -651,50 +689,157 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
               <Users className="w-5 h-5" /> Dados dos Hóspedes
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-xs text-muted-foreground text-center">
-              Preencha os dados de cada hóspede ({guests} {guests === 1 ? "pessoa" : "pessoas"})
-            </p>
-
-            {guestDetails.map((guest, index) => (
-              <div key={index} className="bg-muted/30 rounded-2xl p-4 space-y-3 border border-border">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-bold text-foreground">Hóspede {index + 1}</p>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={guest.is_minor}
-                      onChange={e => updateGuestDetail(index, "is_minor", e.target.checked)}
-                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <span className="text-xs text-muted-foreground">Menor de idade</span>
-                  </label>
-                </div>
+          <div className="space-y-5">
+            {/* Responsável pela reserva */}
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-foreground flex items-center gap-2">😎 Responsável pela reserva</p>
+              <div className="bg-muted/30 rounded-2xl p-4 space-y-3 border border-border">
                 <div className="space-y-1">
                   <Label className="text-xs">Nome completo</Label>
-                  <Input
-                    value={guest.full_name}
-                    onChange={e => updateGuestDetail(index, "full_name", e.target.value)}
-                    placeholder={index === 0 ? guestName || "Nome do hóspede" : "Nome do hóspede"}
-                  />
+                  <Input value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Nome do responsável" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">RG</Label>
+                    <Input value={responsible.rg} onChange={e => setResponsible(p => ({ ...p, rg: e.target.value }))} placeholder="00.000.000-0" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">CPF</Label>
+                    <Input value={responsible.cpf} onChange={e => setResponsible(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Estado civil</Label>
+                    <select
+                      value={responsible.civil_status}
+                      onChange={e => setResponsible(p => ({ ...p, civil_status: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <option value="">Selecione</option>
+                      {civilStatusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Celular</Label>
+                    <Input value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="(62) 99999-9999" />
+                  </div>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">{guest.is_minor ? "Certidão de nascimento" : "CPF / Documento"}</Label>
-                  <Input
-                    value={guest.document}
-                    onChange={e => updateGuestDetail(index, "document", e.target.value)}
-                    placeholder={guest.is_minor ? "Número da certidão" : "000.000.000-00"}
-                  />
+                  <Label className="text-xs">E-mail</Label>
+                  <Input value={guestEmail} onChange={e => setGuestEmail(e.target.value)} placeholder="seu@email.com" />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2 space-y-1">
+                    <Label className="text-xs">Rua / Av</Label>
+                    <Input value={responsible.street} onChange={e => setResponsible(p => ({ ...p, street: e.target.value }))} placeholder="Nome da rua" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Nº</Label>
+                    <Input value={responsible.number} onChange={e => setResponsible(p => ({ ...p, number: e.target.value }))} placeholder="123" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">CEP</Label>
+                    <Input value={responsible.cep} onChange={e => setResponsible(p => ({ ...p, cep: e.target.value }))} placeholder="00000-000" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Bairro</Label>
+                    <Input value={responsible.neighborhood} onChange={e => setResponsible(p => ({ ...p, neighborhood: e.target.value }))} placeholder="Bairro" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Cidade</Label>
+                    <Input value={responsible.city} onChange={e => setResponsible(p => ({ ...p, city: e.target.value }))} placeholder="Cidade" />
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Quantas crianças */}
+            <div className="bg-muted/30 rounded-2xl p-4 border border-border space-y-2">
+              <Label className="text-xs font-semibold">Quantas crianças no grupo?</Label>
+              <div className="flex gap-2">
+                {Array.from({ length: Math.min(guests, 6) }, (_, i) => i).map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setNumChildren(n)}
+                    className={cn(
+                      "w-9 h-9 rounded-xl text-sm font-bold transition-colors",
+                      numChildren === n ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Adultos */}
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-foreground flex items-center gap-2">🧑 Nome e CPF dos adultos</p>
+              {adults.map((adult, i) => (
+                <div key={i} className="bg-muted/30 rounded-2xl p-3 border border-border space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">Adulto {i + 1}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-[11px]">Nome completo</Label>
+                      <Input
+                        value={adult.full_name}
+                        onChange={e => { const v = e.target.value; setAdults(p => { const u = [...p]; u[i] = { ...u[i], full_name: v }; return u; }); }}
+                        placeholder="Nome"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[11px]">CPF</Label>
+                      <Input
+                        value={adult.cpf}
+                        onChange={e => { const v = e.target.value; setAdults(p => { const u = [...p]; u[i] = { ...u[i], cpf: v }; return u; }); }}
+                        placeholder="000.000.000-00"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Crianças */}
+            {numChildren > 0 && (
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-foreground flex items-center gap-2">🧚 Nome e idade das crianças</p>
+                {children.map((child, i) => (
+                  <div key={i} className="bg-muted/30 rounded-2xl p-3 border border-border space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Criança {i + 1}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-2 space-y-1">
+                        <Label className="text-[11px]">Nome completo</Label>
+                        <Input
+                          value={child.full_name}
+                          onChange={e => { const v = e.target.value; setChildren(p => { const u = [...p]; u[i] = { ...u[i], full_name: v }; return u; }); }}
+                          placeholder="Nome da criança"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">Idade</Label>
+                        <Input
+                          type="number"
+                          value={child.age}
+                          onChange={e => { const v = e.target.value; setChildren(p => { const u = [...p]; u[i] = { ...u[i], age: v }; return u; }); }}
+                          placeholder="Ex: 5"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <button
               onClick={handleSaveGuests}
-              disabled={booking || !guestDetails.some(g => g.full_name.trim())}
+              disabled={booking || !responsible.cpf}
               className={cn(
                 "w-full font-bold text-base py-3.5 shadow-lg transition-opacity rounded-2xl",
-                booking || !guestDetails.some(g => g.full_name.trim())
+                booking || !responsible.cpf
                   ? "bg-muted text-muted-foreground cursor-not-allowed"
                   : "bg-[hsl(340,80%,55%)] text-white hover:opacity-90"
               )}

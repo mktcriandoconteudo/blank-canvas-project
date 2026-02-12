@@ -173,27 +173,30 @@ export type Database = {
       }
       reservation_guests: {
         Row: {
+          age: number | null
+          cpf: string | null
           created_at: string | null
-          document: string | null
           full_name: string
+          guest_type: string
           id: string
-          is_minor: boolean
           reservation_id: string
         }
         Insert: {
+          age?: number | null
+          cpf?: string | null
           created_at?: string | null
-          document?: string | null
           full_name: string
+          guest_type?: string
           id?: string
-          is_minor?: boolean
           reservation_id: string
         }
         Update: {
+          age?: number | null
+          cpf?: string | null
           created_at?: string | null
-          document?: string | null
           full_name?: string
+          guest_type?: string
           id?: string
-          is_minor?: boolean
           reservation_id?: string
         }
         Relationships: [
@@ -224,6 +227,14 @@ export type Database = {
           price_per_night: number
           receipt_url: string | null
           resort_id: string
+          responsible_cep: string | null
+          responsible_city: string | null
+          responsible_civil_status: string | null
+          responsible_cpf: string | null
+          responsible_neighborhood: string | null
+          responsible_number: string | null
+          responsible_rg: string | null
+          responsible_street: string | null
           total_nights: number
           total_price: number
           updated_at: string | null
@@ -245,6 +256,14 @@ export type Database = {
           price_per_night: number
           receipt_url?: string | null
           resort_id: string
+          responsible_cep?: string | null
+          responsible_city?: string | null
+          responsible_civil_status?: string | null
+          responsible_cpf?: string | null
+          responsible_neighborhood?: string | null
+          responsible_number?: string | null
+          responsible_rg?: string | null
+          responsible_street?: string | null
           total_nights: number
           total_price: number
           updated_at?: string | null
@@ -266,6 +285,14 @@ export type Database = {
           price_per_night?: number
           receipt_url?: string | null
           resort_id?: string
+          responsible_cep?: string | null
+          responsible_city?: string | null
+          responsible_civil_status?: string | null
+          responsible_cpf?: string | null
+          responsible_neighborhood?: string | null
+          responsible_number?: string | null
+          responsible_rg?: string | null
+          responsible_street?: string | null
           total_nights?: number
           total_price?: number
           updated_at?: string | null
