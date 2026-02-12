@@ -18,6 +18,7 @@ const LANDING_KEYS = [
   "landing_button_text_color",
   "landing_bg_url",
   "landing_logo_url",
+  "landing_logo_subtitle",
 ];
 
 const LandingPageManager = () => {
@@ -199,6 +200,15 @@ const LandingPageManager = () => {
                 Remover
               </Button>
             )}
+          </div>
+          <div className="space-y-1 mt-2">
+            <Label className="text-[11px] font-semibold">Subtítulo da logomarca</Label>
+            <Input
+              value={settings.landing_logo_subtitle ?? ""}
+              onChange={e => update("landing_logo_subtitle", e.target.value)}
+              className="h-9 text-sm rounded-xl"
+              placeholder="Ex: J G Locações"
+            />
           </div>
         </div>
 
