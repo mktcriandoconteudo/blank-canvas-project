@@ -1,5 +1,6 @@
 import FaviconManager from "@/components/FaviconManager";
 import MercadoPagoSettings from "@/components/MercadoPagoSettings";
+import HeroBannerManager from "@/components/HeroBannerManager";
 
 const AdminSettings = () => {
   return (
@@ -7,6 +8,9 @@ const AdminSettings = () => {
       <h1 className="text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
         Configurações
       </h1>
+
+      {/* Hero Banner manager */}
+      <HeroBannerManager />
 
       {/* Favicon manager */}
       <FaviconManager />

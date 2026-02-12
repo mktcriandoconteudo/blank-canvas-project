@@ -64,6 +64,39 @@ export type Database = {
           },
         ]
       }
+      hero_slides: {
+        Row: {
+          created_at: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          storage_path: string | null
+          subtitle: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          storage_path?: string | null
+          subtitle?: string
+          title?: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          storage_path?: string | null
+          subtitle?: string
+          title?: string
+        }
+        Relationships: []
+      }
       pricing_plans: {
         Row: {
           created_at: string | null
