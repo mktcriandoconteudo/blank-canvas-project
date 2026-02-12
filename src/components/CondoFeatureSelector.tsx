@@ -9,7 +9,7 @@ export interface CondoFeatureOption {
 
 export const CONDO_FEATURE_OPTIONS: CondoFeatureOption[] = [
   { key: "wifi", label: "Wi-Fi", icon: Wifi },
-  { key: "piscina-compartilhada", label: "Piscina compartilhada", icon: Waves },
+  { key: "piscina-compartilhada", label: "Piscina aquecida compartilhada", icon: Waves },
   { key: "elevador", label: "Elevador", icon: ArrowUpDown },
   { key: "ar-condicionado-split", label: "Ar-condicionado split", icon: Snowflake },
   { key: "varanda-privativa", label: "Varanda privativa", icon: Fence },
