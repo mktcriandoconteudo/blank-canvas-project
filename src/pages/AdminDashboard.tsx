@@ -191,16 +191,16 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border px-4 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <header className="border-b border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 justify-between">
+        <h1 className="text-base sm:text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Admin — Resorts
         </h1>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate("/explore")}>
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => navigate("/explore")}>
             <ExternalLink className="w-4 h-4 mr-1" /> Ver Site
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowNewForm(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Novo Resort
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => setShowNewForm(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Novo
           </Button>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4" />
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Favicon manager */}
         <FaviconManager />
 
@@ -219,7 +219,7 @@ const AdminDashboard = () => {
               <CardTitle className="text-base">Novo Resort</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Nome</Label>
                   <Input value={newResort.name} onChange={e => setNewResort(p => ({ ...p, name: e.target.value }))} />
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
             <CardContent className="pt-6 space-y-4">
               {editingId === resort.id ? (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">Nome</Label>
                       <Input value={editForm.name ?? ""} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
@@ -313,17 +313,18 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{resort.name}</h3>
-                    <p className="text-sm text-muted-foreground">{resort.location} · R${resort.price_per_night}/noite · {resort.beds} quartos · {resort.max_guests} hóspedes</p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-sm sm:text-base truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{resort.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{resort.location} · R${resort.price_per_night}/noite</p>
+                    <p className="text-xs text-muted-foreground">{resort.beds} quartos · {resort.max_guests} hóspedes</p>
                     {resort.tag && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">{resort.tag}</span>}
                   </div>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => { setEditingId(resort.id); setEditForm(resort); }}>
+                  <div className="flex gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingId(resort.id); setEditForm(resort); }}>
                       <Edit2 className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => handleDelete(resort.id)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(resort.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
@@ -363,7 +364,7 @@ const AdminDashboard = () => {
                   </div>
                 )}
                 {(photos[resort.id] || []).length > 0 && (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                     {(photos[resort.id] || []).map(photo => (
                       <div key={photo.id} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
                         <img src={photo.url} alt="" className="w-full h-full object-cover" />
