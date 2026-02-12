@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
-import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
+import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -147,6 +147,7 @@ const MyReservations = () => {
               const resGuests = guests[res.id] || [];
               const adults = resGuests.filter(g => g.guest_type === "adult");
               const children = resGuests.filter(g => g.guest_type === "child");
+              const missingGuests = resGuests.length === 0;
 
               return (
                 <div
@@ -156,6 +157,15 @@ const MyReservations = () => {
                     res.payment_status === "approved" && "border-emerald-200 dark:border-emerald-900/50"
                   )}
                 >
+                  {/* Blinking alert for missing guest data */}
+                  {missingGuests && (
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800/50 animate-pulse">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                        Pendente: Preencha o cadastro de hóspedes para esta reserva
+                      </p>
+                    </div>
+                  )}
                   {/* Header */}
                   <div
                     className="p-4 cursor-pointer hover:bg-muted/30 transition-colors"
