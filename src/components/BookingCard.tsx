@@ -432,40 +432,44 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           </div>
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {/* Visa */}
-            <svg className="h-5 w-auto opacity-60" viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="h-5 w-auto" viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="48" height="16" rx="2" fill="#1A1F71"/>
               <text x="24" y="11.5" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold" fontFamily="Arial">VISA</text>
             </svg>
             {/* Mastercard */}
-            <svg className="h-5 w-auto opacity-60" viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="h-5 w-auto" viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="48" height="16" rx="2" fill="#252525"/>
               <circle cx="20" cy="8" r="5" fill="#EB001B"/>
               <circle cx="28" cy="8" r="5" fill="#F79E1B"/>
-              <circle cx="24" cy="8" r="5" fillOpacity="0" stroke="none"/>
             </svg>
             {/* Elo */}
-            <svg className="h-5 w-auto opacity-60" viewBox="0 0 36 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="h-5 w-auto" viewBox="0 0 36 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="36" height="16" rx="2" fill="#000"/>
               <text x="18" y="11" textAnchor="middle" fill="#FFCB05" fontSize="7" fontWeight="bold" fontFamily="Arial">elo</text>
             </svg>
             {/* Amex */}
-            <svg className="h-5 w-auto opacity-60" viewBox="0 0 36 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="h-5 w-auto" viewBox="0 0 36 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="36" height="16" rx="2" fill="#006FCF"/>
               <text x="18" y="11" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial">AMEX</text>
             </svg>
             {/* Hipercard */}
-            <svg className="h-5 w-auto opacity-60" viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="h-5 w-auto" viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="48" height="16" rx="2" fill="#822124"/>
               <text x="24" y="11" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial">Hipercard</text>
+            </svg>
+            {/* Pix */}
+            <svg className="h-5 w-auto" viewBox="0 0 36 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="36" height="16" rx="2" fill="#32BCAD"/>
+              <text x="18" y="11" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold" fontFamily="Arial">PIX</text>
             </svg>
           </div>
           {/* Mercado Pago badge */}
           <div className="flex items-center justify-center gap-1 mt-2">
-            <svg className="h-3.5 w-auto opacity-50" viewBox="0 0 60 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="h-3.5 w-auto" viewBox="0 0 60 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="60" height="14" rx="2" fill="#00B1EA"/>
               <text x="30" y="10" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial">Mercado Pago</text>
             </svg>
-            <span className="text-[9px] text-muted-foreground opacity-70">Seus dados estão protegidos</span>
+            <span className="text-[9px] text-muted-foreground">Seus dados estão protegidos</span>
           </div>
         </div>
       </div>
