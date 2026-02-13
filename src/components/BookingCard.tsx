@@ -1,5 +1,6 @@
 import mercadoPagoLogo from "@/assets/mercadopago-logo.png";
 import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronDown, Copy, Check, Upload, Users, QrCode, LogIn, LogOut, Loader2 } from "lucide-react";
 
 import { format, addDays, eachDayOfInterval, isSameDay } from "date-fns";
@@ -65,6 +66,7 @@ interface ResponsibleInfo {
 const civilStatusOptions = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"];
 
 const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, ref) => {
+  const navigate = useNavigate();
   const [checkIn, setCheckIn] = useState<Date | undefined>(undefined);
   const [checkOut, setCheckOut] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState(1);
@@ -363,6 +365,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
       setStep("idle");
       setReservationId(null);
       setReceiptUploaded(false);
+      setTimeout(() => navigate("/minhas-reservas"), 1200);
     } catch (err: any) {
       toast({ title: "Erro", description: err.message, variant: "destructive" });
     } finally {
