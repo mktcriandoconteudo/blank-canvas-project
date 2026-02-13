@@ -108,7 +108,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [numChildren, setNumChildren] = useState(0);
   const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
   const [fetchingCep, setFetchingCep] = useState(false);
-  
+
 
   const formatCep = (value: string) => {
     let v = value.replace(/\D/g, "").slice(0, 8);
@@ -148,10 +148,16 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     setGuestEmail(profile?.contact_email || session.user.email || "");
 
     // Auto-fill responsible data from last reservation
+    const phoneFilter = profile?.phone ? `guest_phone.eq.${profile.phone}` : null;
+    const nameFilter = profile?.full_name ? `guest_name.ilike.%${profile.full_name}%` : null;
+    const orFilter = [phoneFilter, nameFilter].filter(Boolean).join(",");
+
+    if (!orFilter) return;
+
     const { data: lastRes } = await supabase
       .from("reservations")
-      .select("responsible_cpf, responsible_rg, responsible_civil_status, responsible_street, responsible_number, responsible_cep, responsible_neighborhood, responsible_city, responsible_state, guest_name, guest_phone")
-      .or(`guest_phone.eq.${profile?.phone || ""},guest_name.ilike.${profile?.full_name || ""}`)
+      .select("responsible_cpf, responsible_rg, responsible_civil_status, responsible_street, responsible_number, responsible_cep, responsible_neighborhood, responsible_city, responsible_state")
+      .or(orFilter)
       .not("responsible_cpf", "is", null)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -183,6 +189,15 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     });
     return () => subscription.unsubscribe();
   }, [fillUserData]);
+
+  // Re-fill user data when entering guest-details step (in case it wasn't loaded initially)
+  useEffect(() => {
+    if (step === "guest-details" && user && !responsible.cpf) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) fillUserData(session);
+      });
+    }
+  }, [step, user, responsible.cpf, fillUserData]);
 
   // Fetch blocked dates, reserved dates & payment config
   useEffect(() => {
