@@ -314,7 +314,7 @@ const AdminClients = () => {
                             return (
                               <div key={r.id} className="rounded-lg border border-border bg-card p-4 space-y-3">
                                 {/* Header */}
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                                <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-4 gap-y-1.5 text-sm">
                                   <span className="font-semibold text-foreground">{resortMap[r.resort_id] || "Resort"}</span>
                                   <span className="text-muted-foreground">
                                     {format(new Date(r.check_in), "dd/MM/yyyy")} → {format(new Date(r.check_out), "dd/MM/yyyy")}
