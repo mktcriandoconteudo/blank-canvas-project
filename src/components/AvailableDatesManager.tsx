@@ -1,24 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Calendar, Plus, Trash2, CalendarCheck } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarCheck } from "lucide-react";
+import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar as CalendarUI } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 import { toast } from "@/hooks/use-toast";
-
-interface AvailableDate {
-  id: string;
-  resort_id: string;
-  start_date: string;
-  end_date: string;
-  label: string | null;
-}
 
 interface Props {
   resortId: string;
@@ -26,23 +14,20 @@ interface Props {
 
 const AvailableDatesManager = ({ resortId }: Props) => {
   const [enabled, setEnabled] = useState(false);
-  const [dates, setDates] = useState<AvailableDate[]>([]);
+  const [selectedDays, setSelectedDays] = useState<Date[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adding, setAdding] = useState(false);
-  const [newStart, setNewStart] = useState<Date | undefined>();
-  const [newEnd, setNewEnd] = useState<Date | undefined>();
-  const [newLabel, setNewLabel] = useState("");
-  const [startOpen, setStartOpen] = useState(false);
-  const [endOpen, setEndOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     const [resortRes, datesRes] = await Promise.all([
       supabase.from("resorts").select("use_available_dates").eq("id", resortId).single(),
-      supabase.from("available_dates").select("*").eq("resort_id", resortId).order("start_date"),
+      supabase.from("available_dates").select("id, start_date").eq("resort_id", resortId).order("start_date"),
     ]);
     if (resortRes.data) setEnabled(resortRes.data.use_available_dates);
-    if (datesRes.data) setDates(datesRes.data as AvailableDate[]);
+    if (datesRes.data) {
+      setSelectedDays(datesRes.data.map(d => new Date(d.start_date + "T12:00:00")));
+    }
     setLoading(false);
   };
 
@@ -56,38 +41,29 @@ const AvailableDatesManager = ({ resortId }: Props) => {
     toast({ title: val ? "Datas disponíveis ativadas" : "Datas disponíveis desativadas" });
   };
 
-  const handleAdd = async () => {
-    if (!newStart || !newEnd) {
-      toast({ title: "Selecione as datas de início e fim", variant: "destructive" });
-      return;
-    }
-    if (newEnd < newStart) {
-      toast({ title: "A data final deve ser após a inicial", variant: "destructive" });
-      return;
-    }
-    setAdding(true);
-    const { error } = await supabase.from("available_dates").insert({
-      resort_id: resortId,
-      start_date: format(newStart, "yyyy-MM-dd"),
-      end_date: format(newEnd, "yyyy-MM-dd"),
-      label: newLabel || null,
-    });
-    if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Período adicionado!" });
-      setNewStart(undefined);
-      setNewEnd(undefined);
-      setNewLabel("");
-      fetchData();
-    }
-    setAdding(false);
-  };
+  const handleDayClick = async (day: Date) => {
+    if (!day) return;
+    setSaving(true);
 
-  const handleDelete = async (id: string) => {
-    await supabase.from("available_dates").delete().eq("id", id);
-    toast({ title: "Período removido!" });
-    fetchData();
+    const existing = selectedDays.find(d => isSameDay(d, day));
+    const dateStr = format(day, "yyyy-MM-dd");
+
+    if (existing) {
+      // Remove
+      await supabase.from("available_dates").delete()
+        .eq("resort_id", resortId)
+        .eq("start_date", dateStr);
+      setSelectedDays(prev => prev.filter(d => !isSameDay(d, day)));
+    } else {
+      // Add
+      await supabase.from("available_dates").insert({
+        resort_id: resortId,
+        start_date: dateStr,
+        end_date: dateStr,
+      });
+      setSelectedDays(prev => [...prev, new Date(dateStr + "T12:00:00")]);
+    }
+    setSaving(false);
   };
 
   if (loading) return null;
@@ -112,88 +88,31 @@ const AvailableDatesManager = ({ resortId }: Props) => {
       </div>
 
       {enabled && (
-        <div className="space-y-2 bg-muted/40 rounded-xl p-3 border border-border">
-          {/* Existing ranges */}
-          {dates.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">Nenhum período cadastrado. Adicione abaixo.</p>
-          ) : (
-            <div className="space-y-1.5">
-              {dates.map(d => (
-                <div key={d.id} className="flex items-center justify-between bg-background rounded-lg px-3 py-2 border text-xs">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5 text-primary" />
-                    <span className="font-semibold">
-                      {format(new Date(d.start_date + "T12:00:00"), "dd/MM/yyyy")} → {format(new Date(d.end_date + "T12:00:00"), "dd/MM/yyyy")}
-                    </span>
-                    {d.label && <span className="text-muted-foreground">· {d.label}</span>}
-                  </div>
-                  <button onClick={() => handleDelete(d.id)} className="text-destructive hover:text-destructive/80">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Add new range */}
-          <div className="flex flex-wrap items-end gap-2 pt-2 border-t border-border">
-            <div className="space-y-1">
-              <Label className="text-[10px]">Início</Label>
-              <Popover open={startOpen} onOpenChange={setStartOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("text-xs w-[120px] justify-start", !newStart && "text-muted-foreground")}>
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {newStart ? format(newStart, "dd/MM/yyyy") : "Selecionar"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarUI
-                    mode="single"
-                    selected={newStart}
-                    onSelect={(d) => { setNewStart(d); setStartOpen(false); }}
-                    locale={ptBR}
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-[10px]">Fim</Label>
-              <Popover open={endOpen} onOpenChange={setEndOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("text-xs w-[120px] justify-start", !newEnd && "text-muted-foreground")}>
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {newEnd ? format(newEnd, "dd/MM/yyyy") : "Selecionar"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarUI
-                    mode="single"
-                    selected={newEnd}
-                    onSelect={(d) => { setNewEnd(d); setEndOpen(false); }}
-                    locale={ptBR}
-                    disabled={(date) => newStart ? date < newStart : false}
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-[10px]">Rótulo (opcional)</Label>
-              <Input
-                value={newLabel}
-                onChange={e => setNewLabel(e.target.value)}
-                placeholder="Ex: Carnaval"
-                className="h-9 text-xs w-[120px]"
-              />
-            </div>
-
-            <Button size="sm" onClick={handleAdd} disabled={adding} className="h-9">
-              <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar
-            </Button>
+        <div className="bg-muted/40 rounded-xl p-3 border border-border">
+          <p className="text-xs text-muted-foreground mb-2">
+            Clique nos dias para marcar/desmarcar como disponíveis:
+          </p>
+          <div className="flex justify-center">
+            <Calendar
+              mode="multiple"
+              selected={selectedDays}
+              onDayClick={handleDayClick}
+              locale={ptBR}
+              disabled={(date) => date < new Date()}
+              className="p-3 pointer-events-auto rounded-xl bg-background border"
+              modifiers={{
+                available: selectedDays,
+              }}
+              modifiersClassNames={{
+                available: "!bg-primary !text-primary-foreground !font-bold",
+              }}
+            />
           </div>
+          {selectedDays.length > 0 && (
+            <p className="text-[10px] text-muted-foreground text-center mt-2">
+              {selectedDays.length} dia{selectedDays.length > 1 ? "s" : ""} selecionado{selectedDays.length > 1 ? "s" : ""}
+            </p>
+          )}
         </div>
       )}
     </div>

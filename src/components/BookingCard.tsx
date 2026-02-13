@@ -198,7 +198,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
   // Available dates state
   const [useAvailableDates, setUseAvailableDates] = useState(false);
-  const [availableDateRanges, setAvailableDateRanges] = useState<{ start: Date; end: Date }[]>([]);
+  const [availableDays, setAvailableDays] = useState<Date[]>([]);
 
   // Fetch blocked dates, reserved dates, available dates & payment config
   useEffect(() => {
@@ -209,7 +209,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).eq("payment_status", "approved"),
         supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent, checkin_time, checkout_time").eq("resort_id", resortId).maybeSingle(),
         supabase.from("resorts").select("max_guests, price_per_night, use_available_dates").eq("id", resortId).maybeSingle(),
-        supabase.from("available_dates").select("start_date, end_date").eq("resort_id", resortId),
+        supabase.from("available_dates").select("start_date").eq("resort_id", resortId),
       ]);
 
       const allBlocked: Date[] = [];
@@ -234,10 +234,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
       const useAvail = (resortRes.data as any)?.use_available_dates === true;
       setUseAvailableDates(useAvail);
       if (availRes.data && useAvail) {
-        setAvailableDateRanges(availRes.data.map(d => ({
-          start: new Date(d.start_date + "T12:00:00"),
-          end: new Date(d.end_date + "T12:00:00"),
-        })));
+        setAvailableDays(availRes.data.map(d => new Date(d.start_date + "T12:00:00")));
       }
     };
     fetchData();
@@ -280,8 +277,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   }));
 
   const isDateInAvailableRange = (date: Date) => {
-    if (!useAvailableDates || availableDateRanges.length === 0) return true;
-    return availableDateRanges.some(range => date >= range.start && date <= range.end);
+    if (!useAvailableDates || availableDays.length === 0) return true;
+    return availableDays.some(d => isSameDay(d, date));
   };
 
   const isDateBlocked = (date: Date) => blockedDates.some(blocked => isSameDay(date, blocked));

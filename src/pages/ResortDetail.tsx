@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle, ChevronDown, CalendarCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { format, eachDayOfInterval, isSameDay } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard, { BookingCardRef } from "@/components/BookingCard";
@@ -160,7 +160,7 @@ const ResortDetail = () => {
   const [resortBeds, setResortBeds] = useState<number>(1);
   const [resortGuests, setResortGuests] = useState<number>(2);
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
-  const [availableDates, setAvailableDates] = useState<{ start_date: string; end_date: string; label: string | null }[]>([]);
+  const [availableDates, setAvailableDates] = useState<{ start_date: string }[]>([]);
   const [useAvailableDates, setUseAvailableDates] = useState(false);
   // Fetch photos from database
   useEffect(() => {
@@ -214,7 +214,7 @@ const ResortDetail = () => {
         if (useAvail) {
           const { data: availData } = await supabase
             .from("available_dates")
-            .select("start_date, end_date, label")
+            .select("start_date")
             .eq("resort_id", resort.id)
             .order("start_date");
           if (availData) setAvailableDates(availData);
@@ -416,15 +416,7 @@ const ResortDetail = () => {
 
           {/* Available Dates Calendar */}
           {useAvailableDates && availableDates.length > 0 && (() => {
-            // Build array of all available days
-            const allAvailableDays: Date[] = [];
-            availableDates.forEach(d => {
-              const days = eachDayOfInterval({
-                start: new Date(d.start_date + "T12:00:00"),
-                end: new Date(d.end_date + "T12:00:00"),
-              });
-              allAvailableDays.push(...days);
-            });
+            const allAvailableDays = availableDates.map(d => new Date(d.start_date + "T12:00:00"));
 
             return (
               <div className="flex flex-col items-center mb-7">
@@ -449,9 +441,6 @@ const ResortDetail = () => {
                       return !allAvailableDays.some(d => isSameDay(d, date));
                     }}
                     className="p-3 pointer-events-auto"
-                    classNames={{
-                      day_today: "bg-primary text-primary-foreground font-bold rounded-full",
-                    }}
                   />
                 </div>
                 <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
