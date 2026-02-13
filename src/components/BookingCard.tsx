@@ -77,6 +77,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [maxGuests, setMaxGuests] = useState(10);
+  const [resortPricePerNight, setResortPricePerNight] = useState<number | null>(null);
   const [hasConflict, setHasConflict] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -189,7 +190,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
         supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).eq("payment_status", "approved"),
         supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent, checkin_time, checkout_time").eq("resort_id", resortId).maybeSingle(),
-        supabase.from("resorts").select("max_guests").eq("id", resortId).maybeSingle(),
+        supabase.from("resorts").select("max_guests, price_per_night").eq("id", resortId).maybeSingle(),
       ]);
 
       const allBlocked: Date[] = [];
@@ -208,6 +209,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
       setBlockedDates(allBlocked);
       if (payRes.data) setPaymentConfig(payRes.data);
       if (resortRes.data?.max_guests) setMaxGuests(resortRes.data.max_guests);
+      if (resortRes.data?.price_per_night) setResortPricePerNight(resortRes.data.price_per_night);
     };
     fetchData();
   }, [resortId]);
@@ -259,7 +261,10 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     return false;
   };
   const formatDate = (date: Date | undefined) => date ? format(date, "dd/MM/yyyy") : "Selecionar";
-  const totalPrice = selectedPlan ? selectedPlan.price_per_night * selectedPlan.total_nights : null;
+  const customNights = (!selectedPlan && checkIn && checkOut) ? Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+  const effectivePricePerNight = selectedPlan ? selectedPlan.price_per_night : resortPricePerNight;
+  const effectiveNights = selectedPlan ? selectedPlan.total_nights : customNights;
+  const totalPrice = effectivePricePerNight && effectiveNights > 0 ? effectivePricePerNight * effectiveNights : null;
   const pixDiscountedPrice = totalPrice && paymentConfig?.pix_discount_percent
     ? totalPrice * (1 - paymentConfig.pix_discount_percent / 100)
     : totalPrice;
@@ -275,7 +280,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
   // Create reservation and proceed to payment
   const createReservation = async (method: "pix" | "mercadopago") => {
-    if (!selectedPlan || !checkIn || !checkOut || !resortId || !totalPrice) return;
+    if (!checkIn || !checkOut || !resortId || !totalPrice || !effectivePricePerNight) return;
     setBooking(true);
     try {
       const { data: reservation, error } = await supabase
@@ -285,10 +290,10 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           check_in: format(checkIn, "yyyy-MM-dd"),
           check_out: format(checkOut, "yyyy-MM-dd"),
           guests,
-          plan_name: selectedPlan.name,
-          plan_sessions: selectedPlan.sessions,
-          price_per_night: selectedPlan.price_per_night,
-          total_nights: selectedPlan.total_nights,
+          plan_name: selectedPlan?.name || "Diária Avulsa",
+          plan_sessions: selectedPlan?.sessions || `${effectiveNights} diária${effectiveNights > 1 ? "s" : ""}`,
+          price_per_night: effectivePricePerNight,
+          total_nights: effectiveNights,
           total_price: method === "pix" ? pixDiscountedPrice! : totalPrice,
           guest_name: guestName,
           guest_email: guestEmail,
@@ -465,6 +470,18 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                 </span>
               </div>
             </>
+          ) : resortPricePerNight ? (
+            <>
+              <span className="text-xl font-extrabold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                R$ {resortPricePerNight.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              </span>
+              <span className="text-sm text-muted-foreground ml-1">por diária</span>
+              <div className="mt-1">
+                <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  Diária Avulsa · Escolha as datas abaixo
+                </span>
+              </div>
+            </>
           ) : (
             <p className="text-sm text-muted-foreground">Selecione um plano acima para prosseguir</p>
           )}
@@ -537,7 +554,16 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                   <Calendar
                     mode="single"
                     selected={checkOut}
-                    onSelect={setCheckOut}
+                    onSelect={(date) => {
+                      if (!date || !checkIn) return;
+                      const days = eachDayOfInterval({ start: checkIn, end: addDays(date, -1) });
+                      const hasBlocked = days.some(d => blockedDates.some(b => isSameDay(d, b)));
+                      if (hasBlocked) {
+                        toast({ title: "Período indisponível", description: "Há datas bloqueadas neste intervalo.", variant: "destructive" });
+                        return;
+                      }
+                      setCheckOut(date);
+                    }}
                     disabled={(date) => date <= (checkIn || new Date()) || isDateBlocked(date)}
                     modifiers={{ blocked: blockedDates }}
                     modifiersClassNames={{ blocked: "bg-destructive/20 text-destructive line-through" }}
@@ -601,7 +627,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           <div className="mb-3 px-1 space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
-                {selectedPlan!.total_nights} noites × R$ {selectedPlan!.price_per_night.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                {effectiveNights} {effectiveNights === 1 ? "noite" : "noites"} × R$ {effectivePricePerNight!.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </span>
               <span className="text-base font-bold text-foreground">
                 R$ {totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -637,12 +663,12 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           onClick={handleReserve}
           className={cn(
             "w-full font-bold text-base py-3.5 shadow-lg transition-opacity",
-            hasConflict || !selectedPlan || !checkIn
+            hasConflict || !checkIn || !totalPrice
               ? "bg-muted text-muted-foreground cursor-not-allowed"
               : "bg-[hsl(340,80%,55%)] text-white hover:opacity-90"
           )}
           style={{ borderRadius: 30 }}
-          disabled={hasConflict || !selectedPlan || !checkIn}
+          disabled={hasConflict || !checkIn || !totalPrice}
         >
           Reservar
         </button>
