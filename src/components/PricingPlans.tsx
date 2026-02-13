@@ -59,16 +59,17 @@ const PricingPlans = ({ resortId, onSelectPlan }: PricingPlansProps) => {
 
   return (
     <div className="mb-7">
-      <h2
-        className="text-base font-bold text-foreground mb-1"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      >
-        Escolha o seu{" "}
-        <span className="text-primary">Plano</span>
-      </h2>
-      <p className="text-xs text-muted-foreground mb-5">
-        Pacotes especiais para estadias prolongadas
-      </p>
+      <div className="text-center mb-5">
+        <h2
+          className="text-base font-bold text-foreground"
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
+          Selecione um <span className="text-primary">Plano</span> ou escolha as datas no <span className="text-primary">Calendário</span>
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Pacotes especiais para estadias prolongadas ou reserve por diárias avulsas abaixo
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {plans.map((plan, i) => {
