@@ -187,7 +187,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     const fetchData = async () => {
       const [blockedRes, reservedRes, payRes, resortRes] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
-        supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).in("payment_status", ["approved", "pending"]),
+        supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).eq("payment_status", "approved"),
         supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent, checkin_time, checkout_time").eq("resort_id", resortId).maybeSingle(),
         supabase.from("resorts").select("max_guests").eq("id", resortId).maybeSingle(),
       ]);
