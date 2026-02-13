@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, CalendarCheck, Users, TrendingUp, Eye, Clock } from "lucide-react";
+import { DollarSign, CalendarCheck, Users, TrendingUp, Clock, ExternalLink, BarChart3, MapPin } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, CartesianGrid } from "recharts";
-import { format, subDays, startOfDay, isWithinInterval } from "date-fns";
+import { format, subDays, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface Reservation {
@@ -24,17 +24,26 @@ const AdminOverview = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<7 | 14 | 30>(30);
+  const [gaId, setGaId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("reservations")
-        .select("id, total_price, payment_status, created_at, check_in, check_out, guests, guest_name")
-        .order("created_at", { ascending: false });
-      if (data) setReservations(data);
+    const fetchData = async () => {
+      const [{ data: resData }, { data: gaData }] = await Promise.all([
+        supabase
+          .from("reservations")
+          .select("id, total_price, payment_status, created_at, check_in, check_out, guests, guest_name")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "ga_measurement_id")
+          .maybeSingle(),
+      ]);
+      if (resData) setReservations(resData);
+      if (gaData?.value) setGaId(gaData.value);
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, []);
 
   const now = new Date();
@@ -70,32 +79,12 @@ const AdminOverview = () => {
     return days;
   }, [reservations, period]);
 
-  // Simulated visits (based on reservations as proxy)
-  const visitData = useMemo(() => {
-    const days: { label: string; visitas: number }[] = [];
-    for (let i = period - 1; i >= 0; i--) {
-      const day = startOfDay(subDays(now, i));
-      const nextDay = startOfDay(subDays(now, i - 1));
-      const dayCount = reservations.filter(r => {
-        const d = new Date(r.created_at);
-        return d >= day && d < nextDay;
-      }).length;
-      // Simulate visits as multiplier of activity
-      days.push({
-        label: format(day, "dd/MM", { locale: ptBR }),
-        visitas: Math.max(dayCount * 12 + Math.floor(Math.random() * 15) + 5, 8),
-      });
-    }
-    return days;
-  }, [reservations, period]);
-
   const kpis = [
     { title: "Faturamento Total", value: formatCurrency(totalRevenue), icon: DollarSign, color: "text-emerald-500" },
     { title: `Faturamento ${period}d`, value: formatCurrency(periodRevenue), icon: TrendingUp, color: "text-primary" },
     { title: "Reservas Aprovadas", value: approved.length.toString(), icon: CalendarCheck, color: "text-blue-500" },
     { title: "Reservas Pendentes", value: pending.length.toString(), icon: Clock, color: "text-amber-500" },
     { title: "Hóspedes Atendidos", value: totalGuests.toString(), icon: Users, color: "text-violet-500" },
-    { title: `Visitas ${period}d (est.)`, value: visitData.reduce((s, d) => s + d.visitas, 0).toString(), icon: Eye, color: "text-rose-500" },
   ];
 
   if (loading) {
@@ -176,23 +165,41 @@ const AdminOverview = () => {
           </CardContent>
         </Card>
 
-        {/* Visits Chart */}
+        {/* Google Analytics Link */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold">Visitas Estimadas ao Site</CardTitle>
-          </CardHeader>
-          <CardContent className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={visitData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip
-                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
-                />
-                <Bar dataKey="visitas" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <CardContent className="p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <BarChart3 className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-foreground mb-1">Visitas ao Site & Localização</h3>
+                {gaId ? (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      O Google Analytics está ativo (ID: <code className="text-[10px] bg-muted px-1 py-0.5 rounded">{gaId}</code>). Acesse o painel para ver visitas reais, de onde vêm e o mapa do Brasil.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs bg-primary text-primary-foreground font-semibold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">
+                        <BarChart3 className="w-3.5 h-3.5" /> Ver Dashboard
+                      </a>
+                      <a href="https://analytics.google.com/analytics/web/#/report/visitors-geo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs border border-border text-foreground font-semibold px-3 py-1.5 rounded-full hover:bg-muted transition-colors">
+                        <MapPin className="w-3.5 h-3.5" /> Mapa de Visitantes
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      Configure o Google Analytics para ver visitas reais, localização geográfica e mapa de visitantes.
+                    </p>
+                    <a href="/admin/seo" className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline">
+                      <ExternalLink className="w-3.5 h-3.5" /> Configurar em SEO & Google
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 

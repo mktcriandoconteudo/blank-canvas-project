@@ -8,6 +8,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import Landing from "./pages/Landing";
 import { useFavicon } from "./hooks/use-favicon";
 import CookieConsent from "./components/CookieConsent";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 // Lazy load heavy pages
 const Index = lazy(() => import("./pages/Index"));
@@ -43,6 +44,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <FaviconLoader />
+      <GoogleAnalytics />
       <BrowserRouter>
         <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
