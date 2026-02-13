@@ -382,7 +382,6 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             {[
               { label: "Escolha a data de check-in", done: !!checkIn, active: !checkIn },
               { label: "Quantidade de hóspedes", done: guestsChosen, active: !!checkIn && !guestsChosen },
-              { label: "Reservar", done: false, active: guestsChosen },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className={cn(
@@ -425,14 +424,17 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           )}
         </div>
 
-        <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
-          <div className="flex divide-x divide-border">
+        <div className="border overflow-hidden mb-3 transition-all" style={{ borderRadius: 30, borderColor: !checkIn && selectedPlan ? 'hsl(var(--primary))' : undefined, boxShadow: !checkIn && selectedPlan ? '0 0 0 1px hsl(var(--primary) / 0.3), 0 0 12px hsl(var(--primary) / 0.1))' : undefined }}>
+          <div className={cn("flex divide-x divide-border", !checkIn && selectedPlan && "divide-primary/30")}>
             {/* Check-in */}
             <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
               <PopoverTrigger asChild>
-                <button className="flex-1 p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer">
+                <button className={cn(
+                  "flex-1 p-3 text-left transition-colors cursor-pointer",
+                  !checkIn && selectedPlan ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/50"
+                )}>
                   <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
-                  <p className="text-sm text-foreground mt-0.5">{formatDate(checkIn)}</p>
+                  <p className={cn("text-sm mt-0.5", !checkIn && selectedPlan ? "text-primary font-semibold" : "text-foreground")}>{checkIn ? formatDate(checkIn) : "Selecionar"}</p>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-card z-50" align="start">
@@ -440,7 +442,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                   mode="single"
                   selected={checkIn}
                   onSelect={(date) => {
-                    if (date && selectedPlan) {
+                    if (!date) return;
+                    if (selectedPlan) {
                       const periodDates = eachDayOfInterval({ start: date, end: addDays(date, selectedPlan.total_nights - 1) });
                       const hasBlockedInPeriod = periodDates.some(d => blockedDates.some(b => isSameDay(d, b)));
                       if (hasBlockedInPeriod) {
@@ -453,7 +456,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                     } else {
                       setCheckIn(date);
                       setCheckInOpen(false);
-                      if (date && checkOut && date >= checkOut) setCheckOut(addDays(date, 1));
+                      if (checkOut && date >= checkOut) setCheckOut(addDays(date, 1));
                     }
                   }}
                   disabled={(date) => date < new Date() || isDateBlocked(date)}
