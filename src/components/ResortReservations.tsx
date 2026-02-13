@@ -399,7 +399,7 @@ const ResortReservations = ({ resortId }: { resortId: string }) => {
 
       {/* Receipt preview */}
       <Dialog open={!!receiptPreview} onOpenChange={() => setReceiptPreview(null)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Comprovante de pagamento</DialogTitle>
           </DialogHeader>
