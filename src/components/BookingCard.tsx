@@ -73,6 +73,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [guestsChosen, setGuestsChosen] = useState(false);
   const [checkInChosen, setCheckInChosen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const [checkOutOpen, setCheckOutOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
@@ -428,11 +429,12 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     <>
       <div className="sticky top-6 bg-card border-2 border-primary/40 rounded-2xl p-6 shadow-xl shadow-primary/10 ring-1 ring-primary/10">
         {/* Checklist de etapas */}
-        {selectedPlan && (
+        {(selectedPlan || resortPricePerNight) && (
           <div className="mb-5 space-y-2.5">
             {[
               { label: "Escolha a data de check-in", done: checkInChosen, active: !checkInChosen },
-              { label: "Quantidade de hóspedes", done: guestsChosen, active: checkInChosen && !guestsChosen },
+              ...(!selectedPlan ? [{ label: "Escolha a data de check-out", done: !!checkOut && checkInChosen, active: checkInChosen && !checkOut }] : []),
+              { label: "Quantidade de hóspedes", done: guestsChosen, active: checkInChosen && (selectedPlan ? true : !!checkOut) && !guestsChosen },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className={cn(
@@ -521,8 +523,10 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       setCheckInOpen(false);
                     } else {
                       setCheckIn(date);
+                      setCheckOut(undefined);
                       setCheckInChosen(true);
                       setCheckInOpen(false);
+                      setTimeout(() => setCheckOutOpen(true), 200);
                     }
                   }}
                   disabled={isCheckInBlocked}
@@ -543,11 +547,16 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                 <p className="text-[10px] text-muted-foreground mt-0.5">🔒 {selectedPlan.total_nights} diárias ({selectedPlan.name})</p>
               </div>
             ) : (
-              <Popover>
+              <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
                 <PopoverTrigger asChild>
-                  <button className="flex-1 p-3 text-left hover:bg-muted/50 transition-colors cursor-pointer">
-                    <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
-                    <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut)}</p>
+                  <button className={cn(
+                    "flex-1 p-3 text-left transition-all cursor-pointer",
+                    checkInChosen && !checkOut
+                      ? "bg-primary/10 hover:bg-primary/15"
+                      : "hover:bg-muted/50"
+                  )}>
+                    <p className={cn("text-[10px] font-bold uppercase tracking-wide", checkInChosen && !checkOut ? "text-primary" : "text-foreground")}>Checkout</p>
+                    <p className={cn("text-sm mt-0.5", checkInChosen && !checkOut ? "text-primary font-bold" : "text-foreground")}>{formatDate(checkOut)}</p>
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-card z-50" align="end">
@@ -563,6 +572,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                         return;
                       }
                       setCheckOut(date);
+                      setCheckOutOpen(false);
                     }}
                     disabled={(date) => {
                       if (date <= (checkIn || new Date())) return true;
