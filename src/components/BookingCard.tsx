@@ -424,26 +424,19 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           )}
         </div>
 
-        <div className={cn(
-          "border overflow-hidden mb-3 transition-all",
-          !checkIn && selectedPlan
-            ? "border-primary ring-2 ring-primary/20 shadow-[0_0_16px_hsl(var(--primary)/0.15)]"
-            : !!checkIn && !guestsChosen && selectedPlan
-              ? "border-border"
-              : "border-border"
-        )} style={{ borderRadius: 30 }}>
+        <div className="border border-border overflow-hidden mb-3" style={{ borderRadius: 30 }}>
           <div className="flex divide-x divide-border">
-            {/* Check-in */}
+            {/* Check-in - acende quando plano selecionado mas data não escolhida */}
             <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
               <PopoverTrigger asChild>
                 <button className={cn(
                   "flex-1 p-3 text-left transition-all cursor-pointer",
                   !checkIn && selectedPlan
-                    ? "bg-primary/10 hover:bg-primary/15 animate-pulse"
+                    ? "bg-primary/10 hover:bg-primary/15"
                     : "hover:bg-muted/50"
                 )}>
                   <p className={cn("text-[10px] font-bold uppercase tracking-wide", !checkIn && selectedPlan ? "text-primary" : "text-foreground")}>Check-in</p>
-                  <p className={cn("text-sm mt-0.5", !checkIn && selectedPlan ? "text-primary font-bold" : "text-foreground")}>{checkIn ? formatDate(checkIn) : "👆 Toque aqui"}</p>
+                  <p className={cn("text-sm mt-0.5", !checkIn && selectedPlan ? "text-primary font-bold" : "text-foreground")}>{checkIn ? formatDate(checkIn) : "Selecionar"}</p>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-card z-50" align="start">
@@ -456,7 +449,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       const periodDates = eachDayOfInterval({ start: date, end: addDays(date, selectedPlan.total_nights - 1) });
                       const hasBlockedInPeriod = periodDates.some(d => blockedDates.some(b => isSameDay(d, b)));
                       if (hasBlockedInPeriod) {
-                        toast({ title: "Período indisponível", description: `Algumas datas estão bloqueadas. Escolha outra data.`, variant: "destructive" });
+                        toast({ title: "Período indisponível", description: "Algumas datas estão bloqueadas. Escolha outra data.", variant: "destructive" });
                         return;
                       }
                       setCheckIn(date);
@@ -510,51 +503,45 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             )}
           </div>
 
-          {/* Guests */}
-          {(() => {
-            const isGuestStep = !!checkIn && !guestsChosen && !!selectedPlan;
-            return (
-              <div className={cn(
-                "border-t transition-all",
-                isGuestStep
-                  ? "border-primary bg-primary/10"
-                  : "border-border"
-              )}>
-                <button
-                  onClick={() => setGuestsOpen(!guestsOpen)}
-                  className={cn(
-                    "w-full p-3 flex items-center justify-between transition-colors cursor-pointer",
-                    isGuestStep ? "hover:bg-primary/15" : "hover:bg-muted/50"
-                  )}
-                >
-                  <div>
-                    <p className={cn("text-[10px] font-bold uppercase tracking-wide", isGuestStep ? "text-primary" : "text-foreground")}>Hóspedes</p>
-                    <p className={cn("text-sm mt-0.5", isGuestStep ? "text-primary font-bold" : "text-foreground")}>
-                      {guestsChosen ? `${guests} ${guests === 1 ? "hóspede" : "hóspedes"}` : "👆 Escolha a quantidade"}
-                    </p>
-                  </div>
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", isGuestStep ? "text-primary" : "text-muted-foreground", guestsOpen && "rotate-180")} />
-                </button>
-                {/* Sempre mostra as opções quando é o passo ativo OU quando aberto manualmente */}
-                {(isGuestStep || guestsOpen) && (
-                  <div className={cn("border-t max-h-40 overflow-y-auto", isGuestStep ? "border-primary/30" : "border-border")}>
-                    {Array.from({ length: maxGuests }, (_, i) => i + 1).map((num) => (
-                      <button
-                        key={num}
-                        onClick={() => { setGuests(num); setGuestsChosen(true); setGuestsOpen(false); }}
-                        className={cn(
-                          "w-full text-left px-4 py-2.5 text-sm transition-colors",
-                          guests === num && guestsChosen ? "bg-primary text-primary-foreground font-bold" : "text-foreground hover:bg-muted/50"
-                        )}
-                      >
-                        {num} {num === 1 ? "hóspede" : "hóspedes"}
-                      </button>
-                    ))}
-                  </div>
-                )}
+          {/* Guests - acende quando checkIn escolhido mas hóspedes ainda não */}
+          <div className={cn(
+            "border-t transition-all",
+            !!checkIn && !guestsChosen && selectedPlan
+              ? "border-primary bg-primary/10"
+              : "border-border"
+          )}>
+            <button
+              onClick={() => setGuestsOpen(!guestsOpen)}
+              className={cn(
+                "w-full p-3 flex items-center justify-between transition-colors cursor-pointer",
+                !!checkIn && !guestsChosen && selectedPlan ? "hover:bg-primary/15" : "hover:bg-muted/50"
+              )}
+            >
+              <div>
+                <p className={cn("text-[10px] font-bold uppercase tracking-wide", !!checkIn && !guestsChosen && selectedPlan ? "text-primary" : "text-foreground")}>Hóspedes</p>
+                <p className={cn("text-sm mt-0.5", !!checkIn && !guestsChosen && selectedPlan ? "text-primary font-bold" : "text-foreground")}>
+                  {guests} {guests === 1 ? "hóspede" : "hóspedes"}
+                </p>
               </div>
-            );
-          })()}
+              <ChevronDown className={cn("w-4 h-4 transition-transform", !!checkIn && !guestsChosen && selectedPlan ? "text-primary" : "text-muted-foreground", guestsOpen && "rotate-180")} />
+            </button>
+            {guestsOpen && (
+              <div className="border-t border-border max-h-40 overflow-y-auto bg-card">
+                {Array.from({ length: maxGuests }, (_, i) => i + 1).map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => { setGuests(num); setGuestsChosen(true); setGuestsOpen(false); }}
+                    className={cn(
+                      "w-full text-left px-4 py-2.5 text-sm transition-colors",
+                      guests === num ? "bg-primary text-primary-foreground font-bold" : "text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    {num} {num === 1 ? "hóspede" : "hóspedes"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Conflict warning */}
