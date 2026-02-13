@@ -993,7 +993,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             </div>
             )}
 
-            {/* Adultos */}
+            {/* Adultos extras - só aparece se há acompanhantes adultos */}
+            {guests >= 2 && adults.length > 0 && (
             <div className="space-y-3">
               <p className="text-sm font-bold text-foreground flex items-center gap-2">🧑 Nome e CPF dos adultos</p>
               {adults.map((adult, i) => (
@@ -1020,6 +1021,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                 </div>
               ))}
             </div>
+            )}
 
             {/* Crianças */}
             {numChildren > 0 && (
