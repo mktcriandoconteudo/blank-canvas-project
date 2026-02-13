@@ -320,10 +320,10 @@ const AdminClients = () => {
                                     {format(new Date(r.check_in), "dd/MM/yyyy")} → {format(new Date(r.check_out), "dd/MM/yyyy")}
                                   </span>
                                   <span className={cn(
-                                    "text-xs px-2 py-0.5 rounded-full font-medium",
-                                    r.payment_status === "approved" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
+                                    "text-xs px-2.5 py-1 rounded-full font-bold",
+                                    r.payment_status === "approved" ? "bg-white text-emerald-600 border border-emerald-300 shadow-sm" : "bg-destructive/10 text-destructive"
                                   )}>
-                                    {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
+                                    {r.payment_status === "approved" ? "✅ Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
                                   </span>
                                   <span className={cn(
                                     "text-xs px-2 py-0.5 rounded-full font-medium",
