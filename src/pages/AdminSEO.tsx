@@ -72,25 +72,25 @@ Sitemap: ${siteUrl}/sitemap.xml`;
     {
       step: 1,
       title: "Acesse o Google Search Console",
-      description: "Entre no Google Search Console com sua conta Google.",
+      description: "O Search Console é a ferramenta gratuita do Google que mostra se o seu site está aparecendo nas buscas. Acesse com sua conta Google.",
       link: "https://search.google.com/search-console/about",
     },
     {
       step: 2,
-      title: "Adicione a propriedade",
-      description: `Clique em "Adicionar propriedade" e selecione "Prefixo do URL". Cole a URL do seu site:`,
+      title: "Adicione o seu site",
+      description: 'Clique em "Adicionar propriedade", escolha "Prefixo do URL" e cole o endereço do seu site abaixo:',
       copyValue: siteUrl,
       copyLabel: "URL do site",
     },
     {
       step: 3,
-      title: "Verifique a propriedade",
-      description: "Escolha o método de verificação por meta tag HTML. Copie a meta tag fornecida pelo Google e cole no campo abaixo.",
+      title: "Confirme que o site é seu",
+      description: 'O Google vai pedir uma confirmação. Escolha "Tag HTML", copie apenas o código que ele mostrar e cole na seção "Meta Tag de Verificação" mais abaixo nesta página.',
     },
     {
       step: 4,
-      title: "Envie o Sitemap",
-      description: `No Search Console, vá em "Sitemaps" e envie a URL do sitemap:`,
+      title: "Diga ao Google quais páginas indexar",
+      description: 'Após verificar, vá no menu "Sitemaps" dentro do Search Console. Cole o endereço abaixo e clique em "Enviar". Isso avisa ao Google todas as páginas que existem no seu site para ele indexar.',
       copyValue: `${siteUrl}/sitemap.xml`,
       copyLabel: "URL do Sitemap",
     },
@@ -303,15 +303,15 @@ Sitemap: ${siteUrl}/sitemap.xml`;
           <CardContent className="space-y-5">
             {/* Sitemap explanation */}
             <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-              <h4 className="text-xs font-bold text-foreground">📄 O que é o Sitemap?</h4>
+              <h4 className="text-xs font-bold text-foreground">📄 Para que serve o Sitemap?</h4>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                O <strong>sitemap.xml</strong> é um arquivo que lista todas as páginas do seu site. Ele ajuda o Google a encontrar e indexar suas páginas mais rapidamente. Você deve enviar a URL do sitemap no Google Search Console (Passo 4 acima).
+                Pense no sitemap como um <strong>mapa do seu site</strong> para o Google. Ele lista todas as páginas que existem para que o Google consiga encontrar e mostrar seu site nas buscas. <strong>Você não precisa fazer nada com esse código</strong> — ele já está no seu site automaticamente. Basta copiar o endereço do Passo 4 acima e colar no Google Search Console.
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">sitemap.xml</Label>
+                <Label className="text-xs font-semibold">Conteúdo do sitemap.xml (apenas referência)</Label>
                 <button onClick={() => handleCopy(sitemapXml, "Sitemap")} className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
                   {copied === "Sitemap" ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   Copiar
@@ -322,15 +322,15 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 
             {/* Robots.txt explanation */}
             <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-              <h4 className="text-xs font-bold text-foreground">🤖 O que é o Robots.txt?</h4>
+              <h4 className="text-xs font-bold text-foreground">🤖 Para que serve o Robots.txt?</h4>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                O <strong>robots.txt</strong> é um arquivo que diz aos robôs de busca (Google, Bing, etc.) quais páginas do seu site eles podem ou não acessar. O <code className="bg-muted px-1 rounded text-[10px]">Allow: /</code> significa que todas as páginas estão liberadas para indexação. A linha <code className="bg-muted px-1 rounded text-[10px]">Sitemap</code> indica onde está o mapa do site.
+                O robots.txt é como um <strong>aviso na porta do site</strong> dizendo ao Google: "pode entrar e ver tudo". Sem ele, o Google pode não saber se tem permissão para indexar suas páginas. <strong>Ele já está configurado automaticamente</strong> — não precisa fazer nada. O conteúdo abaixo é apenas para sua referência.
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">robots.txt</Label>
+                <Label className="text-xs font-semibold">Conteúdo do robots.txt (apenas referência)</Label>
                 <button onClick={() => handleCopy(robotsTxt, "Robots")} className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
                   {copied === "Robots" ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   Copiar
