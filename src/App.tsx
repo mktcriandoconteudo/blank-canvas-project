@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
 import Landing from "./pages/Landing";
 import { useFavicon } from "./hooks/use-favicon";
+import CookieConsent from "./components/CookieConsent";
 
 // Lazy load heavy pages
 const Index = lazy(() => import("./pages/Index"));
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        <CookieConsent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
