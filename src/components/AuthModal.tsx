@@ -20,7 +20,6 @@ interface AuthModalProps {
 const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -30,35 +29,25 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
 
     try {
       if (mode === "signup") {
-        if (!phone) {
-          toast({ title: "Erro", description: "Telefone é obrigatório", variant: "destructive" });
-          setLoading(false);
-          return;
-        }
-
-        // Generate a deterministic email from phone
-        const cleanPhone = phone.replace(/\D/g, "");
-        const generatedEmail = `${cleanPhone}@reservas.app`;
+        // Generate random unique email
+        const randomId = crypto.randomUUID().slice(0, 8);
+        const generatedEmail = `user-${randomId}@reservas.app`;
 
         const { error } = await supabase.auth.signUp({
           email: generatedEmail,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: {
-              full_name: fullName.trim(),
-              phone: cleanPhone,
-            },
+            data: { full_name: fullName.trim() },
           },
         });
         if (error) throw error;
 
-        // Update profile with email so login lookup works
+        // Update profile with email for login lookup
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("profiles").update({
             email: generatedEmail,
-            phone: cleanPhone,
             full_name: fullName.trim(),
           }).eq("user_id", user.id);
         }
@@ -99,10 +88,6 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
     }
   };
 
-  const canSubmit = mode === "login"
-    ? fullName && password
-    : fullName && phone && password;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -122,17 +107,6 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
             />
           </div>
 
-          {mode === "signup" && (
-            <div className="space-y-1">
-              <Label className="text-xs">Telefone / WhatsApp</Label>
-              <Input
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                placeholder="(62) 99999-9999"
-              />
-            </div>
-          )}
-
           <div className="space-y-1">
             <Label className="text-xs">Senha</Label>
             <Input
@@ -145,10 +119,10 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
 
           <button
             onClick={handleAuth}
-            disabled={loading || !canSubmit}
+            disabled={loading || !fullName || !password}
             className={cn(
               "w-full font-bold text-base py-3 shadow-lg transition-opacity rounded-xl",
-              loading || !canSubmit
+              loading || !fullName || !password
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:opacity-90"
             )}
