@@ -21,6 +21,7 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleAuth = async () => {
@@ -29,7 +30,6 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
 
     try {
       if (mode === "signup") {
-        // Generate random unique email
         const randomId = crypto.randomUUID().slice(0, 8);
         const generatedEmail = `user-${randomId}@reservas.app`;
 
@@ -43,12 +43,12 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
         });
         if (error) throw error;
 
-        // Update profile with email for login lookup
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("profiles").update({
             email: generatedEmail,
             full_name: fullName.trim(),
+            ...(contactEmail.trim() ? { contact_email: contactEmail.trim() } : {}),
           }).eq("user_id", user.id);
         }
 
@@ -56,7 +56,6 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
         onOpenChange(false);
         onSuccess?.();
       } else {
-        // Login: resolve name → email via edge function
         const { data: fnData, error: fnError } = await supabase.functions.invoke("user-login", {
           body: { name: fullName.trim() },
         });
@@ -116,6 +115,18 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
               placeholder="••••••••"
             />
           </div>
+
+          {mode === "signup" && (
+            <div className="space-y-1">
+              <Label className="text-xs">E-mail (opcional)</Label>
+              <Input
+                type="email"
+                value={contactEmail}
+                onChange={e => setContactEmail(e.target.value)}
+                placeholder="seu@email.com"
+              />
+            </div>
+          )}
 
           <button
             onClick={handleAuth}
