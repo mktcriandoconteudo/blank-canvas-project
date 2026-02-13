@@ -312,10 +312,11 @@ const AdminClients = () => {
                                         href={r.receipt_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="p-1 rounded-lg hover:bg-muted transition-colors"
+                                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-xs font-medium text-primary"
                                         title="Ver comprovante"
                                       >
-                                        <Eye className="w-4 h-4 text-primary" />
+                                        <Eye className="w-3.5 h-3.5" />
+                                        Comprovante
                                       </a>
                                     )}
                                     <button
