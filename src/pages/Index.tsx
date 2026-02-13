@@ -1,4 +1,4 @@
-import { Menu, User, Moon, Sun, CalendarCheck, X, LogIn } from "lucide-react";
+import { Menu, User, Moon, Sun, CalendarCheck, X, LogIn, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +38,7 @@ const Index = () => {
   const [showInfoCard, setShowInfoCard] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [userAvatar, setUserAvatar] = useState("");
 
   // Check auth and show info card
@@ -46,14 +47,24 @@ const Index = () => {
       const { data } = await supabase.from("profiles").select("avatar_url").eq("user_id", userId).maybeSingle();
       if (data?.avatar_url) setUserAvatar(data.avatar_url);
     };
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchAvatar(session.user.id);
+      if (session?.user) {
+        fetchAvatar(session.user.id);
+        const { data } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" });
+        setIsAdmin(!!data);
+      }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchAvatar(session.user.id);
-      else setUserAvatar("");
+      if (session?.user) {
+        fetchAvatar(session.user.id);
+        const { data } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" });
+        setIsAdmin(!!data);
+      } else {
+        setUserAvatar("");
+        setIsAdmin(false);
+      }
     });
     // Show card after a short delay
     const timer = setTimeout(() => setShowInfoCard(true), 1500);
@@ -128,6 +139,15 @@ const Index = () => {
         >
           {dark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
         </button>
+        {isAdmin && (
+          <button
+            onClick={() => navigate("/admin")}
+            className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-2 text-xs font-bold shadow-lg hover:opacity-90 transition-opacity"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Admin</span>
+          </button>
+        )}
         <button
           onClick={() => {
             if (user) {
