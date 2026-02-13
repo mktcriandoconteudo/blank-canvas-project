@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CalendarCheck } from "lucide-react";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, eachDayOfInterval, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { toast } from "@/hooks/use-toast";
@@ -15,18 +15,31 @@ interface Props {
 const AvailableDatesManager = ({ resortId }: Props) => {
   const [enabled, setEnabled] = useState(false);
   const [selectedDays, setSelectedDays] = useState<Date[]>([]);
+  const [reservedDays, setReservedDays] = useState<Date[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
-    const [resortRes, datesRes] = await Promise.all([
+    const [resortRes, datesRes, reservedRes] = await Promise.all([
       supabase.from("resorts").select("use_available_dates").eq("id", resortId).single(),
       supabase.from("available_dates").select("id, start_date").eq("resort_id", resortId).order("start_date"),
+      supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).eq("payment_status", "approved"),
     ]);
     if (resortRes.data) setEnabled(resortRes.data.use_available_dates);
     if (datesRes.data) {
       setSelectedDays(datesRes.data.map(d => new Date(d.start_date + "T12:00:00")));
+    }
+    if (reservedRes.data) {
+      const allReserved: Date[] = [];
+      for (const r of reservedRes.data) {
+        const days = eachDayOfInterval({
+          start: new Date(r.check_in + "T12:00:00"),
+          end: addDays(new Date(r.check_out + "T12:00:00"), -1),
+        });
+        allReserved.push(...days);
+      }
+      setReservedDays(allReserved);
     }
     setLoading(false);
   };
@@ -43,6 +56,11 @@ const AvailableDatesManager = ({ resortId }: Props) => {
 
   const handleDayClick = async (day: Date) => {
     if (!day) return;
+    // Don't allow toggling reserved dates
+    if (reservedDays.some(rd => isSameDay(rd, day))) {
+      toast({ title: "Data com reserva confirmada", description: "Não é possível alterar datas com reservas aprovadas.", variant: "destructive" });
+      return;
+    }
     setSaving(true);
 
     const existing = selectedDays.find(d => isSameDay(d, day));
@@ -101,16 +119,26 @@ const AvailableDatesManager = ({ resortId }: Props) => {
               disabled={(date) => date < new Date()}
               className="p-3 pointer-events-auto rounded-xl bg-background border"
               modifiers={{
-                available: selectedDays,
+                available: selectedDays.filter(d => !reservedDays.some(rd => isSameDay(rd, d))),
+                reserved: reservedDays,
               }}
               modifiersClassNames={{
                 available: "!bg-primary !text-primary-foreground !font-bold",
+                reserved: "!bg-destructive/20 !text-destructive !line-through !font-bold",
               }}
             />
           </div>
+          <div className="flex gap-3 text-[10px] text-muted-foreground justify-center mt-2">
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-primary" /> Disponível
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-destructive/20 border border-destructive/30" /> Reservado
+            </span>
+          </div>
           {selectedDays.length > 0 && (
-            <p className="text-[10px] text-muted-foreground text-center mt-2">
-              {selectedDays.length} dia{selectedDays.length > 1 ? "s" : ""} selecionado{selectedDays.length > 1 ? "s" : ""}
+            <p className="text-[10px] text-muted-foreground text-center mt-1">
+              {selectedDays.filter(d => !reservedDays.some(rd => isSameDay(rd, d))).length} disponível(is) · {reservedDays.length} reservada(s)
             </p>
           )}
         </div>
