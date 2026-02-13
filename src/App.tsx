@@ -15,6 +15,7 @@ const CondoDetail = lazy(() => import("./pages/CondoDetail"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminClients = lazy(() => import("./pages/AdminClients"));
 const AdminRoute = lazy(() => import("./components/AdminRoute"));
 const OwnerRoute = lazy(() => import("./components/OwnerRoute"));
 const AdminLayout = lazy(() => import("./components/AdminLayout"));
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
             <Route path="/admin/settings" element={<AdminRoute><AdminLayout><AdminSettings /></AdminLayout></AdminRoute>} />
+            <Route path="/admin/clients" element={<AdminRoute><AdminLayout><AdminClients /></AdminLayout></AdminRoute>} />
             
             <Route path="/owner" element={<OwnerRoute><AdminLayout><OwnerDashboard /></AdminLayout></OwnerRoute>} />
             <Route path="/minhas-reservas" element={<MyReservations />} />
