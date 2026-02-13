@@ -736,7 +736,17 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Celular</Label>
-                    <Input value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="(62) 99999-9999" />
+                    <Input
+                      value={guestPhone}
+                      onChange={e => {
+                        let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                        if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+                        else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+                        else if (v.length > 0) v = `(${v}`;
+                        setGuestPhone(v);
+                      }}
+                      placeholder="(62) 99999-9999"
+                    />
                   </div>
                 </div>
                 <div className="space-y-1">
