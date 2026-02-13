@@ -434,10 +434,10 @@ const ResortDetail = () => {
             return (
               <div className="flex flex-col items-center mb-7">
                 <h2 className="text-lg font-extrabold text-foreground text-center mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  Escolha a data
+                  Datas disponíveis para locação
                 </h2>
                 <p className="text-sm text-muted-foreground text-center mb-4">
-                  Selecione um dia disponível no calendário
+                  Confira os dias disponíveis para reserva deste imóvel
                 </p>
                 <div className="bg-card border border-border rounded-2xl shadow-lg p-2">
                   <Calendar
