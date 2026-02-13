@@ -564,7 +564,13 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       }
                       setCheckOut(date);
                     }}
-                    disabled={(date) => date <= (checkIn || new Date()) || isDateBlocked(date)}
+                    disabled={(date) => {
+                      if (date <= (checkIn || new Date())) return true;
+                      // Only block if nights between check-in and checkout-1 have blocked dates
+                      if (!checkIn) return false;
+                      const nights = eachDayOfInterval({ start: checkIn, end: addDays(date, -1) });
+                      return nights.some(d => blockedDates.some(b => isSameDay(d, b)));
+                    }}
                     modifiers={{ blocked: blockedDates }}
                     modifiersClassNames={{ blocked: "bg-destructive/20 text-destructive line-through" }}
                     initialFocus
