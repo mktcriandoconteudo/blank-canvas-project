@@ -6,6 +6,25 @@ import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, Cr
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
+interface ClientData {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string;
+  contact_email: string;
+  avatar_url: string;
+  created_at: string;
+  cpf: string;
+  rg: string;
+  civil_status: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  cep: string;
+  reservationIds: string[];
+}
+
 const AdminClients = () => {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -54,27 +73,12 @@ const AdminClients = () => {
     },
   });
 
-  // Build a map: guest_email -> reservations[]
-  const reservationsByEmail = useMemo(() => {
-    const map: Record<string, typeof reservations> = {};
-    if (!reservations) return map;
-    for (const r of reservations) {
-      const key = r.guest_email?.toLowerCase().trim();
-      if (key) {
-        if (!map[key]) map[key] = [];
-        map[key]!.push(r);
-      }
-    }
-    return map;
-  }, [reservations]);
-
-  // Build a map: reservation_id -> guests[]
   const guestsByReservation = useMemo(() => {
-    const map: Record<string, typeof guests> = {};
+    const map: Record<string, NonNullable<typeof guests>> = {};
     if (!guests) return map;
     for (const g of guests) {
       if (!map[g.reservation_id]) map[g.reservation_id] = [];
-      map[g.reservation_id]!.push(g);
+      map[g.reservation_id].push(g);
     }
     return map;
   }, [guests]);
@@ -86,61 +90,54 @@ const AdminClients = () => {
     return map;
   }, [resorts]);
 
-  // Also build unique clients from reservations that may not have profiles
+  // Build unique clients from RESERVATIONS first (since they have the most data),
+  // then enrich with profile data
   const allClients = useMemo(() => {
-    const clientMap: Record<string, {
-      id: string;
-      full_name: string;
-      phone: string;
-      email: string;
-      contact_email: string;
-      avatar_url: string;
-      created_at: string;
-      source: "profile" | "reservation";
-      // extra from reservations
-      cpf: string;
-      rg: string;
-      civil_status: string;
-      street: string;
-      number: string;
-      neighborhood: string;
-      city: string;
-      cep: string;
-    }> = {};
+    const clientMap: Record<string, ClientData> = {};
 
-    // Profiles first
-    if (profiles) {
-      for (const p of profiles) {
-        const key = (p as any).contact_email?.toLowerCase().trim() || p.email?.toLowerCase().trim() || p.id;
-        clientMap[key] = {
-          id: p.id,
-          full_name: p.full_name || "",
-          phone: p.phone || "",
-          email: p.email || "",
-          contact_email: (p as any).contact_email || "",
-          avatar_url: p.avatar_url || "",
-          created_at: p.created_at || "",
-          source: "profile",
-          cpf: "",
-          rg: "",
-          civil_status: "",
-          street: "",
-          number: "",
-          neighborhood: "",
-          city: "",
-          cep: "",
-        };
-      }
-    }
+    const normalizeKey = (name?: string | null, phone?: string | null, email?: string | null) => {
+      // Use phone as primary key, then email, then name
+      const p = phone?.replace(/\D/g, "").trim();
+      if (p && p.length >= 8) return `phone:${p}`;
+      const e = email?.toLowerCase().trim();
+      if (e && !e.includes("@reservas.app")) return `email:${e}`;
+      const n = name?.toLowerCase().trim();
+      if (n) return `name:${n}`;
+      return null;
+    };
 
-    // Enrich with reservation data
+    // Process reservations first (they have CPF, RG, address etc)
     if (reservations) {
       for (const r of reservations) {
-        const key = r.guest_email?.toLowerCase().trim();
-        if (!key) continue;
+        const key = normalizeKey(r.guest_name, r.guest_phone, r.guest_email);
+        if (!key) {
+          // No way to identify, create standalone entry
+          const standaloneKey = `res:${r.id}`;
+          clientMap[standaloneKey] = {
+            id: r.id,
+            full_name: r.guest_name || "",
+            phone: r.guest_phone || "",
+            email: r.guest_email || "",
+            contact_email: r.guest_email || "",
+            avatar_url: "",
+            created_at: r.created_at || "",
+            cpf: r.responsible_cpf || "",
+            rg: r.responsible_rg || "",
+            civil_status: r.responsible_civil_status || "",
+            street: r.responsible_street || "",
+            number: r.responsible_number || "",
+            neighborhood: r.responsible_neighborhood || "",
+            city: r.responsible_city || "",
+            cep: r.responsible_cep || "",
+            reservationIds: [r.id],
+          };
+          continue;
+        }
+
         if (clientMap[key]) {
-          // Fill missing fields from reservation
           const c = clientMap[key];
+          c.reservationIds.push(r.id);
+          // Fill missing fields
           if (!c.full_name && r.guest_name) c.full_name = r.guest_name;
           if (!c.phone && r.guest_phone) c.phone = r.guest_phone;
           if (!c.cpf && r.responsible_cpf) c.cpf = r.responsible_cpf;
@@ -152,16 +149,14 @@ const AdminClients = () => {
           if (!c.city && r.responsible_city) c.city = r.responsible_city;
           if (!c.cep && r.responsible_cep) c.cep = r.responsible_cep;
         } else {
-          // Client from reservation only
           clientMap[key] = {
             id: r.id,
             full_name: r.guest_name || "",
             phone: r.guest_phone || "",
-            email: key,
-            contact_email: key,
+            email: r.guest_email || "",
+            contact_email: r.guest_email || "",
             avatar_url: "",
             created_at: r.created_at || "",
-            source: "reservation",
             cpf: r.responsible_cpf || "",
             rg: r.responsible_rg || "",
             civil_status: r.responsible_civil_status || "",
@@ -170,12 +165,58 @@ const AdminClients = () => {
             neighborhood: r.responsible_neighborhood || "",
             city: r.responsible_city || "",
             cep: r.responsible_cep || "",
+            reservationIds: [r.id],
           };
         }
       }
     }
 
-    return Object.values(clientMap);
+    // Enrich with profile data
+    if (profiles) {
+      for (const p of profiles) {
+        const key = normalizeKey(p.full_name, p.phone, p.contact_email || p.email);
+        if (!key) continue;
+
+        if (clientMap[key]) {
+          const c = clientMap[key];
+          // Profile data enrichment
+          if (!c.full_name && p.full_name) c.full_name = p.full_name;
+          if (!c.phone && p.phone) c.phone = p.phone;
+          if (p.avatar_url) c.avatar_url = p.avatar_url;
+          if (p.contact_email) c.contact_email = p.contact_email;
+          if (p.created_at && (!c.created_at || new Date(p.created_at) < new Date(c.created_at))) {
+            c.created_at = p.created_at;
+          }
+          c.id = p.id; // prefer profile id
+        } else {
+          // Profile-only client (no reservations)
+          clientMap[key] = {
+            id: p.id,
+            full_name: p.full_name || "",
+            phone: p.phone || "",
+            email: p.email || "",
+            contact_email: p.contact_email || "",
+            avatar_url: p.avatar_url || "",
+            created_at: p.created_at || "",
+            cpf: "",
+            rg: "",
+            civil_status: "",
+            street: "",
+            number: "",
+            neighborhood: "",
+            city: "",
+            cep: "",
+            reservationIds: [],
+          };
+        }
+      }
+    }
+
+    return Object.values(clientMap).sort((a, b) => {
+      if (!a.created_at) return 1;
+      if (!b.created_at) return -1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
   }, [profiles, reservations]);
 
   const filtered = useMemo(() => {
@@ -187,13 +228,14 @@ const AdminClients = () => {
         c.email?.toLowerCase().includes(q) ||
         c.contact_email?.toLowerCase().includes(q) ||
         c.phone?.includes(q) ||
-        c.cpf?.includes(q)
+        c.cpf?.includes(q) ||
+        c.rg?.includes(q)
     );
   }, [allClients, search]);
 
-  const getClientReservations = (client: (typeof allClients)[0]) => {
-    const email = (client.contact_email || client.email)?.toLowerCase().trim();
-    return email ? reservationsByEmail[email] || [] : [];
+  const getClientReservations = (client: ClientData) => {
+    if (!reservations) return [];
+    return reservations.filter((r) => client.reservationIds.includes(r.id));
   };
 
   return (
@@ -212,7 +254,7 @@ const AdminClients = () => {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por nome, e-mail, telefone ou CPF..."
+          placeholder="Buscar por nome, e-mail, telefone, CPF ou RG..."
           className="pl-9"
         />
       </div>
@@ -232,10 +274,7 @@ const AdminClients = () => {
             const clientReservations = getClientReservations(client);
 
             return (
-              <div
-                key={client.id}
-                className="rounded-xl border border-border bg-card overflow-hidden"
-              >
+              <div key={client.id} className="rounded-xl border border-border bg-card overflow-hidden">
                 {/* Summary row */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : client.id)}
@@ -253,6 +292,7 @@ const AdminClients = () => {
                     <p className="text-xs text-muted-foreground truncate">
                       {client.contact_email || client.email || "Sem e-mail"}
                       {client.phone && ` · ${client.phone}`}
+                      {client.cpf && ` · CPF: ${client.cpf}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -282,7 +322,7 @@ const AdminClients = () => {
                         <InfoItem icon={CreditCard} label="CPF" value={client.cpf} />
                         <InfoItem icon={CreditCard} label="RG" value={client.rg} />
                         <InfoItem icon={User} label="Estado Civil" value={client.civil_status} />
-                        <InfoItem icon={Calendar} label="Cadastro" value={client.created_at ? format(new Date(client.created_at), "dd/MM/yyyy") : ""} />
+                        <InfoItem icon={Calendar} label="Cadastro" value={client.created_at ? format(new Date(client.created_at), "dd/MM/yyyy HH:mm") : ""} />
                       </div>
                     </div>
 
@@ -319,9 +359,9 @@ const AdminClients = () => {
                                   <span className={cn(
                                     "text-xs px-2 py-0.5 rounded-full font-medium",
                                     r.payment_status === "approved"
-                                      ? "bg-green-500/10 text-green-600"
+                                      ? "bg-primary/10 text-primary"
                                       : r.payment_status === "pending"
-                                        ? "bg-yellow-500/10 text-yellow-600"
+                                        ? "bg-destructive/10 text-destructive"
                                         : "bg-muted text-muted-foreground"
                                   )}>
                                     {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
@@ -331,11 +371,25 @@ const AdminClients = () => {
                                   </span>
                                 </div>
 
+                                {/* Reservation-specific responsible data */}
+                                {(r.responsible_cpf || r.responsible_rg) && (
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
+                                    {r.responsible_cpf && <span className="text-muted-foreground"><strong>CPF:</strong> {r.responsible_cpf}</span>}
+                                    {r.responsible_rg && <span className="text-muted-foreground"><strong>RG:</strong> {r.responsible_rg}</span>}
+                                    {r.responsible_civil_status && <span className="text-muted-foreground"><strong>Est. Civil:</strong> {r.responsible_civil_status}</span>}
+                                    {r.responsible_street && (
+                                      <span className="text-muted-foreground sm:col-span-3">
+                                        <strong>End.:</strong> {r.responsible_street}{r.responsible_number ? `, ${r.responsible_number}` : ""}{r.responsible_neighborhood ? ` - ${r.responsible_neighborhood}` : ""}{r.responsible_city ? `, ${r.responsible_city}` : ""}{r.responsible_cep ? ` (${r.responsible_cep})` : ""}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+
                                 {/* Guests of this reservation */}
                                 {rGuests.length > 0 && (
                                   <div className="pl-3 border-l-2 border-primary/20">
                                     <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1">
-                                      <Users className="w-3 h-3" /> Hóspedes
+                                      <Users className="w-3 h-3" /> Hóspedes ({rGuests.length})
                                     </p>
                                     {rGuests.map((g) => (
                                       <p key={g.id} className="text-xs text-foreground">
@@ -368,7 +422,7 @@ const AdminClients = () => {
   );
 };
 
-const InfoItem = ({ icon: Icon, label, value }: { icon: any; label: string; value: string }) => {
+const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) => {
   if (!value) return null;
   return (
     <div className="flex items-start gap-2 text-sm">
