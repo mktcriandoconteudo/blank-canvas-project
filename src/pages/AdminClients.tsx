@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 const AdminClients = () => {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ ids: string[]; name: string } | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -67,25 +67,25 @@ const AdminClients = () => {
     },
   });
 
-  const deleteReservation = useMutation({
-    mutationFn: async (reservationId: string) => {
-      // Delete guests first
-      const { error: gErr } = await supabase
-        .from("reservation_guests")
-        .delete()
-        .eq("reservation_id", reservationId);
-      if (gErr) throw gErr;
-      // Delete reservation
-      const { error: rErr } = await supabase
-        .from("reservations")
-        .delete()
-        .eq("id", reservationId);
-      if (rErr) throw rErr;
+  const deleteAllReservations = useMutation({
+    mutationFn: async (reservationIds: string[]) => {
+      for (const rid of reservationIds) {
+        const { error: gErr } = await supabase
+          .from("reservation_guests")
+          .delete()
+          .eq("reservation_id", rid);
+        if (gErr) throw gErr;
+        const { error: rErr } = await supabase
+          .from("reservations")
+          .delete()
+          .eq("id", rid);
+        if (rErr) throw rErr;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-clients-reservations"] });
       queryClient.invalidateQueries({ queryKey: ["admin-clients-guests"] });
-      toast({ title: "Reserva excluída com sucesso! 🗑️" });
+      toast({ title: "Reservas excluídas com sucesso! 🗑️" });
       setDeleteTarget(null);
     },
     onError: (err: any) => {
@@ -184,33 +184,51 @@ const AdminClients = () => {
             return (
               <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden">
                 {/* Summary row */}
-                <button
-                  onClick={() => setExpandedId(isExpanded ? null : p.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
-                >
-                  {p.avatar_url ? (
-                    <img src={p.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate">{p.full_name || "—"}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {p.contact_email || p.email || "—"}
-                      {p.phone && ` · ${p.phone}`}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {clientReservations.length > 0 && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-                        {clientReservations.length} reserva{clientReservations.length > 1 ? "s" : ""}
-                      </span>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <button
+                    onClick={() => setExpandedId(isExpanded ? null : p.id)}
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                  >
+                    {p.avatar_url ? (
+                      <img src={p.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
                     )}
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                  </div>
-                </button>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground truncate">{p.full_name || "—"}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {p.contact_email || p.email || "—"}
+                        {p.phone && ` · ${p.phone}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {clientReservations.length > 0 && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                          {clientReservations.length} reserva{clientReservations.length > 1 ? "s" : ""}
+                        </span>
+                      )}
+                      {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {clientReservations.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteTarget({
+                          ids: clientReservations.map((r) => r.id),
+                          name: p.full_name || "este cliente",
+                        });
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
 
                 {/* Expanded details */}
                 {isExpanded && (
@@ -237,29 +255,19 @@ const AdminClients = () => {
                             const rGuests = guestsByReservation[r.id] || [];
                             return (
                               <div key={r.id} className="rounded-lg border border-border bg-card p-4 space-y-3">
-                                {/* Header + delete */}
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                                    <span className="font-semibold text-foreground">{resortMap[r.resort_id] || "Resort"}</span>
-                                    <span className="text-muted-foreground">
-                                      {format(new Date(r.check_in), "dd/MM/yyyy")} → {format(new Date(r.check_out), "dd/MM/yyyy")}
-                                    </span>
-                                    <span className={cn(
-                                      "text-xs px-2 py-0.5 rounded-full font-medium",
-                                      r.payment_status === "approved" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
-                                    )}>
-                                      {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
-                                    </span>
-                                    <span className="text-muted-foreground text-xs">R$ {Number(r.total_price).toFixed(2)}</span>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                                    onClick={() => setDeleteTarget({ id: r.id, name: `${resortMap[r.resort_id] || "Resort"} - ${format(new Date(r.check_in), "dd/MM/yyyy")}` })}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
+                                {/* Header */}
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                                  <span className="font-semibold text-foreground">{resortMap[r.resort_id] || "Resort"}</span>
+                                  <span className="text-muted-foreground">
+                                    {format(new Date(r.check_in), "dd/MM/yyyy")} → {format(new Date(r.check_out), "dd/MM/yyyy")}
+                                  </span>
+                                  <span className={cn(
+                                    "text-xs px-2 py-0.5 rounded-full font-medium",
+                                    r.payment_status === "approved" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
+                                  )}>
+                                    {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
+                                  </span>
+                                  <span className="text-muted-foreground text-xs">R$ {Number(r.total_price).toFixed(2)}</span>
                                 </div>
 
                                 {/* Responsible data */}
@@ -326,19 +334,19 @@ const AdminClients = () => {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir reserva?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir todas as reservas?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir a reserva <strong>{deleteTarget?.name}</strong>? Esta ação não pode ser desfeita. Todos os dados de hóspedes vinculados também serão removidos.
+              Tem certeza que deseja excluir todas as reservas de <strong>{deleteTarget?.name}</strong>? Esta ação não pode ser desfeita. Todos os dados de hóspedes vinculados também serão removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deleteTarget && deleteReservation.mutate(deleteTarget.id)}
-              disabled={deleteReservation.isPending}
+              onClick={() => deleteTarget && deleteAllReservations.mutate(deleteTarget.ids)}
+              disabled={deleteAllReservations.isPending}
             >
-              {deleteReservation.isPending ? "Excluindo..." : "Excluir"}
+              {deleteAllReservations.isPending ? "Excluindo..." : "Excluir tudo"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
