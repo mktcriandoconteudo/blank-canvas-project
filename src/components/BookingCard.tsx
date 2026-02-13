@@ -261,7 +261,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     }
     return false;
   };
-  const formatDate = (date: Date | undefined) => date ? format(date, "dd/MM/yyyy") : "Selecionar";
+  const formatDate = (date: Date | undefined, fallback?: Date) => format(date || fallback || new Date(), "dd/MM/yyyy");
   const customNights = (!selectedPlan && checkIn && checkOut) ? Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))) : 0;
   const effectivePricePerNight = selectedPlan ? selectedPlan.price_per_night : resortPricePerNight;
   const effectiveNights = selectedPlan ? selectedPlan.total_nights : customNights;
@@ -543,7 +543,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             {selectedPlan ? (
               <div className="flex-1 p-3 text-left opacity-70 cursor-default">
                 <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Checkout</p>
-                <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut)}</p>
+                <p className="text-sm text-foreground mt-0.5">{formatDate(checkOut, addDays(new Date(), 2))}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">🔒 {selectedPlan.total_nights} diárias ({selectedPlan.name})</p>
               </div>
             ) : (
@@ -556,7 +556,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       : "hover:bg-muted/50"
                   )}>
                     <p className={cn("text-[10px] font-bold uppercase tracking-wide", checkInChosen && !checkOut ? "text-primary" : "text-foreground")}>Checkout</p>
-                    <p className={cn("text-sm mt-0.5", checkInChosen && !checkOut ? "text-primary font-bold" : "text-foreground")}>{formatDate(checkOut)}</p>
+                    <p className={cn("text-sm mt-0.5", checkInChosen && !checkOut ? "text-primary font-bold" : "text-foreground")}>{formatDate(checkOut, addDays(new Date(), 2))}</p>
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-card z-50" align="end">
