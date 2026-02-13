@@ -80,9 +80,12 @@ const DynamicCondoFeatures = ({ resortId }: { resortId: string | null }) => {
   return (
     <Collapsible className="bg-card border border-border rounded-2xl mb-7">
       <CollapsibleTrigger className="flex items-center justify-between w-full p-6 cursor-pointer group">
-        <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          O que esse lugar oferece
-        </h2>
+        <div className="flex items-center gap-2">
+          <Home className="w-5 h-5 text-primary shrink-0" />
+          <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Clique aqui para saber o que esse local oferece
+          </h2>
+        </div>
         <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
       </CollapsibleTrigger>
       <CollapsibleContent className="px-6 pb-6">
