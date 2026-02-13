@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 const AdminClients = () => {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ ids: string[]; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ profileId: string; reservationIds: string[]; name: string } | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -67,8 +67,8 @@ const AdminClients = () => {
     },
   });
 
-  const deleteAllReservations = useMutation({
-    mutationFn: async (reservationIds: string[]) => {
+  const deleteClient = useMutation({
+    mutationFn: async ({ profileId, reservationIds }: { profileId: string; reservationIds: string[] }) => {
       for (const rid of reservationIds) {
         const { error: gErr } = await supabase
           .from("reservation_guests")
@@ -81,11 +81,17 @@ const AdminClients = () => {
           .eq("id", rid);
         if (rErr) throw rErr;
       }
+      const { error: pErr } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", profileId);
+      if (pErr) throw pErr;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
       queryClient.invalidateQueries({ queryKey: ["admin-clients-reservations"] });
       queryClient.invalidateQueries({ queryKey: ["admin-clients-guests"] });
-      toast({ title: "Reservas excluídas com sucesso! 🗑️" });
+      toast({ title: "Cliente excluído com sucesso! 🗑️" });
       setDeleteTarget(null);
     },
     onError: (err: any) => {
@@ -238,22 +244,21 @@ const AdminClients = () => {
                       {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                     </div>
                   </button>
-                  {clientReservations.length > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteTarget({
-                          ids: clientReservations.map((r) => r.id),
-                          name: p.full_name || "este cliente",
-                        });
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTarget({
+                        profileId: p.id,
+                        reservationIds: clientReservations.map((r) => r.id),
+                        name: p.full_name || "este cliente",
+                      });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
 
                 {/* Expanded details */}
@@ -367,19 +372,19 @@ const AdminClients = () => {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir todas as reservas?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir cliente?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir todas as reservas de <strong>{deleteTarget?.name}</strong>? Esta ação não pode ser desfeita. Todos os dados de hóspedes vinculados também serão removidos.
+              Tem certeza que deseja excluir <strong>{deleteTarget?.name}</strong>? {deleteTarget && deleteTarget.reservationIds.length > 0 ? `Todas as ${deleteTarget.reservationIds.length} reserva(s) e dados de hóspedes vinculados também serão removidos.` : "Esta ação não pode ser desfeita."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deleteTarget && deleteAllReservations.mutate(deleteTarget.ids)}
-              disabled={deleteAllReservations.isPending}
+              onClick={() => deleteTarget && deleteClient.mutate({ profileId: deleteTarget.profileId, reservationIds: deleteTarget.reservationIds })}
+              disabled={deleteClient.isPending}
             >
-              {deleteAllReservations.isPending ? "Excluindo..." : "Excluir tudo"}
+              {deleteClient.isPending ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
