@@ -342,7 +342,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
 
   return (
     <>
-      <div className="sticky top-6 bg-card border border-border rounded-2xl p-6 shadow-lg">
+      <div className="sticky top-6 bg-card border-2 border-primary/40 rounded-2xl p-6 shadow-xl shadow-primary/10 ring-1 ring-primary/10">
         {/* Price display */}
         <div className="mb-4">
           {selectedPlan ? (
