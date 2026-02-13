@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, Loader2 } from "lucide-react";
+import { Users, Loader2, UserCheck, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,8 +28,65 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
   // CEP auto-fill + phone mask enabled
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [useExisting, setUseExisting] = useState<boolean | null>(null);
+  const [hasExistingData, setHasExistingData] = useState(false);
   const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
   const [fetchingCep, setFetchingCep] = useState(false);
+
+  // Check if user has previous reservation data
+  useEffect(() => {
+    const checkExisting = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle();
+      if (!profile?.full_name) return;
+      const { data: prev } = await supabase
+        .from("reservations")
+        .select("responsible_cpf, responsible_rg, responsible_civil_status, responsible_street, responsible_number, responsible_cep, responsible_neighborhood, responsible_city, responsible_state")
+        .eq("guest_name", profile.full_name)
+        .not("responsible_cpf", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (prev?.responsible_cpf) setHasExistingData(true);
+    };
+    if (open) checkExisting();
+  }, [open]);
+
+  const loadFromLastReservation = async () => {
+    setLoadingProfile(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle();
+      if (!profile?.full_name) return;
+      const { data: prev } = await supabase
+        .from("reservations")
+        .select("responsible_cpf, responsible_rg, responsible_civil_status, responsible_street, responsible_number, responsible_cep, responsible_neighborhood, responsible_city, responsible_state")
+        .eq("guest_name", profile.full_name)
+        .not("responsible_cpf", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (prev) {
+        setResponsible({
+          rg: prev.responsible_rg || "",
+          cpf: prev.responsible_cpf || "",
+          civil_status: prev.responsible_civil_status || "",
+          street: prev.responsible_street || "",
+          number: prev.responsible_number || "",
+          cep: prev.responsible_cep || "",
+          neighborhood: prev.responsible_neighborhood || "",
+          city: prev.responsible_city || "",
+          state: prev.responsible_state || "",
+        });
+        toast({ title: "Dados preenchidos automaticamente! ✅" });
+      }
+    } catch { /* ignore */ } finally {
+      setLoadingProfile(false);
+    }
+  };
   const extraGuests = Math.max(0, guestCount - 1); // responsável já é o 1º
   const [numChildren, setNumChildren] = useState(0);
   const numExtraAdults = Math.max(0, extraGuests - numChildren);
@@ -152,9 +209,49 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-5">
+          {/* Escolha: usar conta existente ou preencher */}
+          {hasExistingData && useExisting === null && (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-foreground text-center">Como deseja preencher os dados do responsável?</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => { setUseExisting(true); loadFromLastReservation(); }}
+                  className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-colors"
+                >
+                  <UserCheck className="w-6 h-6 text-primary" />
+                  <span className="text-sm font-bold text-primary">Usar minha conta</span>
+                  <span className="text-[10px] text-muted-foreground">Preencher automaticamente</span>
+                </button>
+                <button
+                  onClick={() => setUseExisting(false)}
+                  className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-colors"
+                >
+                  <PenLine className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-sm font-bold text-foreground">Preencher manualmente</span>
+                  <span className="text-[10px] text-muted-foreground">Digitar os dados</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {loadingProfile && (
+            <div className="flex items-center justify-center gap-2 py-6">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Carregando seus dados...</span>
+            </div>
+          )}
+
+          {/* Responsável - mostra quando não tem dados existentes OU já escolheu */}
+          {(!hasExistingData || useExisting !== null) && !loadingProfile && (
+          <>
           {/* Responsável */}
           <div className="space-y-3">
-            <p className="text-sm font-bold text-foreground flex items-center gap-2">😎 Responsável pela reserva</p>
+            <p className="text-sm font-bold text-foreground flex items-center gap-2">
+              😎 Responsável pela reserva
+              {useExisting === true && (
+                <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">Auto-preenchido</span>
+              )}
+            </p>
             <div className="bg-muted/30 rounded-2xl p-4 space-y-3 border border-border">
               <div className="space-y-1">
                 <Label className="text-xs">Nome completo</Label>
@@ -318,6 +415,9 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
                 </div>
               ))}
             </div>
+          )}
+
+          </>
           )}
 
           <button
