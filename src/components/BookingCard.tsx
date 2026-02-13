@@ -68,6 +68,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [checkIn, setCheckIn] = useState<Date | undefined>(addDays(new Date(), 7));
   const [checkOut, setCheckOut] = useState<Date | undefined>(addDays(new Date(), 9));
   const [guests, setGuests] = useState(1);
+  const [guestsChosen, setGuestsChosen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
@@ -380,8 +381,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           <div className="mb-5 space-y-2.5">
             {[
               { label: "Escolha as datas", done: !!checkIn && !!checkOut, active: !checkIn },
-              { label: "Quantidade de hóspedes", done: !!checkIn && !!checkOut && guests >= 1, active: !!checkIn && !!checkOut },
-              { label: "Finalizar reserva", done: false, active: !!checkIn && !!checkOut && guests >= 1 },
+              { label: "Quantidade de hóspedes", done: guestsChosen, active: !!checkIn && !!checkOut && !guestsChosen },
+              { label: "Finalizar reserva", done: false, active: guestsChosen },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className={cn(
@@ -514,7 +515,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                 {Array.from({ length: maxGuests }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
-                    onClick={() => { setGuests(num); setGuestsOpen(false); }}
+                    onClick={() => { setGuests(num); setGuestsChosen(true); setGuestsOpen(false); }}
                     className={cn(
                       "w-full text-left px-4 py-2.5 text-sm transition-colors",
                       guests === num ? "bg-primary text-primary-foreground font-bold" : "text-foreground hover:bg-muted/50"
