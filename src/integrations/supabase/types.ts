@@ -32,6 +32,41 @@ export type Database = {
         }
         Relationships: []
       }
+      available_dates: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          label: string | null
+          resort_id: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          label?: string | null
+          resort_id: string
+          start_date: string
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          label?: string | null
+          resort_id?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "available_dates_resort_id_fkey"
+            columns: ["resort_id"]
+            isOneToOne: false
+            referencedRelation: "resorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocked_dates: {
         Row: {
           blocked_date: string
@@ -468,6 +503,7 @@ export type Database = {
           reviews_count: number | null
           tag: string | null
           updated_at: string | null
+          use_available_dates: boolean
         }
         Insert: {
           amenities?: string[] | null
@@ -488,6 +524,7 @@ export type Database = {
           reviews_count?: number | null
           tag?: string | null
           updated_at?: string | null
+          use_available_dates?: boolean
         }
         Update: {
           amenities?: string[] | null
@@ -508,6 +545,7 @@ export type Database = {
           reviews_count?: number | null
           tag?: string | null
           updated_at?: string | null
+          use_available_dates?: boolean
         }
         Relationships: [
           {

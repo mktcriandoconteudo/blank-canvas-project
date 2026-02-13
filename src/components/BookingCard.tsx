@@ -196,15 +196,20 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     }
   }, [step, user, responsible.cpf, fillUserData]);
 
-  // Fetch blocked dates, reserved dates & payment config
+  // Available dates state
+  const [useAvailableDates, setUseAvailableDates] = useState(false);
+  const [availableDateRanges, setAvailableDateRanges] = useState<{ start: Date; end: Date }[]>([]);
+
+  // Fetch blocked dates, reserved dates, available dates & payment config
   useEffect(() => {
     if (!resortId) return;
     const fetchData = async () => {
-      const [blockedRes, reservedRes, payRes, resortRes] = await Promise.all([
+      const [blockedRes, reservedRes, payRes, resortRes, availRes] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
         supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).eq("payment_status", "approved"),
         supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent, checkin_time, checkout_time").eq("resort_id", resortId).maybeSingle(),
-        supabase.from("resorts").select("max_guests, price_per_night").eq("id", resortId).maybeSingle(),
+        supabase.from("resorts").select("max_guests, price_per_night, use_available_dates").eq("id", resortId).maybeSingle(),
+        supabase.from("available_dates").select("start_date, end_date").eq("resort_id", resortId),
       ]);
 
       const allBlocked: Date[] = [];
@@ -224,6 +229,16 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
       if (payRes.data) setPaymentConfig(payRes.data);
       if (resortRes.data?.max_guests) setMaxGuests(resortRes.data.max_guests);
       if (resortRes.data?.price_per_night) setResortPricePerNight(resortRes.data.price_per_night);
+      
+      // Available dates
+      const useAvail = (resortRes.data as any)?.use_available_dates === true;
+      setUseAvailableDates(useAvail);
+      if (availRes.data && useAvail) {
+        setAvailableDateRanges(availRes.data.map(d => ({
+          start: new Date(d.start_date + "T12:00:00"),
+          end: new Date(d.end_date + "T12:00:00"),
+        })));
+      }
     };
     fetchData();
   }, [resortId]);
@@ -264,13 +279,19 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     },
   }));
 
+  const isDateInAvailableRange = (date: Date) => {
+    if (!useAvailableDates || availableDateRanges.length === 0) return true;
+    return availableDateRanges.some(range => date >= range.start && date <= range.end);
+  };
+
   const isDateBlocked = (date: Date) => blockedDates.some(blocked => isSameDay(date, blocked));
   const isCheckInBlocked = (date: Date) => {
     if (date < new Date()) return true;
     if (isDateBlocked(date)) return true;
+    if (!isDateInAvailableRange(date)) return true;
     if (selectedPlan) {
       const periodDates = eachDayOfInterval({ start: date, end: addDays(date, selectedPlan.total_nights - 1) });
-      return periodDates.some(d => blockedDates.some(b => isSameDay(d, b)));
+      return periodDates.some(d => blockedDates.some(b => isSameDay(d, b)) || !isDateInAvailableRange(d));
     }
     return false;
   };

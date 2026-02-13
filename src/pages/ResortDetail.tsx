@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle, ChevronDown } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle, ChevronDown, CalendarCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard, { BookingCardRef } from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
@@ -157,6 +158,8 @@ const ResortDetail = () => {
   const [resortBeds, setResortBeds] = useState<number>(1);
   const [resortGuests, setResortGuests] = useState<number>(2);
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
+  const [availableDates, setAvailableDates] = useState<{ start_date: string; end_date: string; label: string | null }[]>([]);
+  const [useAvailableDates, setUseAvailableDates] = useState(false);
   // Fetch photos from database
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -165,7 +168,7 @@ const ResortDetail = () => {
       
       const { data: resorts } = await supabase
         .from("resorts")
-        .select("id, name, amenities, description, condo_features, important_info, beds, max_guests")
+        .select("id, name, amenities, description, condo_features, important_info, beds, max_guests, use_available_dates")
         .eq("is_active", true);
 
       if (resorts && resorts.length > 0) {
@@ -201,6 +204,18 @@ const ResortDetail = () => {
 
         if (payConfig?.whatsapp) {
           setWhatsapp(payConfig.whatsapp);
+        }
+
+        // Fetch available dates
+        const useAvail = (resort as any).use_available_dates === true;
+        setUseAvailableDates(useAvail);
+        if (useAvail) {
+          const { data: availData } = await supabase
+            .from("available_dates")
+            .select("start_date, end_date, label")
+            .eq("resort_id", resort.id)
+            .order("start_date");
+          if (availData) setAvailableDates(availData);
         }
       }
     };
@@ -396,6 +411,27 @@ const ResortDetail = () => {
               {resortDescription || "Descrição não disponível."}
             </p>
           </div>
+
+          {/* Available Dates Banner */}
+          {useAvailableDates && availableDates.length > 0 && (
+            <div className="rounded-2xl p-5 bg-primary/5 border border-primary/20 mb-7">
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <CalendarCheck className="w-5 h-5 text-primary" />
+                Datas Disponíveis
+              </h2>
+              <p className="text-xs text-muted-foreground mb-3">
+                Este apartamento está disponível apenas nos períodos abaixo:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {availableDates.map((d, i) => (
+                  <span key={i} className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-2 rounded-xl border border-primary/20">
+                    {format(new Date(d.start_date + "T12:00:00"), "dd/MM/yyyy")} → {format(new Date(d.end_date + "T12:00:00"), "dd/MM/yyyy")}
+                    {d.label && <span className="text-primary/70">· {d.label}</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Gallery */}
           <h2 className="text-base font-bold text-foreground mb-4 mt-7" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>

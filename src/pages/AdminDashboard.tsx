@@ -11,6 +11,7 @@ import { Plus, Trash2, Image, Edit2, Save, X, Upload, Building2, Home, UserPlus,
 import PricingPlansManager from "@/components/PricingPlansManager";
 import BlockedDatesManager from "@/components/BlockedDatesManager";
 import OptionsManager from "@/components/OptionsManager";
+import AvailableDatesManager from "@/components/AvailableDatesManager";
 import PaymentConfig from "@/components/PaymentConfig";
 import ResortReservations from "@/components/ResortReservations";
 import FaqManager from "@/components/FaqManager";
@@ -643,6 +644,7 @@ const AdminDashboard = () => {
                       {renderPhotoSection(apt.id)}
                       <PricingPlansManager resortId={apt.id} />
                       <BlockedDatesManager resortId={apt.id} />
+                      <AvailableDatesManager resortId={apt.id} />
                       <PaymentConfig resortId={apt.id} />
                       <ResortReservations resortId={apt.id} />
                       <FaqManager resortId={apt.id} />
