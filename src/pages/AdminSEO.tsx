@@ -300,7 +300,15 @@ Sitemap: ${siteUrl}/sitemap.xml`;
               Sitemap & Robots.txt
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
+            {/* Sitemap explanation */}
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+              <h4 className="text-xs font-bold text-foreground">📄 O que é o Sitemap?</h4>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                O <strong>sitemap.xml</strong> é um arquivo que lista todas as páginas do seu site. Ele ajuda o Google a encontrar e indexar suas páginas mais rapidamente. Você deve enviar a URL do sitemap no Google Search Console (Passo 4 acima).
+              </p>
+            </div>
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-semibold">sitemap.xml</Label>
@@ -311,6 +319,15 @@ Sitemap: ${siteUrl}/sitemap.xml`;
               </div>
               <pre className="bg-muted rounded-lg p-3 text-[10px] font-mono text-foreground overflow-auto max-h-32">{sitemapXml}</pre>
             </div>
+
+            {/* Robots.txt explanation */}
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+              <h4 className="text-xs font-bold text-foreground">🤖 O que é o Robots.txt?</h4>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                O <strong>robots.txt</strong> é um arquivo que diz aos robôs de busca (Google, Bing, etc.) quais páginas do seu site eles podem ou não acessar. O <code className="bg-muted px-1 rounded text-[10px]">Allow: /</code> significa que todas as páginas estão liberadas para indexação. A linha <code className="bg-muted px-1 rounded text-[10px]">Sitemap</code> indica onde está o mapa do site.
+              </p>
+            </div>
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-semibold">robots.txt</Label>
