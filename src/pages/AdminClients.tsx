@@ -2,13 +2,15 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Search, Mail, Phone, User, Calendar } from "lucide-react";
+import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, CreditCard, Users, Home } from "lucide-react";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const AdminClients = () => {
   const [search, setSearch] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const { data: profiles, isLoading } = useQuery({
+  const { data: profiles, isLoading: loadingProfiles } = useQuery({
     queryKey: ["admin-clients"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -20,45 +22,202 @@ const AdminClients = () => {
     },
   });
 
+  const { data: reservations } = useQuery({
+    queryKey: ["admin-clients-reservations"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reservations")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: guests } = useQuery({
+    queryKey: ["admin-clients-guests"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reservation_guests")
+        .select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: resorts } = useQuery({
+    queryKey: ["admin-clients-resorts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("resorts").select("id, name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Build a map: guest_email -> reservations[]
+  const reservationsByEmail = useMemo(() => {
+    const map: Record<string, typeof reservations> = {};
+    if (!reservations) return map;
+    for (const r of reservations) {
+      const key = r.guest_email?.toLowerCase().trim();
+      if (key) {
+        if (!map[key]) map[key] = [];
+        map[key]!.push(r);
+      }
+    }
+    return map;
+  }, [reservations]);
+
+  // Build a map: reservation_id -> guests[]
+  const guestsByReservation = useMemo(() => {
+    const map: Record<string, typeof guests> = {};
+    if (!guests) return map;
+    for (const g of guests) {
+      if (!map[g.reservation_id]) map[g.reservation_id] = [];
+      map[g.reservation_id]!.push(g);
+    }
+    return map;
+  }, [guests]);
+
+  const resortMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    if (!resorts) return map;
+    for (const r of resorts) map[r.id] = r.name;
+    return map;
+  }, [resorts]);
+
+  // Also build unique clients from reservations that may not have profiles
+  const allClients = useMemo(() => {
+    const clientMap: Record<string, {
+      id: string;
+      full_name: string;
+      phone: string;
+      email: string;
+      contact_email: string;
+      avatar_url: string;
+      created_at: string;
+      source: "profile" | "reservation";
+      // extra from reservations
+      cpf: string;
+      rg: string;
+      civil_status: string;
+      street: string;
+      number: string;
+      neighborhood: string;
+      city: string;
+      cep: string;
+    }> = {};
+
+    // Profiles first
+    if (profiles) {
+      for (const p of profiles) {
+        const key = (p as any).contact_email?.toLowerCase().trim() || p.email?.toLowerCase().trim() || p.id;
+        clientMap[key] = {
+          id: p.id,
+          full_name: p.full_name || "",
+          phone: p.phone || "",
+          email: p.email || "",
+          contact_email: (p as any).contact_email || "",
+          avatar_url: p.avatar_url || "",
+          created_at: p.created_at || "",
+          source: "profile",
+          cpf: "",
+          rg: "",
+          civil_status: "",
+          street: "",
+          number: "",
+          neighborhood: "",
+          city: "",
+          cep: "",
+        };
+      }
+    }
+
+    // Enrich with reservation data
+    if (reservations) {
+      for (const r of reservations) {
+        const key = r.guest_email?.toLowerCase().trim();
+        if (!key) continue;
+        if (clientMap[key]) {
+          // Fill missing fields from reservation
+          const c = clientMap[key];
+          if (!c.full_name && r.guest_name) c.full_name = r.guest_name;
+          if (!c.phone && r.guest_phone) c.phone = r.guest_phone;
+          if (!c.cpf && r.responsible_cpf) c.cpf = r.responsible_cpf;
+          if (!c.rg && r.responsible_rg) c.rg = r.responsible_rg;
+          if (!c.civil_status && r.responsible_civil_status) c.civil_status = r.responsible_civil_status;
+          if (!c.street && r.responsible_street) c.street = r.responsible_street;
+          if (!c.number && r.responsible_number) c.number = r.responsible_number;
+          if (!c.neighborhood && r.responsible_neighborhood) c.neighborhood = r.responsible_neighborhood;
+          if (!c.city && r.responsible_city) c.city = r.responsible_city;
+          if (!c.cep && r.responsible_cep) c.cep = r.responsible_cep;
+        } else {
+          // Client from reservation only
+          clientMap[key] = {
+            id: r.id,
+            full_name: r.guest_name || "",
+            phone: r.guest_phone || "",
+            email: key,
+            contact_email: key,
+            avatar_url: "",
+            created_at: r.created_at || "",
+            source: "reservation",
+            cpf: r.responsible_cpf || "",
+            rg: r.responsible_rg || "",
+            civil_status: r.responsible_civil_status || "",
+            street: r.responsible_street || "",
+            number: r.responsible_number || "",
+            neighborhood: r.responsible_neighborhood || "",
+            city: r.responsible_city || "",
+            cep: r.responsible_cep || "",
+          };
+        }
+      }
+    }
+
+    return Object.values(clientMap);
+  }, [profiles, reservations]);
+
   const filtered = useMemo(() => {
-    if (!profiles) return [];
-    if (!search.trim()) return profiles;
+    if (!search.trim()) return allClients;
     const q = search.toLowerCase();
-    return profiles.filter(
-      (p) =>
-        p.full_name?.toLowerCase().includes(q) ||
-        p.email?.toLowerCase().includes(q) ||
-        (p as any).contact_email?.toLowerCase().includes(q) ||
-        p.phone?.includes(q)
+    return allClients.filter(
+      (c) =>
+        c.full_name?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.contact_email?.toLowerCase().includes(q) ||
+        c.phone?.includes(q) ||
+        c.cpf?.includes(q)
     );
-  }, [profiles, search]);
+  }, [allClients, search]);
+
+  const getClientReservations = (client: (typeof allClients)[0]) => {
+    const email = (client.contact_email || client.email)?.toLowerCase().trim();
+    return email ? reservationsByEmail[email] || [] : [];
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1
-          className="text-2xl font-bold text-foreground"
-          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-        >
+        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Clientes Cadastrados
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {profiles?.length ?? 0} clientes no total
+          {allClients.length} clientes no total
         </p>
       </div>
 
-      {/* Search */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por nome, e-mail ou telefone..."
+          placeholder="Buscar por nome, e-mail, telefone ou CPF..."
           className="pl-9"
         />
       </div>
 
-      {isLoading ? (
+      {loadingProfiles ? (
         <div className="flex justify-center py-12">
           <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
@@ -67,78 +226,157 @@ const AdminClients = () => {
           Nenhum cliente encontrado.
         </div>
       ) : (
-        <div className="rounded-xl border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/50 border-b border-border text-left">
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Nome</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Telefone</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">E-mail</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Cadastro</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p) => (
-                  <tr
-                    key={p.id}
-                    className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {p.avatar_url ? (
-                          <img
-                            src={p.avatar_url}
-                            alt=""
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <User className="w-4 h-4 text-primary" />
-                          </div>
-                        )}
-                        <span className="font-medium text-foreground">
-                          {p.full_name || "—"}
-                        </span>
+        <div className="space-y-3">
+          {filtered.map((client) => {
+            const isExpanded = expandedId === client.id;
+            const clientReservations = getClientReservations(client);
+
+            return (
+              <div
+                key={client.id}
+                className="rounded-xl border border-border bg-card overflow-hidden"
+              >
+                {/* Summary row */}
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : client.id)}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+                >
+                  {client.avatar_url ? (
+                    <img src={client.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{client.full_name || "Sem nome"}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {client.contact_email || client.email || "Sem e-mail"}
+                      {client.phone && ` · ${client.phone}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {clientReservations.length > 0 && (
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                        {clientReservations.length} reserva{clientReservations.length > 1 ? "s" : ""}
+                      </span>
+                    )}
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Expanded details */}
+                {isExpanded && (
+                  <div className="border-t border-border px-4 py-4 space-y-5 bg-muted/20">
+                    {/* Personal info */}
+                    <div>
+                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Dados Pessoais</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <InfoItem icon={User} label="Nome" value={client.full_name} />
+                        <InfoItem icon={Phone} label="Telefone" value={client.phone} />
+                        <InfoItem icon={Mail} label="E-mail" value={client.contact_email || client.email} />
+                        <InfoItem icon={CreditCard} label="CPF" value={client.cpf} />
+                        <InfoItem icon={CreditCard} label="RG" value={client.rg} />
+                        <InfoItem icon={User} label="Estado Civil" value={client.civil_status} />
+                        <InfoItem icon={Calendar} label="Cadastro" value={client.created_at ? format(new Date(client.created_at), "dd/MM/yyyy") : ""} />
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {p.phone ? (
-                        <span className="flex items-center gap-1.5">
-                          <Phone className="w-3.5 h-3.5" />
-                          {p.phone}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {(p as any).contact_email ? (
-                        <span className="flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5" />
-                          {(p as any).contact_email}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {p.created_at ? (
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {format(new Date(p.created_at), "dd/MM/yyyy")}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+
+                    {/* Address */}
+                    {(client.street || client.city || client.cep) && (
+                      <div>
+                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Endereço</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <InfoItem icon={Home} label="Rua" value={client.street} />
+                          <InfoItem icon={Home} label="Número" value={client.number} />
+                          <InfoItem icon={MapPin} label="Bairro" value={client.neighborhood} />
+                          <InfoItem icon={MapPin} label="Cidade" value={client.city} />
+                          <InfoItem icon={MapPin} label="CEP" value={client.cep} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Reservations */}
+                    {clientReservations.length > 0 && (
+                      <div>
+                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                          Reservas ({clientReservations.length})
+                        </h3>
+                        <div className="space-y-2">
+                          {clientReservations.map((r) => {
+                            const rGuests = guestsByReservation[r.id] || [];
+                            return (
+                              <div key={r.id} className="rounded-lg border border-border bg-card p-3 space-y-2">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                                  <span className="font-medium text-foreground">{resortMap[r.resort_id] || "Resort"}</span>
+                                  <span className="text-muted-foreground">
+                                    {format(new Date(r.check_in), "dd/MM/yyyy")} → {format(new Date(r.check_out), "dd/MM/yyyy")}
+                                  </span>
+                                  <span className={cn(
+                                    "text-xs px-2 py-0.5 rounded-full font-medium",
+                                    r.payment_status === "approved"
+                                      ? "bg-green-500/10 text-green-600"
+                                      : r.payment_status === "pending"
+                                        ? "bg-yellow-500/10 text-yellow-600"
+                                        : "bg-muted text-muted-foreground"
+                                  )}>
+                                    {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
+                                  </span>
+                                  <span className="text-muted-foreground text-xs">
+                                    R$ {Number(r.total_price).toFixed(2)}
+                                  </span>
+                                </div>
+
+                                {/* Guests of this reservation */}
+                                {rGuests.length > 0 && (
+                                  <div className="pl-3 border-l-2 border-primary/20">
+                                    <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                                      <Users className="w-3 h-3" /> Hóspedes
+                                    </p>
+                                    {rGuests.map((g) => (
+                                      <p key={g.id} className="text-xs text-foreground">
+                                        {g.full_name}
+                                        {g.cpf && <span className="text-muted-foreground"> · CPF: {g.cpf}</span>}
+                                        {g.age && <span className="text-muted-foreground"> · {g.age} anos</span>}
+                                        <span className="text-muted-foreground"> · {g.guest_type === "adult" ? "Adulto" : g.guest_type === "child" ? "Criança" : g.guest_type}</span>
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {clientReservations.length === 0 && !client.cpf && !client.street && (
+                      <p className="text-sm text-muted-foreground italic">Nenhuma reserva ou dados adicionais encontrados para este cliente.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
+    </div>
+  );
+};
+
+const InfoItem = ({ icon: Icon, label, value }: { icon: any; label: string; value: string }) => {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-2 text-sm">
+      <Icon className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+      <div>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-foreground font-medium">{value}</p>
+      </div>
     </div>
   );
 };
