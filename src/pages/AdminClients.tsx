@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, CreditCard, Users, Home, Trash2, Printer } from "lucide-react";
+import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, CreditCard, Users, Home, Trash2, Printer, Eye, Banknote } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -298,14 +298,34 @@ const AdminClients = () => {
                                   )}>
                                     {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
                                   </span>
+                                  <span className={cn(
+                                    "text-xs px-2 py-0.5 rounded-full font-medium",
+                                    r.mp_payment_id ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                  )}>
+                                    <Banknote className="w-3 h-3 inline mr-1" />
+                                    {r.mp_payment_id ? "Mercado Pago" : "Pix Manual"}
+                                  </span>
                                   <span className="text-muted-foreground text-xs">R$ {Number(r.total_price).toFixed(2)}</span>
-                                  <button
-                                    onClick={() => handlePrintReservation(r)}
-                                    className="p-1 rounded-lg hover:bg-muted transition-colors ml-auto"
-                                    title="Imprimir ficha"
-                                  >
-                                    <Printer className="w-4 h-4 text-muted-foreground" />
-                                  </button>
+                                  <div className="flex items-center gap-1 ml-auto">
+                                    {r.receipt_url && (
+                                      <a
+                                        href={r.receipt_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-1 rounded-lg hover:bg-muted transition-colors"
+                                        title="Ver comprovante"
+                                      >
+                                        <Eye className="w-4 h-4 text-primary" />
+                                      </a>
+                                    )}
+                                    <button
+                                      onClick={() => handlePrintReservation(r)}
+                                      className="p-1 rounded-lg hover:bg-muted transition-colors"
+                                      title="Imprimir ficha"
+                                    >
+                                      <Printer className="w-4 h-4 text-muted-foreground" />
+                                    </button>
+                                  </div>
                                 </div>
 
                                 {/* Responsible data */}
