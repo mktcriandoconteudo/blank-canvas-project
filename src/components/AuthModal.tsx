@@ -61,7 +61,7 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
         });
 
         if (fnError || !fnData?.email) {
-          toast({ title: "Erro", description: "Usuário não encontrado", variant: "destructive" });
+          toast({ title: "Nome não encontrado", description: "Esse nome não está cadastrado. Crie uma conta ou tente com outro nome.", variant: "destructive" });
           setLoading(false);
           return;
         }
