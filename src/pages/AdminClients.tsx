@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, CreditCard, Users, Home, Trash2 } from "lucide-react";
+import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, CreditCard, Users, Home, Trash2, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -109,6 +109,32 @@ const AdminClients = () => {
     for (const r of resorts) map[r.id] = r.name;
     return map;
   }, [resorts]);
+
+  const handlePrintReservation = (r: NonNullable<typeof reservations>[0]) => {
+    const rGuests = guestsByReservation[r.id] || [];
+    const adultGuests = rGuests.filter(g => g.guest_type === "adult");
+    const childGuests = rGuests.filter(g => g.guest_type === "child");
+    const pw = window.open("", "_blank");
+    if (!pw) return;
+    pw.document.write(`<html><head><title>Reserva - ${r.guest_name || "Hóspede"}</title>
+      <style>body{font-family:Arial,sans-serif;padding:30px;color:#333}h1{font-size:20px;margin-bottom:4px}h2{font-size:15px;color:#666;margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:4px}.subtitle{font-size:13px;color:#888;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin:8px 0 16px}td{padding:4px 8px;font-size:13px;border:1px solid #eee}td:first-child{font-weight:bold;width:160px;background:#f9f9f9}.status{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold}.status-approved{background:#dcfce7;color:#16a34a}.status-pending{background:#fef9c3;color:#ca8a04}.status-rejected{background:#fecaca;color:#dc2626}.guest-type{font-size:11px;text-transform:uppercase;font-weight:bold;color:#999;margin:8px 0 4px}@media print{body{padding:15px}}</style></head><body>
+      <h1>📋 Ficha de Reserva</h1>
+      <p class="subtitle">${resortMap[r.resort_id] || "Resort"} · Reserva #${r.id.slice(0, 8)}</p>
+      <span class="status status-${r.payment_status}">${r.payment_status === "approved" ? "✅ Confirmada" : r.payment_status === "pending" ? "⏳ Pendente" : "❌ Rejeitada"}</span>
+      <h2>📅 Período</h2>
+      <table><tr><td>Check-in</td><td>${format(new Date(r.check_in), "dd/MM/yyyy")}</td></tr><tr><td>Check-out</td><td>${format(new Date(r.check_out), "dd/MM/yyyy")}</td></tr><tr><td>Noites</td><td>${r.total_nights}</td></tr><tr><td>Hóspedes</td><td>${r.guests}</td></tr><tr><td>Plano</td><td>${r.plan_name} · ${r.plan_sessions}</td></tr></table>
+      <h2>💰 Pagamento</h2>
+      <table><tr><td>Diária</td><td>R$ ${Number(r.price_per_night).toFixed(2)}</td></tr><tr><td>Total</td><td><strong>R$ ${Number(r.total_price).toFixed(2)}</strong></td></tr></table>
+      <h2>😎 Responsável</h2>
+      <table><tr><td>Nome</td><td>${r.guest_name || "—"}</td></tr><tr><td>Email</td><td>${r.guest_email || "—"}</td></tr><tr><td>Celular</td><td>${r.guest_phone || "—"}</td></tr><tr><td>RG</td><td>${r.responsible_rg || "—"}</td></tr><tr><td>CPF</td><td>${r.responsible_cpf || "—"}</td></tr><tr><td>Estado Civil</td><td>${r.responsible_civil_status || "—"}</td></tr>${r.responsible_street ? `<tr><td>Endereço</td><td>${r.responsible_street}, ${r.responsible_number} · ${r.responsible_neighborhood} · ${r.responsible_city}/${r.responsible_state} · CEP ${r.responsible_cep}</td></tr>` : ""}</table>
+      <h2>👥 Hóspedes (${rGuests.length})</h2>
+      ${rGuests.length === 0 ? "<p style='color:#999;font-size:13px;'>Nenhum hóspede cadastrado</p>" : ""}
+      ${adultGuests.length > 0 ? `<p class="guest-type">Adultos (${adultGuests.length})</p><table>${adultGuests.map((g, i) => `<tr><td>${i + 1}. ${g.full_name}</td><td>CPF: ${g.cpf || "—"}</td></tr>`).join("")}</table>` : ""}
+      ${childGuests.length > 0 ? `<p class="guest-type">Crianças (${childGuests.length})</p><table>${childGuests.map((g, i) => `<tr><td>${i + 1}. ${g.full_name}</td><td>Idade: ${g.age || "—"} anos</td></tr>`).join("")}</table>` : ""}
+      </body></html>`);
+    pw.document.close();
+    pw.print();
+  };
 
   // Match reservations to profiles by phone, name, or email (including @reservas.app)
   const getReservationsForProfile = (p: NonNullable<typeof profiles>[0]) => {
@@ -268,6 +294,13 @@ const AdminClients = () => {
                                     {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
                                   </span>
                                   <span className="text-muted-foreground text-xs">R$ {Number(r.total_price).toFixed(2)}</span>
+                                  <button
+                                    onClick={() => handlePrintReservation(r)}
+                                    className="p-1 rounded-lg hover:bg-muted transition-colors ml-auto"
+                                    title="Imprimir ficha"
+                                  >
+                                    <Printer className="w-4 h-4 text-muted-foreground" />
+                                  </button>
                                 </div>
 
                                 {/* Responsible data */}
