@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
-import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle, Phone, MessageCircle, ClipboardEdit } from "lucide-react";
+import { CalendarCheck, MapPin, Users, CreditCard, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, ArrowLeft, AlertTriangle, Phone, MessageCircle, ClipboardEdit, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import GuestRegistrationDialog from "@/components/GuestRegistrationDialog";
@@ -25,6 +25,17 @@ interface Reservation {
   guest_email: string | null;
   payment_status: string;
   created_at: string | null;
+  responsible_rg: string | null;
+  responsible_cpf: string | null;
+  responsible_civil_status: string | null;
+  responsible_street: string | null;
+  responsible_number: string | null;
+  responsible_cep: string | null;
+  responsible_neighborhood: string | null;
+  responsible_city: string | null;
+  responsible_state: string | null;
+  mp_payment_id: string | null;
+  receipt_url: string | null;
 }
 
 interface ReservationGuest {
@@ -123,6 +134,65 @@ const MyReservations = () => {
 
   const formatCurrency = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
+  const handlePrint = (res: Reservation & { resort_name: string }) => {
+    const resGuests = guests[res.id] || [];
+    const adultGuests = resGuests.filter(g => g.guest_type === "adult");
+    const childGuests = resGuests.filter(g => g.guest_type === "child");
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html><head><title>Reserva - ${res.guest_name || "Hóspede"}</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
+        h1 { font-size: 20px; margin-bottom: 4px; }
+        h2 { font-size: 15px; color: #666; margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+        .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; }
+        td { padding: 4px 8px; font-size: 13px; border: 1px solid #eee; }
+        td:first-child { font-weight: bold; width: 160px; background: #f9f9f9; }
+        .status { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-approved { background: #dcfce7; color: #16a34a; }
+        .status-pending { background: #fef9c3; color: #ca8a04; }
+        .status-rejected { background: #fecaca; color: #dc2626; }
+        .guest-type { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #999; margin: 8px 0 4px; }
+        @media print { body { padding: 15px; } }
+      </style></head><body>
+      <h1>📋 Ficha de Reserva</h1>
+      <p class="subtitle">${res.resort_name} · Reserva #${res.id.slice(0, 8)}</p>
+      <span class="status status-${res.payment_status}">${res.payment_status === "approved" ? "✅ Confirmada" : res.payment_status === "pending" ? "⏳ Pendente" : "❌ Rejeitada"}</span>
+      <h2>📅 Período</h2>
+      <table>
+        <tr><td>Check-in</td><td>${res.check_in ? format(new Date(res.check_in + "T12:00:00"), "dd/MM/yyyy") : "—"}</td></tr>
+        <tr><td>Check-out</td><td>${res.check_out ? format(new Date(res.check_out + "T12:00:00"), "dd/MM/yyyy") : "—"}</td></tr>
+        <tr><td>Noites</td><td>${res.total_nights}</td></tr>
+        <tr><td>Hóspedes</td><td>${res.guests}</td></tr>
+        <tr><td>Plano</td><td>${res.plan_name} · ${res.plan_sessions}</td></tr>
+      </table>
+      <h2>💰 Pagamento</h2>
+      <table>
+        <tr><td>Diária</td><td>R$ ${res.price_per_night.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td></tr>
+        <tr><td>Total</td><td><strong>R$ ${res.total_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong></td></tr>
+      </table>
+      <h2>😎 Responsável</h2>
+      <table>
+        <tr><td>Nome</td><td>${res.guest_name || "—"}</td></tr>
+        <tr><td>Email</td><td>${res.guest_email || "—"}</td></tr>
+        <tr><td>Celular</td><td>${res.guest_phone || "—"}</td></tr>
+        <tr><td>RG</td><td>${res.responsible_rg || "—"}</td></tr>
+        <tr><td>CPF</td><td>${res.responsible_cpf || "—"}</td></tr>
+        <tr><td>Estado Civil</td><td>${res.responsible_civil_status || "—"}</td></tr>
+        ${res.responsible_street ? `<tr><td>Endereço</td><td>${res.responsible_street}, ${res.responsible_number} · ${res.responsible_neighborhood} · ${res.responsible_city}/${res.responsible_state} · CEP ${res.responsible_cep}</td></tr>` : ""}
+      </table>
+      <h2>👥 Hóspedes (${resGuests.length})</h2>
+      ${resGuests.length === 0 ? "<p style='color:#999;font-size:13px;'>Nenhum hóspede cadastrado</p>" : ""}
+      ${adultGuests.length > 0 ? `<p class="guest-type">Adultos (${adultGuests.length})</p><table>${adultGuests.map((g, i) => `<tr><td>${i + 1}. ${g.full_name}</td><td>CPF: ${g.cpf || "—"}</td></tr>`).join("")}</table>` : ""}
+      ${childGuests.length > 0 ? `<p class="guest-type">Crianças (${childGuests.length})</p><table>${childGuests.map((g, i) => `<tr><td>${i + 1}. ${g.full_name}</td><td>Idade: ${g.age || "—"} anos</td></tr>`).join("")}</table>` : ""}
+      </body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -197,7 +267,16 @@ const MyReservations = () => {
                             {res.created_at ? format(new Date(res.created_at), "dd/MM/yy") : ""}
                           </span>
                         </div>
-                        <p className="text-sm font-bold text-foreground">{res.resort_name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-foreground">{res.resort_name}</p>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePrint(res); }}
+                            className="p-1 rounded-lg hover:bg-muted transition-colors"
+                            title="Imprimir ficha"
+                          >
+                            <Printer className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                           <MapPin className="w-3 h-3" />
                           {res.resort_location}
