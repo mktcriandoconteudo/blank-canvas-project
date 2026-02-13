@@ -65,8 +65,8 @@ interface ResponsibleInfo {
 const civilStatusOptions = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"];
 
 const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, ref) => {
-  const [checkIn, setCheckIn] = useState<Date | undefined>(addDays(new Date(), 7));
-  const [checkOut, setCheckOut] = useState<Date | undefined>(addDays(new Date(), 9));
+  const [checkIn, setCheckIn] = useState<Date | undefined>(undefined);
+  const [checkOut, setCheckOut] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState(1);
   const [guestsChosen, setGuestsChosen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
