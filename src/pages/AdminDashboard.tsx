@@ -467,9 +467,9 @@ const AdminDashboard = () => {
                   {editingId === condo.id ? (
                     renderEditForm(condo)
                   ) : (
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                       {/* Cover preview */}
-                      <div className="w-24 h-32 rounded-xl overflow-hidden bg-muted shrink-0 border border-border relative group">
+                      <div className="w-full sm:w-24 h-40 sm:h-32 rounded-xl overflow-hidden bg-muted shrink-0 border border-border relative group">
                         {coverPhoto ? (
                           <>
                             <img src={coverPhoto.url} alt="" className="w-full h-full object-cover" />
@@ -596,14 +596,14 @@ const AdminDashboard = () => {
                       {editingId === apt.id ? (
                         renderEditForm(apt)
                       ) : (
-                        <div className="flex items-start justify-between gap-2">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                             <h3 className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{apt.name}</h3>
                             <p className="text-xs text-muted-foreground">{apt.location} · R${apt.price_per_night}/noite</p>
                             <p className="text-xs text-muted-foreground">{apt.beds} quartos · {apt.max_guests} hóspedes</p>
                             {apt.tag && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">{apt.tag}</span>}
                           </div>
-                          <div className="flex gap-1 shrink-0">
+                          <div className="flex gap-1 shrink-0 self-end sm:self-start">
                             {/* Create Owner Dialog */}
                             <Dialog open={ownerDialogOpen && ownerForm.resortId === apt.id} onOpenChange={(open) => { setOwnerDialogOpen(open); if (open) setOwnerForm(p => ({ ...p, resortId: apt.id })); }}>
                               <DialogTrigger asChild>

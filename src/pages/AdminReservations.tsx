@@ -147,16 +147,16 @@ const AdminReservations = () => {
   if (loading) return <div className="flex items-center justify-center p-12"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="space-y-4 px-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <h2 className="text-lg font-bold text-foreground">Reservas</h2>
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
           {(["all", "pending", "approved", "rejected"] as const).map(f => (
             <Button
               key={f}
               size="sm"
               variant={filter === f ? "default" : "outline"}
-              className="text-xs h-8 rounded-full"
+              className="text-xs h-8 rounded-full whitespace-nowrap shrink-0"
               onClick={() => setFilter(f)}
             >
               {f === "all" ? "Todas" : f === "pending" ? "Pendentes" : f === "approved" ? "Confirmadas" : "Rejeitadas"}
@@ -201,17 +201,17 @@ const AdminReservations = () => {
                     </span>
                   </div>
                   <p className="text-sm font-bold text-foreground mt-1">{res.guest_name || "Sem nome"}</p>
-                  <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="w-3 h-3" /> {resort?.name || "Resort"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">
-                      {res.check_in && format(new Date(res.check_in + "T12:00:00"), "dd/MM")} → {res.check_out && format(new Date(res.check_out + "T12:00:00"), "dd/MM")}
-                    </span>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">{res.guests} hóspedes</span>
-                  </div>
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mt-0.5">
+                     <span className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1">
+                       <MapPin className="w-3 h-3" /> {resort?.name || "Resort"}
+                     </span>
+                     <span className="text-[11px] sm:text-xs text-muted-foreground">·</span>
+                     <span className="text-[11px] sm:text-xs text-muted-foreground">
+                       {res.check_in && format(new Date(res.check_in + "T12:00:00"), "dd/MM")} → {res.check_out && format(new Date(res.check_out + "T12:00:00"), "dd/MM")}
+                     </span>
+                     <span className="text-[11px] sm:text-xs text-muted-foreground">·</span>
+                     <span className="text-[11px] sm:text-xs text-muted-foreground">{res.guests} hóspedes</span>
+                   </div>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-extrabold text-foreground">{formatCurrency(res.total_price)}</p>
@@ -228,7 +228,7 @@ const AdminReservations = () => {
                   <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
                     <CreditCard className="w-3.5 h-3.5" /> Pagamento
                   </p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div>
                       <span className="text-muted-foreground">Método:</span>{" "}
                       <span className="font-semibold text-foreground">{paymentMethod}</span>
@@ -264,7 +264,7 @@ const AdminReservations = () => {
                 {/* Responsible info */}
                 <div className="bg-muted/40 rounded-xl p-3 space-y-2">
                   <p className="text-xs font-bold text-foreground">😎 Responsável</p>
-                  <div className="grid grid-cols-2 gap-1 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs">
                     <div><span className="text-muted-foreground">Nome:</span> <span className="font-medium text-foreground">{res.guest_name}</span></div>
                     <div><span className="text-muted-foreground">Email:</span> <span className="font-medium text-foreground">{res.guest_email}</span></div>
                     <div><span className="text-muted-foreground">Celular:</span> <span className="font-medium text-foreground">{res.guest_phone}</span></div>

@@ -122,7 +122,7 @@ const AdminOverview = () => {
         </div>
 
         {/* KPIs */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {kpis.map(kpi => (
             <Card key={kpi.title}>
               <CardContent className="p-4">
@@ -143,7 +143,7 @@ const AdminOverview = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-bold">Faturamento por Dia</CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
