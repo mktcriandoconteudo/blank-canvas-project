@@ -16,6 +16,8 @@ const CondoDetail = lazy(() => import("./pages/CondoDetail"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminOverview = lazy(() => import("./pages/AdminOverview"));
+const AdminSEO = lazy(() => import("./pages/AdminSEO"));
 const AdminClients = lazy(() => import("./pages/AdminClients"));
 const AdminRoute = lazy(() => import("./components/AdminRoute"));
 const OwnerRoute = lazy(() => import("./components/OwnerRoute"));
@@ -52,6 +54,8 @@ const App = () => (
             <Route path="/resort/:slug" element={<ResortDetail />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
+            <Route path="/admin/overview" element={<AdminRoute><AdminLayout><AdminOverview /></AdminLayout></AdminRoute>} />
+            <Route path="/admin/seo" element={<AdminRoute><AdminLayout><AdminSEO /></AdminLayout></AdminRoute>} />
             <Route path="/admin/settings" element={<AdminRoute><AdminLayout><AdminSettings /></AdminLayout></AdminRoute>} />
             <Route path="/admin/clients" element={<AdminRoute><AdminLayout><AdminClients /></AdminLayout></AdminRoute>} />
             

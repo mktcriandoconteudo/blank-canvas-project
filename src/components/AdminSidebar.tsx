@@ -1,12 +1,14 @@
-import { Building2, Settings, ExternalLink, LogOut, Sparkles, Users } from "lucide-react";
+import { Building2, Settings, ExternalLink, LogOut, Sparkles, Users, BarChart3, Globe } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const mainItems = [
+  { title: "Dashboard", url: "/admin/overview", icon: BarChart3 },
   { title: "Resorts", url: "/admin", icon: Building2 },
   { title: "Clientes", url: "/admin/clients", icon: Users },
+  { title: "SEO & Google", url: "/admin/seo", icon: Globe },
   { title: "Configurações", url: "/admin/settings", icon: Settings },
 ];
 
