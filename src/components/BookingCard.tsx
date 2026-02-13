@@ -380,9 +380,9 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         {selectedPlan && (
           <div className="mb-5 space-y-2.5">
             {[
-              { label: "Escolha as datas", done: !!checkIn && !!checkOut, active: !checkIn },
-              { label: "Quantidade de hóspedes", done: guestsChosen, active: !!checkIn && !!checkOut && !guestsChosen },
-              { label: "Finalizar reserva", done: false, active: guestsChosen },
+              { label: "Escolha a data de check-in", done: !!checkIn, active: !checkIn },
+              { label: "Quantidade de hóspedes", done: guestsChosen, active: !!checkIn && !guestsChosen },
+              { label: "Reservar", done: false, active: guestsChosen },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className={cn(
@@ -499,7 +499,12 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           </div>
 
           {/* Guests */}
-          <div className="border-t border-border">
+          <div className={cn(
+            "border-t transition-all",
+            !!checkIn && !guestsChosen
+              ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+              : "border-border"
+          )}>
             <button
               onClick={() => setGuestsOpen(!guestsOpen)}
               className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer"
