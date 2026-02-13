@@ -9,6 +9,7 @@ import Landing from "./pages/Landing";
 import { useFavicon } from "./hooks/use-favicon";
 import CookieConsent from "./components/CookieConsent";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import AdminFloatingButton from "./components/AdminFloatingButton";
 
 // Lazy load heavy pages
 const Index = lazy(() => import("./pages/Index"));
@@ -69,6 +70,7 @@ const App = () => (
           </Routes>
         </Suspense>
         <CookieConsent />
+        <AdminFloatingButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
