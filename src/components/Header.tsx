@@ -122,6 +122,15 @@ const Header = () => {
 
             {/* Right side */}
             <div className="flex items-center gap-2">
+              {isAdmin && (
+                <button
+                  onClick={() => navigate("/admin")}
+                  className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full px-3 py-2 hover:opacity-90 transition-opacity shadow-sm"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Painel Admin</span>
+                </button>
+              )}
               <button className="hidden lg:block text-sm font-medium text-foreground hover:bg-secondary rounded-2xl px-4 py-2.5 transition-colors">
                 Anuncie seu espaço
               </button>
