@@ -177,17 +177,39 @@ const AdminClients = () => {
     const pEmail = p.email?.toLowerCase().trim();
     const pContactEmail = p.contact_email?.toLowerCase().trim();
 
+    // First pass: direct match by phone, email or name
+    const directMatches = reservations.filter((r) => {
+      const rPhone = r.guest_phone?.replace(/\D/g, "");
+      const rEmail = r.guest_email?.toLowerCase().trim();
+      const rName = r.guest_name?.toLowerCase().trim();
+      if (pPhone && rPhone && pPhone.length >= 8 && pPhone === rPhone) return true;
+      if (pEmail && rEmail && pEmail === rEmail) return true;
+      if (pContactEmail && rEmail && pContactEmail === rEmail) return true;
+      if (pName && rName && pName === rName) return true;
+      return false;
+    });
+
+    // Second pass: collect all guest_emails from direct matches, then include
+    // any other reservations with those same emails (catches entries without name/phone)
+    const matchedEmails = new Set<string>();
+    directMatches.forEach((r) => {
+      const rEmail = r.guest_email?.toLowerCase().trim();
+      if (rEmail) matchedEmails.add(rEmail);
+    });
+
+    if (matchedEmails.size === 0) return directMatches;
+
     return reservations.filter((r) => {
       const rPhone = r.guest_phone?.replace(/\D/g, "");
       const rEmail = r.guest_email?.toLowerCase().trim();
       const rName = r.guest_name?.toLowerCase().trim();
-      // Match by phone
+      // Direct matches
       if (pPhone && rPhone && pPhone.length >= 8 && pPhone === rPhone) return true;
-      // Match by email (any email)
       if (pEmail && rEmail && pEmail === rEmail) return true;
       if (pContactEmail && rEmail && pContactEmail === rEmail) return true;
-      // Match by name
       if (pName && rName && pName === rName) return true;
+      // Transitive match by email
+      if (rEmail && matchedEmails.has(rEmail)) return true;
       return false;
     });
   };
