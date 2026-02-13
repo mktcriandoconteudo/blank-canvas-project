@@ -30,15 +30,18 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
   const [saving, setSaving] = useState(false);
   const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
   const [fetchingCep, setFetchingCep] = useState(false);
+  const extraGuests = Math.max(0, guestCount - 1); // responsável já é o 1º
   const [numChildren, setNumChildren] = useState(0);
-  const numAdults = Math.max(1, guestCount - numChildren);
-  const [adults, setAdults] = useState<AdultGuest[]>(Array.from({ length: Math.max(1, guestCount) }, () => ({ full_name: "", cpf: "" })));
+  const numExtraAdults = Math.max(0, extraGuests - numChildren);
+  const [adults, setAdults] = useState<AdultGuest[]>(Array.from({ length: Math.max(0, extraGuests) }, () => ({ full_name: "", cpf: "" })));
   const [children, setChildren] = useState<ChildGuest[]>([]);
 
   // Sync adults/children count
   const updateNumChildren = (n: number) => {
-    setNumChildren(n);
-    const na = Math.max(1, guestCount - n);
+    const maxChildren = extraGuests;
+    const clamped = Math.min(n, maxChildren);
+    setNumChildren(clamped);
+    const na = Math.max(0, extraGuests - clamped);
     setAdults(prev => {
       const arr = [...prev];
       while (arr.length < na) arr.push({ full_name: "", cpf: "" });
@@ -46,8 +49,8 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
     });
     setChildren(prev => {
       const arr = [...prev];
-      while (arr.length < n) arr.push({ full_name: "", age: "" });
-      return arr.slice(0, n);
+      while (arr.length < clamped) arr.push({ full_name: "", age: "" });
+      return arr.slice(0, clamped);
     });
   };
 
@@ -236,12 +239,12 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
             </div>
           </div>
 
-          {/* Crianças selector - só aparece se 2+ hóspedes */}
-          {guestCount >= 2 && (
+          {/* Crianças selector - só aparece se 2+ hóspedes (tem acompanhantes) */}
+          {extraGuests > 0 && (
           <div className="bg-muted/30 rounded-2xl p-4 border border-border space-y-2">
-            <Label className="text-xs font-semibold">Quantas crianças no grupo?</Label>
+            <Label className="text-xs font-semibold">Dos {extraGuests} acompanhante{extraGuests > 1 ? "s" : ""}, quantas crianças?</Label>
             <div className="flex gap-2">
-              {Array.from({ length: Math.min(guestCount, 6) }, (_, i) => i).map(n => (
+              {Array.from({ length: Math.min(extraGuests + 1, 7) }, (_, i) => i).map(n => (
                 <button
                   key={n}
                   onClick={() => updateNumChildren(n)}
@@ -257,10 +260,10 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
           </div>
           )}
 
-          {/* Adultos */}
+          {numExtraAdults > 0 && (
           <div className="space-y-3">
-            <p className="text-sm font-bold text-foreground flex items-center gap-2">🧑 Nome e CPF dos adultos</p>
-            {adults.slice(0, numAdults).map((adult, i) => (
+            <p className="text-sm font-bold text-foreground flex items-center gap-2">🧑 Outros adultos</p>
+            {adults.slice(0, numExtraAdults).map((adult, i) => (
               <div key={i} className="bg-muted/30 rounded-2xl p-3 border border-border space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground">Adulto {i + 1}</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -284,6 +287,7 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
               </div>
             ))}
           </div>
+          )}
 
           {/* Crianças */}
           {numChildren > 0 && (
