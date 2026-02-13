@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle, ChevronDown, CalendarCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, eachDayOfInterval, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard, { BookingCardRef } from "@/components/BookingCard";
@@ -162,6 +162,7 @@ const ResortDetail = () => {
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const [availableDates, setAvailableDates] = useState<{ start_date: string }[]>([]);
   const [useAvailableDates, setUseAvailableDates] = useState(false);
+  const [reservedDates, setReservedDates] = useState<Date[]>([]);
   // Fetch photos from database
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -208,16 +209,26 @@ const ResortDetail = () => {
           setWhatsapp(payConfig.whatsapp);
         }
 
-        // Fetch available dates
+        // Fetch available dates and approved reservations
         const useAvail = (resort as any).use_available_dates === true;
         setUseAvailableDates(useAvail);
         if (useAvail) {
-          const { data: availData } = await supabase
-            .from("available_dates")
-            .select("start_date")
-            .eq("resort_id", resort.id)
-            .order("start_date");
-          if (availData) setAvailableDates(availData);
+          const [availRes, reservedRes] = await Promise.all([
+            supabase.from("available_dates").select("start_date").eq("resort_id", resort.id).order("start_date"),
+            supabase.from("reservations").select("check_in, check_out").eq("resort_id", resort.id).eq("payment_status", "approved"),
+          ]);
+          if (availRes.data) setAvailableDates(availRes.data);
+          if (reservedRes.data) {
+            const allReserved: Date[] = [];
+            for (const r of reservedRes.data) {
+              const days = eachDayOfInterval({
+                start: new Date(r.check_in + "T12:00:00"),
+                end: addDays(new Date(r.check_out + "T12:00:00"), -1),
+              });
+              allReserved.push(...days);
+            }
+            setReservedDates(allReserved);
+          }
         }
       }
     };
@@ -416,7 +427,9 @@ const ResortDetail = () => {
 
           {/* Available Dates Calendar */}
           {useAvailableDates && availableDates.length > 0 && (() => {
-            const allAvailableDays = availableDates.map(d => new Date(d.start_date + "T12:00:00"));
+            const allAvailableDays = availableDates
+              .map(d => new Date(d.start_date + "T12:00:00"))
+              .filter(d => !reservedDates.some(rd => isSameDay(rd, d)));
 
             return (
               <div className="flex flex-col items-center mb-7">
