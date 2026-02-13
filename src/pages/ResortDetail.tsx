@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle } from "lucide-react";
+import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import resort1Image from "@/assets/resort-1.webp";
@@ -10,6 +10,7 @@ import PhotoLightbox from "@/components/PhotoLightbox";
 import { useSelectorOptions } from "@/hooks/use-selector-options";
 import { getIconComponent } from "@/components/IconPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { HelpCircle } from "lucide-react";
 import Footer from "@/components/Footer";
 
@@ -77,22 +78,27 @@ const DynamicCondoFeatures = ({ resortId }: { resortId: string | null }) => {
   const { options } = useSelectorOptions("condo_feature", resortId || undefined);
   if (options.length === 0) return null;
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 mb-7">
-      <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        O que esse lugar oferece
-      </h2>
-      <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-        {options.map(o => {
-          const Icon = getIconComponent(o.icon_name);
-          return (
-            <div key={o.id} className="flex items-start gap-2.5">
-              {Icon && <Icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />}
-              <span className="text-sm text-foreground leading-tight">{o.label}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <Collapsible defaultOpen className="bg-card border border-border rounded-2xl mb-7">
+      <CollapsibleTrigger className="flex items-center justify-between w-full p-6 cursor-pointer group">
+        <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          O que esse lugar oferece
+        </h2>
+        <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-6 pb-6">
+        <div className="grid grid-cols-2 gap-y-4 gap-x-3">
+          {options.map(o => {
+            const Icon = getIconComponent(o.icon_name);
+            return (
+              <div key={o.id} className="flex items-start gap-2.5">
+                {Icon && <Icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />}
+                <span className="text-sm text-foreground leading-tight">{o.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
