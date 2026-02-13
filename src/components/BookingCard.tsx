@@ -69,6 +69,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [checkOut, setCheckOut] = useState<Date | undefined>(undefined);
   const [guests, setGuests] = useState(1);
   const [guestsChosen, setGuestsChosen] = useState(false);
+  const [checkInChosen, setCheckInChosen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
@@ -380,8 +381,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         {selectedPlan && (
           <div className="mb-5 space-y-2.5">
             {[
-              { label: "Escolha a data de check-in", done: !!checkIn, active: !checkIn },
-              { label: "Quantidade de hóspedes", done: guestsChosen, active: !!checkIn && !guestsChosen },
+              { label: "Escolha a data de check-in", done: checkInChosen, active: !checkInChosen },
+              { label: "Quantidade de hóspedes", done: guestsChosen, active: checkInChosen && !guestsChosen },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className={cn(
@@ -431,12 +432,12 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
               <PopoverTrigger asChild>
                 <button className={cn(
                   "flex-1 p-3 text-left transition-all cursor-pointer",
-                  !checkIn && selectedPlan
+                  selectedPlan && !checkInChosen
                     ? "bg-primary/10 hover:bg-primary/15"
                     : "hover:bg-muted/50"
                 )}>
-                  <p className={cn("text-[10px] font-bold uppercase tracking-wide", !checkIn && selectedPlan ? "text-primary" : "text-foreground")}>Check-in</p>
-                  <p className={cn("text-sm mt-0.5", !checkIn && selectedPlan ? "text-primary font-bold" : "text-foreground")}>{checkIn ? formatDate(checkIn) : "Selecionar"}</p>
+                  <p className={cn("text-[10px] font-bold uppercase tracking-wide", selectedPlan && !checkInChosen ? "text-primary" : "text-foreground")}>Check-in</p>
+                  <p className={cn("text-sm mt-0.5", selectedPlan && !checkInChosen ? "text-primary font-bold" : "text-foreground")}>{formatDate(checkIn)}</p>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-card z-50" align="start">
@@ -454,11 +455,12 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       }
                       setCheckIn(date);
                       setCheckOut(addDays(date, selectedPlan.total_nights));
+                      setCheckInChosen(true);
                       setCheckInOpen(false);
                     } else {
                       setCheckIn(date);
+                      setCheckInChosen(true);
                       setCheckInOpen(false);
-                      if (checkOut && date >= checkOut) setCheckOut(addDays(date, 1));
                     }
                   }}
                   disabled={(date) => date < new Date() || isDateBlocked(date)}
@@ -506,7 +508,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           {/* Guests - acende quando checkIn escolhido mas hóspedes ainda não */}
           <div className={cn(
             "border-t transition-all",
-            !!checkIn && !guestsChosen && selectedPlan
+            checkInChosen && !guestsChosen && selectedPlan
               ? "border-primary bg-primary/10"
               : "border-border"
           )}>
@@ -514,16 +516,16 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
               onClick={() => setGuestsOpen(!guestsOpen)}
               className={cn(
                 "w-full p-3 flex items-center justify-between transition-colors cursor-pointer",
-                !!checkIn && !guestsChosen && selectedPlan ? "hover:bg-primary/15" : "hover:bg-muted/50"
+                checkInChosen && !guestsChosen && selectedPlan ? "hover:bg-primary/15" : "hover:bg-muted/50"
               )}
             >
               <div>
-                <p className={cn("text-[10px] font-bold uppercase tracking-wide", !!checkIn && !guestsChosen && selectedPlan ? "text-primary" : "text-foreground")}>Hóspedes</p>
-                <p className={cn("text-sm mt-0.5", !!checkIn && !guestsChosen && selectedPlan ? "text-primary font-bold" : "text-foreground")}>
+                <p className={cn("text-[10px] font-bold uppercase tracking-wide", checkInChosen && !guestsChosen && selectedPlan ? "text-primary" : "text-foreground")}>Hóspedes</p>
+                <p className={cn("text-sm mt-0.5", checkInChosen && !guestsChosen && selectedPlan ? "text-primary font-bold" : "text-foreground")}>
                   {guests} {guests === 1 ? "hóspede" : "hóspedes"}
                 </p>
               </div>
-              <ChevronDown className={cn("w-4 h-4 transition-transform", !!checkIn && !guestsChosen && selectedPlan ? "text-primary" : "text-muted-foreground", guestsOpen && "rotate-180")} />
+              <ChevronDown className={cn("w-4 h-4 transition-transform", checkInChosen && !guestsChosen && selectedPlan ? "text-primary" : "text-muted-foreground", guestsOpen && "rotate-180")} />
             </button>
             {guestsOpen && (
               <div className="border-t border-border max-h-40 overflow-y-auto bg-card">
