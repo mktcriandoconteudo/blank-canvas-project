@@ -432,41 +432,51 @@ const ResortDetail = () => {
               .filter(d => !reservedDates.some(rd => isSameDay(rd, d)));
 
             return (
-              <div className="flex flex-col items-center mb-7">
-                <h2 className="text-lg font-extrabold text-foreground text-center mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  Datas disponíveis para locação
-                </h2>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  Confira os dias disponíveis para reserva deste imóvel
-                </p>
-                <div className="bg-card border border-border rounded-2xl shadow-lg p-2">
-                  <Calendar
-                    mode="single"
-                    locale={ptBR}
-                    modifiers={{
-                      available: allAvailableDays,
-                    }}
-                    modifiersClassNames={{
-                      available: "!bg-primary !text-primary-foreground !font-bold !rounded-full hover:!opacity-90",
-                    }}
-                    disabled={(date) => {
-                      if (date < new Date()) return true;
-                      return !allAvailableDays.some(d => isSameDay(d, date));
-                    }}
-                    className="p-3 pointer-events-auto"
-                  />
-                </div>
-                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-primary inline-block" />
-                    Disponível
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-muted inline-block border" />
-                    Indisponível
-                  </span>
-                </div>
-              </div>
+              <Collapsible className="bg-card border border-border rounded-2xl mb-7">
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-6 cursor-pointer group">
+                  <div className="flex items-center gap-2">
+                    <CalendarCheck className="w-5 h-5 text-primary shrink-0" />
+                    <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      Datas disponíveis para locação
+                    </h2>
+                  </div>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="px-6 pb-6">
+                  <p className="text-sm text-muted-foreground text-center mb-4">
+                    Confira os dias disponíveis para reserva deste imóvel
+                  </p>
+                  <div className="flex justify-center">
+                    <div className="bg-background border border-border rounded-2xl shadow-lg p-2">
+                      <Calendar
+                        mode="single"
+                        locale={ptBR}
+                        modifiers={{
+                          available: allAvailableDays,
+                        }}
+                        modifiersClassNames={{
+                          available: "!bg-primary !text-primary-foreground !font-bold !rounded-full hover:!opacity-90",
+                        }}
+                        disabled={(date) => {
+                          if (date < new Date()) return true;
+                          return !allAvailableDays.some(d => isSameDay(d, date));
+                        }}
+                        className="p-3 pointer-events-auto"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-primary inline-block" />
+                      Disponível
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-muted inline-block border" />
+                      Indisponível
+                    </span>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             );
           })()}
 
