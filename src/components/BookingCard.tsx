@@ -1,7 +1,7 @@
 import mercadoPagoLogo from "@/assets/mercadopago-logo.png";
 import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Copy, Check, Upload, Users, QrCode, LogIn, LogOut, Loader2 } from "lucide-react";
+import { ChevronDown, Copy, Check, Upload, Users, QrCode, LogIn, LogOut, Loader2, UserCheck, PenLine } from "lucide-react";
 
 import { format, addDays, eachDayOfInterval, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -108,6 +108,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   const [numChildren, setNumChildren] = useState(0);
   const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
   const [fetchingCep, setFetchingCep] = useState(false);
+  const [guestFillMode, setGuestFillMode] = useState<"choose" | "existing" | "manual" | null>(null);
+  const hasAutoFilledData = responsible.cpf.length > 0;
 
   const formatCep = (value: string) => {
     let v = value.replace(/\D/g, "").slice(0, 8);
@@ -863,7 +865,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
       </Dialog>
 
       {/* ===== STEP 3: Guest Registration ===== */}
-      <Dialog open={step === "guest-details"} onOpenChange={(open) => { if (!open) setStep("idle"); }}>
+      <Dialog open={step === "guest-details"} onOpenChange={(open) => { if (!open) { setStep("idle"); setGuestFillMode(null); } }}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-center flex items-center justify-center gap-2">
@@ -871,9 +873,44 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-5">
-            {/* Responsável pela reserva */}
+            {/* Escolha: usar conta existente ou preencher manualmente */}
+            {hasAutoFilledData && guestFillMode === null && (
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-foreground text-center">Como deseja preencher os dados?</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setGuestFillMode("existing")}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-colors"
+                  >
+                    <UserCheck className="w-6 h-6 text-primary" />
+                    <span className="text-sm font-bold text-primary">Usar minha conta</span>
+                    <span className="text-[10px] text-muted-foreground">Dados já preenchidos</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setGuestFillMode("manual");
+                      setResponsible({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
+                    }}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-colors"
+                  >
+                    <PenLine className="w-6 h-6 text-muted-foreground" />
+                    <span className="text-sm font-bold text-foreground">Preencher manualmente</span>
+                    <span className="text-[10px] text-muted-foreground">Digitar os dados</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Responsável pela reserva - mostra quando não tem dados OU já escolheu */}
+            {(!hasAutoFilledData || guestFillMode !== null) && (
+            <>
             <div className="space-y-3">
-              <p className="text-sm font-bold text-foreground flex items-center gap-2">😎 Responsável pela reserva</p>
+              <p className="text-sm font-bold text-foreground flex items-center gap-2">
+                😎 Responsável pela reserva
+                {guestFillMode === "existing" && (
+                  <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">Auto-preenchido</span>
+                )}
+              </p>
               <div className="bg-muted/30 rounded-2xl p-4 space-y-3 border border-border">
                 <div className="space-y-1">
                   <Label className="text-xs">Nome completo</Label>
@@ -1044,6 +1081,9 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                   </div>
                 ))}
               </div>
+            )}
+
+            </>
             )}
 
             <button
