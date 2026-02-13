@@ -3,11 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Share2, Heart, Star, Home, ChevronRight, Sun, Moon, AlertTriangle, Phone, MessageCircle, ChevronDown, CalendarCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, eachDayOfInterval, isSameDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import resort1Image from "@/assets/resort-1.webp";
 import BookingCard, { BookingCardRef } from "@/components/BookingCard";
 import PricingPlans from "@/components/PricingPlans";
 import PhotoLightbox from "@/components/PhotoLightbox";
+import { Calendar } from "@/components/ui/calendar";
 import { useSelectorOptions } from "@/hooks/use-selector-options";
 import { getIconComponent } from "@/components/IconPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -412,26 +414,59 @@ const ResortDetail = () => {
             </p>
           </div>
 
-          {/* Available Dates Banner */}
-          {useAvailableDates && availableDates.length > 0 && (
-            <div className="rounded-2xl p-5 bg-primary/5 border border-primary/20 mb-7">
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <CalendarCheck className="w-5 h-5 text-primary" />
-                Datas Disponíveis
-              </h2>
-              <p className="text-xs text-muted-foreground mb-3">
-                Este apartamento está disponível apenas nos períodos abaixo:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {availableDates.map((d, i) => (
-                  <span key={i} className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-2 rounded-xl border border-primary/20">
-                    {format(new Date(d.start_date + "T12:00:00"), "dd/MM/yyyy")} → {format(new Date(d.end_date + "T12:00:00"), "dd/MM/yyyy")}
-                    {d.label && <span className="text-primary/70">· {d.label}</span>}
+          {/* Available Dates Calendar */}
+          {useAvailableDates && availableDates.length > 0 && (() => {
+            // Build array of all available days
+            const allAvailableDays: Date[] = [];
+            availableDates.forEach(d => {
+              const days = eachDayOfInterval({
+                start: new Date(d.start_date + "T12:00:00"),
+                end: new Date(d.end_date + "T12:00:00"),
+              });
+              allAvailableDays.push(...days);
+            });
+
+            return (
+              <div className="flex flex-col items-center mb-7">
+                <h2 className="text-lg font-extrabold text-foreground text-center mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  Escolha a data
+                </h2>
+                <p className="text-sm text-muted-foreground text-center mb-4">
+                  Selecione um dia disponível no calendário
+                </p>
+                <div className="bg-card border border-border rounded-2xl shadow-lg p-2">
+                  <Calendar
+                    mode="single"
+                    locale={ptBR}
+                    modifiers={{
+                      available: allAvailableDays,
+                    }}
+                    modifiersClassNames={{
+                      available: "!bg-primary !text-primary-foreground !font-bold !rounded-full hover:!opacity-90",
+                    }}
+                    disabled={(date) => {
+                      if (date < new Date()) return true;
+                      return !allAvailableDays.some(d => isSameDay(d, date));
+                    }}
+                    className="p-3 pointer-events-auto"
+                    classNames={{
+                      day_today: "bg-primary text-primary-foreground font-bold rounded-full",
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-primary inline-block" />
+                    Disponível
                   </span>
-                ))}
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-muted inline-block border" />
+                    Indisponível
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Gallery */}
           <h2 className="text-base font-bold text-foreground mb-4 mt-7" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
