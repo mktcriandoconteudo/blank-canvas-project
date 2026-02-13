@@ -375,6 +375,36 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   return (
     <>
       <div className="sticky top-6 bg-card border-2 border-primary/40 rounded-2xl p-6 shadow-xl shadow-primary/10 ring-1 ring-primary/10">
+        {/* Checklist de etapas */}
+        {selectedPlan && (
+          <div className="mb-5 space-y-2.5">
+            {[
+              { label: "Escolha as datas", done: !!checkIn && !!checkOut, active: !checkIn },
+              { label: "Quantidade de hóspedes", done: !!checkIn && !!checkOut && guests >= 1, active: !!checkIn && !!checkOut },
+              { label: "Finalizar reserva", done: false, active: !!checkIn && !!checkOut && guests >= 1 },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all",
+                  item.done
+                    ? "bg-primary text-primary-foreground"
+                    : item.active
+                      ? "border-2 border-primary text-primary"
+                      : "border-2 border-border text-muted-foreground"
+                )}>
+                  {item.done ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                </div>
+                <span className={cn(
+                  "text-sm font-medium transition-colors",
+                  item.done ? "text-primary" : item.active ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Price display */}
         <div className="mb-4">
           {selectedPlan ? (
