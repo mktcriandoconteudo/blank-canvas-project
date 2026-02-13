@@ -396,7 +396,7 @@ const ResortDetail = () => {
           <DynamicAmenities resortId={resortId} beds={resortBeds} guests={resortGuests} />
 
           {/* Description */}
-          <div className="rounded-2xl p-5 bg-muted border border-border">
+          <div className="rounded-2xl p-5 bg-muted border border-border mb-7">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Descrição
