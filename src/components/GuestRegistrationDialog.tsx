@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users } from "lucide-react";
+import { Users, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface AdultGuest { full_name: string; cpf: string; }
 interface ChildGuest { full_name: string; age: string; }
-interface ResponsibleInfo { rg: string; cpf: string; civil_status: string; street: string; number: string; cep: string; neighborhood: string; city: string; }
+interface ResponsibleInfo { rg: string; cpf: string; civil_status: string; street: string; number: string; cep: string; neighborhood: string; city: string; state: string; }
 
 const civilStatusOptions = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"];
 
@@ -27,7 +27,8 @@ interface Props {
 const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount, guestName, guestPhone, guestEmail, onSaved }: Props) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
-  const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "" });
+  const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
+  const [fetchingCep, setFetchingCep] = useState(false);
   const [numChildren, setNumChildren] = useState(0);
   const numAdults = Math.max(1, guestCount - numChildren);
   const [adults, setAdults] = useState<AdultGuest[]>(Array.from({ length: Math.max(1, guestCount) }, () => ({ full_name: "", cpf: "" })));
@@ -48,6 +49,43 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
       return arr.slice(0, n);
     });
   };
+
+  const formatPhone = (value: string) => {
+    let v = value.replace(/\D/g, "").slice(0, 11);
+    if (v.length > 6) v = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+    else if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+    else if (v.length > 0) v = `(${v}`;
+    return v;
+  };
+
+  const formatCep = (value: string) => {
+    let v = value.replace(/\D/g, "").slice(0, 8);
+    if (v.length > 5) v = `${v.slice(0, 5)}-${v.slice(5)}`;
+    return v;
+  };
+
+  const fetchAddressByCep = useCallback(async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, "");
+    if (cleanCep.length !== 8) return;
+    setFetchingCep(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await res.json();
+      if (!data.erro) {
+        setResponsible(p => ({
+          ...p,
+          street: data.logradouro || p.street,
+          neighborhood: data.bairro || p.neighborhood,
+          city: data.localidade || p.city,
+          state: data.uf || p.state,
+        }));
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setFetchingCep(false);
+    }
+  }, []);
 
   const handleSave = async () => {
     if (!responsible.cpf || !responsible.rg) {
@@ -148,28 +186,49 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
                 <Label className="text-xs">E-mail</Label>
                 <Input value={guestEmail} disabled className="opacity-60" />
               </div>
+
+              {/* CEP first - auto-fill address */}
               <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">CEP</Label>
+                  <div className="relative">
+                    <Input
+                      value={responsible.cep}
+                      onChange={e => {
+                        const formatted = formatCep(e.target.value);
+                        setResponsible(p => ({ ...p, cep: formatted }));
+                        if (formatted.replace(/\D/g, "").length === 8) {
+                          fetchAddressByCep(formatted);
+                        }
+                      }}
+                      placeholder="00000-000"
+                    />
+                    {fetchingCep && (
+                      <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-primary" />
+                    )}
+                  </div>
+                </div>
                 <div className="col-span-2 space-y-1">
                   <Label className="text-xs">Rua / Av</Label>
-                  <Input value={responsible.street} onChange={e => setResponsible(p => ({ ...p, street: e.target.value }))} placeholder="Nome da rua" />
+                  <Input value={responsible.street} onChange={e => setResponsible(p => ({ ...p, street: e.target.value }))} placeholder="Preenchido pelo CEP" />
                 </div>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Nº</Label>
                   <Input value={responsible.number} onChange={e => setResponsible(p => ({ ...p, number: e.target.value }))} placeholder="123" />
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">CEP</Label>
-                  <Input value={responsible.cep} onChange={e => setResponsible(p => ({ ...p, cep: e.target.value }))} placeholder="00000-000" />
-                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Bairro</Label>
-                  <Input value={responsible.neighborhood} onChange={e => setResponsible(p => ({ ...p, neighborhood: e.target.value }))} placeholder="Bairro" />
+                  <Input value={responsible.neighborhood} onChange={e => setResponsible(p => ({ ...p, neighborhood: e.target.value }))} placeholder="Preenchido pelo CEP" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Cidade</Label>
-                  <Input value={responsible.city} onChange={e => setResponsible(p => ({ ...p, city: e.target.value }))} placeholder="Cidade" />
+                  <Input value={responsible.city} onChange={e => setResponsible(p => ({ ...p, city: e.target.value }))} placeholder="Preenchido pelo CEP" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">UF</Label>
+                  <Input value={responsible.state} onChange={e => setResponsible(p => ({ ...p, state: e.target.value }))} placeholder="UF" maxLength={2} />
                 </div>
               </div>
             </div>
