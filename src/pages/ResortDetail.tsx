@@ -505,13 +505,15 @@ const ResortDetail = () => {
           {/* Informações Importantes */}
           <DynamicImportantInfo resortId={resortId} />
 
-          {/* Pricing Plans */}
-          <PricingPlans
-            resortId={resortId ?? undefined}
-            onSelectPlan={(plan) => {
-              bookingRef.current?.selectPlan(plan);
-            }}
-          />
+          {/* Pricing Plans - hidden when available dates mode is active */}
+          {!useAvailableDates && (
+            <PricingPlans
+              resortId={resortId ?? undefined}
+              onSelectPlan={(plan) => {
+                bookingRef.current?.selectPlan(plan);
+              }}
+            />
+          )}
         </div>
 
         {/* Booking Card + FAQ side by side on desktop */}
