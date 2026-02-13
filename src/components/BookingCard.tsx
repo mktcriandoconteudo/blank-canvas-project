@@ -137,29 +137,49 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   }, []);
 
   // Auth listener
+  const fillUserData = useCallback(async (session: any) => {
+    if (!session?.user) return;
+    const { data: profile } = await supabase.from("profiles").select("full_name, phone, contact_email").eq("user_id", session.user.id).maybeSingle();
+    if (profile?.full_name) setGuestName(profile.full_name);
+    if (profile?.phone) setGuestPhone(profile.phone);
+    setGuestEmail(profile?.contact_email || session.user.email || "");
+
+    // Auto-fill responsible data from last reservation
+    const { data: lastRes } = await supabase
+      .from("reservations")
+      .select("responsible_cpf, responsible_rg, responsible_civil_status, responsible_street, responsible_number, responsible_cep, responsible_neighborhood, responsible_city, responsible_state, guest_name, guest_phone")
+      .or(`guest_phone.eq.${profile?.phone || ""},guest_name.ilike.${profile?.full_name || ""}`)
+      .not("responsible_cpf", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lastRes) {
+      setResponsible(prev => ({
+        rg: lastRes.responsible_rg || prev.rg,
+        cpf: lastRes.responsible_cpf || prev.cpf,
+        civil_status: lastRes.responsible_civil_status || prev.civil_status,
+        street: lastRes.responsible_street || prev.street,
+        number: lastRes.responsible_number || prev.number,
+        cep: lastRes.responsible_cep || prev.cep,
+        neighborhood: lastRes.responsible_neighborhood || prev.neighborhood,
+        city: lastRes.responsible_city || prev.city,
+        state: lastRes.responsible_state || prev.state,
+      }));
+    }
+  }, []);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        supabase.from("profiles").select("full_name, phone").eq("user_id", session.user.id).maybeSingle().then(({ data }) => {
-          if (data?.full_name) setGuestName(data.full_name);
-          if (data?.phone) setGuestPhone(data.phone);
-          setGuestEmail(session.user.email || "");
-        });
-      }
+      if (session?.user) fillUserData(session);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        supabase.from("profiles").select("full_name, phone").eq("user_id", session.user.id).maybeSingle().then(({ data }) => {
-          if (data?.full_name) setGuestName(data.full_name);
-          if (data?.phone) setGuestPhone(data.phone);
-          setGuestEmail(session.user.email || "");
-        });
-      }
+      if (session?.user) fillUserData(session);
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fillUserData]);
 
   // Fetch blocked dates & payment config
   useEffect(() => {
