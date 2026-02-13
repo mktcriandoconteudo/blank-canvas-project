@@ -109,23 +109,30 @@ const DynamicImportantInfo = ({ resortId }: { resortId: string | null }) => {
   const { options } = useSelectorOptions("important_info", resortId || undefined);
   if (options.length === 0) return null;
   return (
-    <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 mb-7">
-      <h2 className="text-base font-bold text-destructive flex items-center gap-2 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        <AlertTriangle className="w-5 h-5" />
-        Informações Importantes
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-3">
-        {options.map(o => {
-          const Icon = getIconComponent(o.icon_name);
-          return (
-            <div key={o.id} className="flex items-start gap-2.5">
-              {Icon && <Icon className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
-              <span className="text-sm text-foreground leading-tight">{o.label}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <Collapsible className="bg-destructive/5 border border-destructive/20 rounded-2xl mb-7">
+      <CollapsibleTrigger className="flex items-center justify-between w-full p-6 cursor-pointer group">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
+          <h2 className="text-base font-bold text-destructive" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Clique aqui para ver as informações importantes
+          </h2>
+        </div>
+        <ChevronDown className="w-5 h-5 text-destructive/60 transition-transform group-data-[state=open]:rotate-180" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-6 pb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-3">
+          {options.map(o => {
+            const Icon = getIconComponent(o.icon_name);
+            return (
+              <div key={o.id} className="flex items-start gap-2.5">
+                {Icon && <Icon className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
+                <span className="text-sm text-foreground leading-tight">{o.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
