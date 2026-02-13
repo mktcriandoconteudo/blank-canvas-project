@@ -1,0 +1,1 @@
+ALTER TABLE public.reservations ADD COLUMN responsible_state text;

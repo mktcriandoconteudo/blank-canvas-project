@@ -275,6 +275,7 @@ export type Database = {
           responsible_neighborhood: string | null
           responsible_number: string | null
           responsible_rg: string | null
+          responsible_state: string | null
           responsible_street: string | null
           total_nights: number
           total_price: number
@@ -304,6 +305,7 @@ export type Database = {
           responsible_neighborhood?: string | null
           responsible_number?: string | null
           responsible_rg?: string | null
+          responsible_state?: string | null
           responsible_street?: string | null
           total_nights: number
           total_price: number
@@ -333,6 +335,7 @@ export type Database = {
           responsible_neighborhood?: string | null
           responsible_number?: string | null
           responsible_rg?: string | null
+          responsible_state?: string | null
           responsible_street?: string | null
           total_nights?: number
           total_price?: number

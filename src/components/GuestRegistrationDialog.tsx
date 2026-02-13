@@ -103,7 +103,8 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
         responsible_cep: responsible.cep,
         responsible_neighborhood: responsible.neighborhood,
         responsible_city: responsible.city,
-      }).eq("id", reservationId);
+        responsible_state: responsible.state,
+      } as any).eq("id", reservationId);
 
       const adultRows = adults.filter(a => a.full_name.trim()).map(a => ({
         reservation_id: reservationId,
