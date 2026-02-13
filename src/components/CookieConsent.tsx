@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Cookie } from "lucide-react";
+import { Cookie, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CookieConsent = () => {
@@ -33,8 +33,15 @@ const CookieConsent = () => {
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
           className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50"
         >
-          <div className="bg-card border border-border rounded-2xl p-5 shadow-lg">
-            <div className="flex items-start gap-3 mb-3">
+          <div className="bg-card border border-border rounded-2xl p-5 shadow-lg relative">
+            <button
+              onClick={() => setVisible(false)}
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Fechar"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-start gap-3 mb-3 pr-5">
               <Cookie className="w-6 h-6 text-primary shrink-0 mt-0.5" />
               <div>
                 <h3
