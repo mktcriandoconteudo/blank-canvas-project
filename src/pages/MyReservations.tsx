@@ -81,6 +81,7 @@ const MyReservations = () => {
       .from("reservations")
       .select("*")
       .eq("guest_email", email)
+      .in("payment_status", ["pending", "approved"])
       .order("created_at", { ascending: false });
 
     if (resData && resData.length > 0) {
