@@ -249,6 +249,15 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
   }));
 
   const isDateBlocked = (date: Date) => blockedDates.some(blocked => isSameDay(date, blocked));
+  const isCheckInBlocked = (date: Date) => {
+    if (date < new Date()) return true;
+    if (isDateBlocked(date)) return true;
+    if (selectedPlan) {
+      const periodDates = eachDayOfInterval({ start: date, end: addDays(date, selectedPlan.total_nights - 1) });
+      return periodDates.some(d => blockedDates.some(b => isSameDay(d, b)));
+    }
+    return false;
+  };
   const formatDate = (date: Date | undefined) => date ? format(date, "dd/MM/yyyy") : "Selecionar";
   const totalPrice = selectedPlan ? selectedPlan.price_per_night * selectedPlan.total_nights : null;
   const pixDiscountedPrice = totalPrice && paymentConfig?.pix_discount_percent
@@ -499,7 +508,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                       setCheckInOpen(false);
                     }
                   }}
-                  disabled={(date) => date < new Date() || isDateBlocked(date)}
+                  disabled={isCheckInBlocked}
                   modifiers={{ blocked: blockedDates }}
                   modifiersClassNames={{ blocked: "bg-destructive/20 text-destructive line-through" }}
                   initialFocus
