@@ -181,18 +181,31 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     return () => subscription.unsubscribe();
   }, [fillUserData]);
 
-  // Fetch blocked dates & payment config
+  // Fetch blocked dates, reserved dates & payment config
   useEffect(() => {
     if (!resortId) return;
     const fetchData = async () => {
-      const [blockedRes, payRes, resortRes] = await Promise.all([
+      const [blockedRes, reservedRes, payRes, resortRes] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").eq("resort_id", resortId),
+        supabase.from("reservations").select("check_in, check_out").eq("resort_id", resortId).in("payment_status", ["approved", "pending"]),
         supabase.from("resort_payment_config").select("payment_method, pix_key, pix_name, pix_bank, whatsapp, pix_discount_percent, checkin_time, checkout_time").eq("resort_id", resortId).maybeSingle(),
         supabase.from("resorts").select("max_guests").eq("id", resortId).maybeSingle(),
       ]);
+
+      const allBlocked: Date[] = [];
       if (blockedRes.data) {
-        setBlockedDates(blockedRes.data.map(d => new Date(d.blocked_date + "T12:00:00")));
+        allBlocked.push(...blockedRes.data.map(d => new Date(d.blocked_date + "T12:00:00")));
       }
+      if (reservedRes.data) {
+        for (const r of reservedRes.data) {
+          const days = eachDayOfInterval({
+            start: new Date(r.check_in + "T12:00:00"),
+            end: addDays(new Date(r.check_out + "T12:00:00"), -1),
+          });
+          allBlocked.push(...days);
+        }
+      }
+      setBlockedDates(allBlocked);
       if (payRes.data) setPaymentConfig(payRes.data);
       if (resortRes.data?.max_guests) setMaxGuests(resortRes.data.max_guests);
     };
