@@ -23,6 +23,7 @@ const AdminClients = () => {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ profileId: string; reservationIds: string[]; name: string } | null>(null);
+  const [deleteReservationTarget, setDeleteReservationTarget] = useState<{ id: string; guestName: string } | null>(null);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -98,6 +99,30 @@ const AdminClients = () => {
     },
     onError: (err: any) => {
       toast({ title: "Erro ao excluir", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const deleteReservation = useMutation({
+    mutationFn: async (reservationId: string) => {
+      const { error: gErr } = await supabase
+        .from("reservation_guests")
+        .delete()
+        .eq("reservation_id", reservationId);
+      if (gErr) throw gErr;
+      const { error: rErr } = await supabase
+        .from("reservations")
+        .delete()
+        .eq("id", reservationId);
+      if (rErr) throw rErr;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-clients-reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-clients-guests"] });
+      toast({ title: "Reserva excluída! A data foi liberada. 🗑️" });
+      setDeleteReservationTarget(null);
+    },
+    onError: (err: any) => {
+      toast({ title: "Erro ao excluir reserva", description: err.message, variant: "destructive" });
     },
   });
 
@@ -326,6 +351,13 @@ const AdminClients = () => {
                                     >
                                       <Printer className="w-4 h-4 text-muted-foreground" />
                                     </button>
+                                    <button
+                                      onClick={() => setDeleteReservationTarget({ id: r.id, guestName: r.guest_name || "esta reserva" })}
+                                      className="p-1 rounded-lg hover:bg-destructive/10 transition-colors"
+                                      title="Excluir reserva"
+                                    >
+                                      <Trash2 className="w-4 h-4 text-destructive" />
+                                    </button>
                                   </div>
                                 </div>
 
@@ -406,6 +438,28 @@ const AdminClients = () => {
               disabled={deleteClient.isPending}
             >
               {deleteClient.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete single reservation dialog */}
+      <AlertDialog open={!!deleteReservationTarget} onOpenChange={(open) => !open && setDeleteReservationTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir reserva?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a reserva de <strong>{deleteReservationTarget?.guestName}</strong>? A data será liberada automaticamente. Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteReservationTarget && deleteReservation.mutate(deleteReservationTarget.id)}
+              disabled={deleteReservation.isPending}
+            >
+              {deleteReservation.isPending ? "Excluindo..." : "Excluir Reserva"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
