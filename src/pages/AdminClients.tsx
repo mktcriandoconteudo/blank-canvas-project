@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, Mail, Phone, User, Calendar, ChevronDown, ChevronUp, MapPin, CreditCard, Users, Home, Trash2, Printer, Eye, Banknote } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ const AdminClients = () => {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ profileId: string; reservationIds: string[]; name: string } | null>(null);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -308,16 +310,14 @@ const AdminClients = () => {
                                   <span className="text-muted-foreground text-xs">R$ {Number(r.total_price).toFixed(2)}</span>
                                   <div className="flex items-center gap-1 ml-auto">
                                     {r.receipt_url && (
-                                      <a
-                                        href={r.receipt_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                      <button
+                                        onClick={() => setReceiptUrl(r.receipt_url)}
                                         className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-xs font-medium text-primary"
                                         title="Ver comprovante"
                                       >
                                         <Eye className="w-3.5 h-3.5" />
                                         Comprovante
-                                      </a>
+                                      </button>
                                     )}
                                     <button
                                       onClick={() => handlePrintReservation(r)}
@@ -410,6 +410,26 @@ const AdminClients = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Receipt viewer dialog */}
+      <Dialog open={!!receiptUrl} onOpenChange={(open) => !open && setReceiptUrl(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" /> Comprovante de Pagamento
+            </DialogTitle>
+          </DialogHeader>
+          {receiptUrl && (
+            receiptUrl.endsWith(".pdf") ? (
+              <iframe src={receiptUrl} className="w-full h-[70vh] rounded-lg border border-border" />
+            ) : (
+              <div className="flex items-center justify-center overflow-auto max-h-[70vh]">
+                <img src={receiptUrl} alt="Comprovante" className="max-w-full max-h-[70vh] rounded-lg object-contain" />
+              </div>
+            )
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
