@@ -78,7 +78,7 @@ const DynamicCondoFeatures = ({ resortId }: { resortId: string | null }) => {
   const { options } = useSelectorOptions("condo_feature", resortId || undefined);
   if (options.length === 0) return null;
   return (
-    <Collapsible defaultOpen className="bg-card border border-border rounded-2xl mb-7">
+    <Collapsible className="bg-card border border-border rounded-2xl mb-7">
       <CollapsibleTrigger className="flex items-center justify-between w-full p-6 cursor-pointer group">
         <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           O que esse lugar oferece
