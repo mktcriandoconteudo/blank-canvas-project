@@ -424,17 +424,26 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           )}
         </div>
 
-        <div className="border overflow-hidden mb-3 transition-all" style={{ borderRadius: 30, borderColor: !checkIn && selectedPlan ? 'hsl(var(--primary))' : undefined, boxShadow: !checkIn && selectedPlan ? '0 0 0 1px hsl(var(--primary) / 0.3), 0 0 12px hsl(var(--primary) / 0.1))' : undefined }}>
-          <div className={cn("flex divide-x divide-border", !checkIn && selectedPlan && "divide-primary/30")}>
+        <div className={cn(
+          "border overflow-hidden mb-3 transition-all",
+          !checkIn && selectedPlan
+            ? "border-primary ring-2 ring-primary/20 shadow-[0_0_16px_hsl(var(--primary)/0.15)]"
+            : !!checkIn && !guestsChosen && selectedPlan
+              ? "border-border"
+              : "border-border"
+        )} style={{ borderRadius: 30 }}>
+          <div className="flex divide-x divide-border">
             {/* Check-in */}
             <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
               <PopoverTrigger asChild>
                 <button className={cn(
-                  "flex-1 p-3 text-left transition-colors cursor-pointer",
-                  !checkIn && selectedPlan ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/50"
+                  "flex-1 p-3 text-left transition-all cursor-pointer",
+                  !checkIn && selectedPlan
+                    ? "bg-primary/10 hover:bg-primary/15 animate-pulse"
+                    : "hover:bg-muted/50"
                 )}>
-                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Check-in</p>
-                  <p className={cn("text-sm mt-0.5", !checkIn && selectedPlan ? "text-primary font-semibold" : "text-foreground")}>{checkIn ? formatDate(checkIn) : "Selecionar"}</p>
+                  <p className={cn("text-[10px] font-bold uppercase tracking-wide", !checkIn && selectedPlan ? "text-primary" : "text-foreground")}>Check-in</p>
+                  <p className={cn("text-sm mt-0.5", !checkIn && selectedPlan ? "text-primary font-bold" : "text-foreground")}>{checkIn ? formatDate(checkIn) : "👆 Toque aqui"}</p>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-card z-50" align="start">
@@ -504,19 +513,22 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           {/* Guests */}
           <div className={cn(
             "border-t transition-all",
-            !!checkIn && !guestsChosen
-              ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+            !!checkIn && !guestsChosen && selectedPlan
+              ? "border-primary bg-primary/10 ring-2 ring-primary/20"
               : "border-border"
           )}>
             <button
               onClick={() => setGuestsOpen(!guestsOpen)}
-              className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer"
+              className={cn(
+                "w-full p-3 flex items-center justify-between transition-colors cursor-pointer",
+                !!checkIn && !guestsChosen && selectedPlan ? "hover:bg-primary/15" : "hover:bg-muted/50"
+              )}
             >
               <div>
-                <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Hóspedes</p>
-                <p className="text-sm text-foreground mt-0.5">{guests} {guests === 1 ? "hóspede" : "hóspedes"}</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-wide", !!checkIn && !guestsChosen && selectedPlan ? "text-primary" : "text-foreground")}>Hóspedes</p>
+                <p className={cn("text-sm mt-0.5", !!checkIn && !guestsChosen && selectedPlan ? "text-primary font-bold" : "text-foreground")}>{guestsChosen ? `${guests} ${guests === 1 ? "hóspede" : "hóspedes"}` : "👆 Escolha aqui"}</p>
               </div>
-              <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", guestsOpen && "rotate-180")} />
+              <ChevronDown className={cn("w-4 h-4 transition-transform", !!checkIn && !guestsChosen && selectedPlan ? "text-primary" : "text-muted-foreground", guestsOpen && "rotate-180")} />
             </button>
             {guestsOpen && (
               <div className="border-t border-border max-h-40 overflow-y-auto">
