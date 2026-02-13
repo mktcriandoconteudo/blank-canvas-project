@@ -25,6 +25,7 @@ interface Props {
 }
 
 const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount, guestName, guestPhone, guestEmail, onSaved }: Props) => {
+  // CEP auto-fill + phone mask enabled
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [responsible, setResponsible] = useState<ResponsibleInfo>({ rg: "", cpf: "", civil_status: "", street: "", number: "", cep: "", neighborhood: "", city: "", state: "" });
