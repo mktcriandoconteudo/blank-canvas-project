@@ -271,8 +271,19 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     ? totalPrice * (1 - paymentConfig.pix_discount_percent / 100)
     : totalPrice;
 
-  const handleReserve = () => {
-    if (!user) { setShowAuthModal(true); return; }
+  const handleReserve = async () => {
+    // Double-check session directly to avoid race conditions with state
+    if (!user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        fillUserData(session);
+        setStep("payment-method");
+        return;
+      }
+      setShowAuthModal(true);
+      return;
+    }
     setStep("payment-method");
   };
 
