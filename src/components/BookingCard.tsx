@@ -474,7 +474,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         {(selectedPlan || resortPricePerNight) && (
           <div className="mb-5 space-y-2.5">
             {[
-              { label: "Escolha a data de check-in ou um plano acima", done: checkInChosen, active: !checkInChosen },
+              { label: useAvailableDates ? "Escolha a data de check-in" : "Escolha a data de check-in ou um plano acima", done: checkInChosen, active: !checkInChosen },
               ...(!selectedPlan ? [{ label: "Escolha a data de check-out", done: !!checkOut && checkInChosen, active: checkInChosen && !checkOut }] : []),
               { label: "Quantidade de hóspedes", done: guestsChosen, active: checkInChosen && (selectedPlan ? true : !!checkOut) && !guestsChosen },
             ].map((item, i) => (
@@ -613,15 +613,25 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                         toast({ title: "Período indisponível", description: "Há datas bloqueadas neste intervalo.", variant: "destructive" });
                         return;
                       }
+                      if (useAvailableDates) {
+                        const hasUnavailable = days.some(d => !availableDays.some(ad => isSameDay(ad, d)));
+                        if (hasUnavailable) {
+                          toast({ title: "Período indisponível", description: "Há datas não disponíveis neste intervalo.", variant: "destructive" });
+                          return;
+                        }
+                      }
                       setCheckOut(date);
                       setCheckOutOpen(false);
                     }}
                     disabled={(date) => {
                       if (date <= (checkIn || new Date())) return true;
-                      // Only block if nights between check-in and checkout-1 have blocked dates
                       if (!checkIn) return false;
                       const nights = eachDayOfInterval({ start: checkIn, end: addDays(date, -1) });
-                      return nights.some(d => blockedDates.some(b => isSameDay(d, b)));
+                      if (nights.some(d => blockedDates.some(b => isSameDay(d, b)))) return true;
+                      if (useAvailableDates) {
+                        return nights.some(d => !availableDays.some(ad => isSameDay(ad, d)));
+                      }
+                      return false;
                     }}
                     modifiers={{ blocked: blockedDates }}
                     modifiersClassNames={{ blocked: "bg-destructive/20 text-destructive line-through" }}
