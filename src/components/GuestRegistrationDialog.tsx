@@ -236,7 +236,8 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
             </div>
           </div>
 
-          {/* Crianças selector */}
+          {/* Crianças selector - só aparece se 2+ hóspedes */}
+          {guestCount >= 2 && (
           <div className="bg-muted/30 rounded-2xl p-4 border border-border space-y-2">
             <Label className="text-xs font-semibold">Quantas crianças no grupo?</Label>
             <div className="flex gap-2">
@@ -254,6 +255,7 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
               ))}
             </div>
           </div>
+          )}
 
           {/* Adultos */}
           <div className="space-y-3">
