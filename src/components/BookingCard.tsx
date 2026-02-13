@@ -456,7 +456,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
         {(selectedPlan || resortPricePerNight) && (
           <div className="mb-5 space-y-2.5">
             {[
-              { label: "Escolha a data de check-in", done: checkInChosen, active: !checkInChosen },
+              { label: "Escolha a data de check-in ou um plano acima", done: checkInChosen, active: !checkInChosen },
               ...(!selectedPlan ? [{ label: "Escolha a data de check-out", done: !!checkOut && checkInChosen, active: checkInChosen && !checkOut }] : []),
               { label: "Quantidade de hóspedes", done: guestsChosen, active: checkInChosen && (selectedPlan ? true : !!checkOut) && !guestsChosen },
             ].map((item, i) => (
