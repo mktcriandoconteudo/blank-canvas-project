@@ -321,9 +321,9 @@ const AdminClients = () => {
                                   </span>
                                   <span className={cn(
                                     "text-xs px-2.5 py-1 rounded-full font-bold",
-                                    r.payment_status === "approved" ? "bg-white text-emerald-600 border border-emerald-300 shadow-sm" : "bg-destructive/10 text-destructive"
+                                    r.payment_status === "approved" ? "bg-emerald-500 text-white shadow-sm" : "bg-destructive/10 text-destructive"
                                   )}>
-                                    {r.payment_status === "approved" ? "✅ Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
+                                    {r.payment_status === "approved" ? "Pago" : r.payment_status === "pending" ? "Pendente" : r.payment_status}
                                   </span>
                                   <span className={cn(
                                     "text-xs px-2 py-0.5 rounded-full font-medium",
