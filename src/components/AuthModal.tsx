@@ -101,7 +101,10 @@ const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => {
             <Label className="text-xs">Nome completo</Label>
             <Input
               value={fullName}
-              onChange={e => setFullName(e.target.value)}
+              onChange={e => {
+                const capitalized = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
+                setFullName(capitalized);
+              }}
               placeholder="Seu nome"
             />
           </div>
