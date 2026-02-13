@@ -147,18 +147,15 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
     if (profile?.phone) setGuestPhone(profile.phone);
     setGuestEmail(profile?.contact_email || session.user.email || "");
 
-    // Auto-fill responsible data from last reservation
-    const phoneFilter = profile?.phone ? `guest_phone.eq.${profile.phone}` : null;
-    const nameFilter = profile?.full_name ? `guest_name.ilike.%${profile.full_name}%` : null;
-    const orFilter = [phoneFilter, nameFilter].filter(Boolean).join(",");
-
-    if (!orFilter) return;
+    // Auto-fill responsible data from last reservation using name match
+    if (!profile?.full_name) return;
 
     const { data: lastRes } = await supabase
       .from("reservations")
       .select("responsible_cpf, responsible_rg, responsible_civil_status, responsible_street, responsible_number, responsible_cep, responsible_neighborhood, responsible_city, responsible_state")
-      .or(orFilter)
+      .ilike("guest_name", `%${profile.full_name.trim()}%`)
       .not("responsible_cpf", "is", null)
+      .not("responsible_cpf", "eq", "")
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
