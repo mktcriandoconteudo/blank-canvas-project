@@ -874,7 +874,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
           </DialogHeader>
           <div className="space-y-5">
             {/* Escolha: usar conta existente ou preencher manualmente */}
-            {hasAutoFilledData && guestFillMode === null && (
+            {user && guestFillMode === null && (
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-foreground text-center">Como deseja preencher os dados?</p>
                 <div className="grid grid-cols-2 gap-3">
@@ -884,7 +884,7 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
                   >
                     <UserCheck className="w-6 h-6 text-primary" />
                     <span className="text-sm font-bold text-primary">Usar minha conta</span>
-                    <span className="text-[10px] text-muted-foreground">Dados já preenchidos</span>
+                    <span className="text-[10px] text-muted-foreground">Preencher automaticamente</span>
                   </button>
                   <button
                     onClick={() => {
@@ -901,8 +901,8 @@ const BookingCard = forwardRef<BookingCardRef, BookingCardProps>(({ resortId }, 
               </div>
             )}
 
-            {/* Responsável pela reserva - mostra quando não tem dados OU já escolheu */}
-            {(!hasAutoFilledData || guestFillMode !== null) && (
+            {/* Responsável pela reserva - mostra quando escolheu uma opção */}
+            {guestFillMode !== null && (
             <>
             <div className="space-y-3">
               <p className="text-sm font-bold text-foreground flex items-center gap-2">
