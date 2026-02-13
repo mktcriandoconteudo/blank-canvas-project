@@ -210,16 +210,6 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
                     )}
                   </div>
                 </div>
-                <div className="col-span-2 space-y-1">
-                  <Label className="text-xs">Rua / Av</Label>
-                  <Input value={responsible.street} onChange={e => setResponsible(p => ({ ...p, street: e.target.value }))} placeholder="Preenchido pelo CEP" />
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Nº</Label>
-                  <Input value={responsible.number} onChange={e => setResponsible(p => ({ ...p, number: e.target.value }))} placeholder="123" />
-                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Bairro</Label>
                   <Input value={responsible.neighborhood} onChange={e => setResponsible(p => ({ ...p, neighborhood: e.target.value }))} placeholder="Preenchido pelo CEP" />
@@ -227,6 +217,16 @@ const GuestRegistrationDialog = ({ open, onOpenChange, reservationId, guestCount
                 <div className="space-y-1">
                   <Label className="text-xs">Cidade</Label>
                   <Input value={responsible.city} onChange={e => setResponsible(p => ({ ...p, city: e.target.value }))} placeholder="Preenchido pelo CEP" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                <div className="col-span-2 space-y-1">
+                  <Label className="text-xs">Rua / Av</Label>
+                  <Input value={responsible.street} onChange={e => setResponsible(p => ({ ...p, street: e.target.value }))} placeholder="Preenchido pelo CEP" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Nº</Label>
+                  <Input value={responsible.number} onChange={e => setResponsible(p => ({ ...p, number: e.target.value }))} placeholder="123" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">UF</Label>
